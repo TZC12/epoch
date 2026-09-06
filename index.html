@@ -14,7 +14,7 @@
 <meta name="x-supabase-url" content="__SUPABASE_URL__" />
 <meta name="x-supabase-anon" content="__SUPABASE_ANON_KEY__" />
 <!-- supabase-js -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/sb.min.js"></script>
 <style>
 /* ══════════════════════════════════════════════════════════════════
    Epoch — A personal system for becoming.
@@ -2542,7 +2542,7 @@ function readEnv() {
   return { url: u, key: k };
 }
 
-let supabase    = null;
+let sb    = null;
 let currentUser = null;
 let saveTimer   = null;
 
@@ -2563,32 +2563,32 @@ function _localLoad() {
 }
 function save() {
   _localSave();
-  if (!supabase || !currentUser) return;
+  if (!sb || !currentUser) return;
   // 防抖：800ms 内多次变更合并为一次网络写
   clearTimeout(saveTimer);
   saveTimer = setTimeout(_cloudSave, 800);
 }
 async function _cloudSave() {
-  if (!supabase || !currentUser) return;
+  if (!sb || !currentUser) return;
   try {
     const payload = JSON.stringify(state);
-    const { error } = await supabase.from('user_settings').upsert(
+    const { error } = await sb.from('user_settings').upsert(
       { user_id: currentUser.id, key: STATE_KEY, value: payload, updated_at: new Date().toISOString() },
       { onConflict: 'user_id,key' }
     );
-    if (error) console.warn('[supabase] save failed:', error.message);
-  } catch (e) { console.warn('[supabase] save exception:', e); }
+    if (error) console.warn('[sb] save failed:', error.message);
+  } catch (e) { console.warn('[sb] save exception:', e); }
 }
 async function _cloudLoad() {
-  if (!supabase || !currentUser) return false;
+  if (!sb || !currentUser) return false;
   try {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('user_settings')
       .select('value,updated_at')
       .eq('user_id', currentUser.id)
       .eq('key', STATE_KEY)
       .maybeSingle();
-    if (error) { console.warn('[supabase] load failed:', error.message); return false; }
+    if (error) { console.warn('[sb] load failed:', error.message); return false; }
     if (!data || !data.value) return false;
     const remote = JSON.parse(data.value);
     ['tasks','secondary','habits','inbox','week','upcoming','unscheduled','goals','routines','health',
@@ -2596,14 +2596,14 @@ async function _cloudLoad() {
       if (remote[k] !== undefined) state[k] = remote[k];
     });
     return true;
-  } catch (e) { console.warn('[supabase] load exception:', e); return false; }
+  } catch (e) { console.warn('[sb] load exception:', e); return false; }
 }
 
 function resetState() {
   try { localStorage.removeItem(PERSIST_KEY); } catch (_) {}
-  if (supabase && currentUser) {
+  if (sb && currentUser) {
     // 异步清空云端 state.full；其余表保留行结构以备恢复
-    supabase.from('user_settings').delete()
+    sb.from('user_settings').delete()
       .eq('user_id', currentUser.id)
       .eq('key', STATE_KEY)
       .then(()=>{}).catch(()=>{});
@@ -2614,7 +2614,7 @@ function resetState() {
 function resetDemo() { resetState(); }
 
 async function load() {
-  if (supabase && currentUser) {
+  if (sb && currentUser) {
     const ok = await _cloudLoad();
     if (ok) { _localSave(); return; }
     // 远程为空：把本地状态首次上传
@@ -2919,7 +2919,7 @@ function _showAuthScreen(errMsg) {
     const pwd   = $('#auth-pwd').value;
     if (!email || !pwd) { $('#auth-err').textContent = '请输入邮箱和密码'; return; }
     $('#auth-err').textContent = '登录中…';
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password: pwd });
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pwd });
     if (error) { $('#auth-err').textContent = error.message; return; }
     currentUser = data.user;
     await load();
@@ -2931,14 +2931,14 @@ function _showAuthScreen(errMsg) {
     if (!email || !pwd) { $('#auth-err').textContent = '请输入邮箱和密码'; return; }
     if (pwd.length < 8)  { $('#auth-err').textContent = '密码至少 8 位'; return; }
     $('#auth-err').textContent = '创建账号中…';
-    const { data, error } = await supabase.auth.signUp({ email, password: pwd });
+    const { data, error } = await sb.auth.signUp({ email, password: pwd });
     if (error) { $('#auth-err').textContent = error.message; return; }
     if (data.session) { currentUser = data.user; await load(); boot(); }
     else $('#auth-err').textContent = '已发送验证邮件，请查收并点击链接激活。';
   };
   $('#auth-apple').onclick = async () => {
     $('#auth-err').textContent = 'Apple 登录跳转中…';
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await sb.auth.signInWithOAuth({
       provider: 'apple',
       options: { redirectTo: location.origin + location.pathname },
     });
@@ -2948,7 +2948,7 @@ function _showAuthScreen(errMsg) {
     ev.preventDefault();
     const email = $('#auth-email').value.trim();
     if (!email) { $('#auth-err').textContent = '请先填邮箱，再点忘记密码'; return; }
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
       redirectTo: location.origin + location.pathname,
     });
     $('#auth-err').textContent = error ? error.message : '重置链接已发送到你的邮箱。';
@@ -2959,27 +2959,27 @@ async function boot() {
   // 1) 初始化 Supabase（构建时 inject.mjs 替换占位符；本地开发可能是 null）
   const env = readEnv();
   if (env && window.supabase && window.supabase.createClient) {
-    supabase = window.supabase.createClient(env.url, env.key, {
+    sb = window.supabase.createClient(env.url, env.key, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
     });
   } else {
-    console.info('[epoch] supabase env not configured; running offline-only');
+    console.info('[epoch] sb env not configured; running offline-only');
   }
 
   // 2) 读取已有会话
-  if (supabase) {
+  if (sb) {
     try {
-      const { data } = await supabase.auth.getSession();
+      const { data } = await sb.auth.getSession();
       currentUser = data?.session?.user || null;
-      supabase.auth.onAuthStateChange((_ev, session) => {
+      sb.auth.onAuthStateChange((_ev, session) => {
         const newUser = session?.user || null;
         if (newUser && !currentUser) { currentUser = newUser; boot(); }
       });
-    } catch (e) { console.warn('[supabase] session check failed:', e); }
+    } catch (e) { console.warn('[sb] session check failed:', e); }
   }
 
   // 3) 未登录 → 登录屏
-  if (supabase && !currentUser) {
+  if (sb && !currentUser) {
     _showAuthScreen();
     // 占位渲染：登录状态下只显示登录屏，主 tab 隐藏
     return;
@@ -3164,7 +3164,7 @@ async function boot() {
 
 // 登出按钮（绑定一次即可；重复绑定有 last-wins 行为）
 async function signOut() {
-  if (supabase) await supabase.auth.signOut();
+  if (sb) await sb.auth.signOut();
   try { localStorage.removeItem(PERSIST_KEY); } catch (_) {}
   currentUser = null;
   location.reload();
