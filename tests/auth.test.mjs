@@ -37,12 +37,11 @@ t('登录按钮存在', d.querySelector('#auth-signin')?.textContent.trim() === 
 t('<title> 为 Epoch', d.title === 'Epoch');
 t('无 · 时 残留于标题', !d.title.includes('时'));
 
-console.log('— 社交登录：内嵌图标按钮 —');
-const soc = d.querySelectorAll('.auth-soc');
-t('社交登录为图标按钮（2 个）', soc.length === 2);
-t('Apple 按钮内嵌 SVG', !!d.querySelector('#auth-apple svg'));
-t('Google 按钮内嵌 SVG', !!d.querySelector('#auth-google svg'));
-t('图标按钮无文字（icon-only）', [...soc].every(b => b.textContent.trim() === ''));
+console.log('— 社交登录按钮已移除 —');
+t('无社交登录按钮（.auth-soc 不存在）', d.querySelectorAll('.auth-soc').length === 0);
+t('无 or continue with 分隔线', !d.querySelector('.auth-div'));
+t('Apple 按钮不存在', !d.querySelector('#auth-apple'));
+t('Google 按钮不存在', !d.querySelector('#auth-google'));
 
 console.log('— 视图切换 —');
 t('初始为登录视图', viewOn('login'));
