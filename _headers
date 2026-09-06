@@ -15,8 +15,7 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   CSP：注意
     - script-src 加 'unsafe-inline' 是为了兼容 index.html 顶部
       window.__SUPABASE_URL__ 注入块；之后如果全部外联 JS，可移除。
-    - esm.sh 仅用于 @supabase/supabase-js@2 单个依赖，可按需收紧到
-      https://esm.sh/@supabase。
+    - cdn.jsdelivr.net 仅用于 @supabase/supabase-js@2 的 UMD 包。
     - frame-src 加 *.supabase.co 是给 Apple OAuth 回调留位。
 */
-Content-Security-Policy: default-src 'self'; connect-src 'self' https://*.supabase.co https://esm.sh; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self' 'unsafe-inline' https://esm.sh; frame-src https://*.supabase.co; base-uri 'self'; form-action 'self' https://*.supabase.co;
+Content-Security-Policy: default-src 'self'; connect-src 'self' https://*.supabase.co https://cdn.jsdelivr.net; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; frame-src https://*.supabase.co; base-uri 'self'; form-action 'self' https://*.supabase.co;
