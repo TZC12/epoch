@@ -1,0 +1,16 @@
+{
+  "libraryName": "ledgerix",
+  "schemaVersion": 2,
+  "productSignals": {
+    "pageNames": ["Revenue Overview", "AI Assistant", "Sales Forecast", "Cash Flow", "Transactions"],
+    "dominantCopy": ["Revenue Overview", "AI Assistant", "Sales Forecast", "Cash Flow", "Export Report"]
+  },
+  "components": [
+    { "slug": "button", "name": "Button", "category": "action", "sourceKind": "from-scratch", "confidence": "medium", "variantCount": 4, "priorityHint": "high", "keyInsightSeed": "High-contrast green primary button that signals action and growth" },
+    { "slug": "card", "name": "Card", "category": "container", "sourceKind": "from-scratch", "confidence": "medium", "variantCount": 3, "priorityHint": "high", "keyInsightSeed": "Blocky metric cards with hairline borders and strong title contrast" },
+    { "slug": "table", "name": "Table", "category": "data-display", "sourceKind": "from-scratch", "confidence": "medium", "variantCount": 3, "priorityHint": "high", "keyInsightSeed": "Scannable compact transaction rows with inline status affordances" },
+    { "slug": "chart", "name": "Chart", "category": "data-display", "sourceKind": "from-scratch", "confidence": "medium", "variantCount": 3, "priorityHint": "high", "keyInsightSeed": "Green and neutral dual-tone encoding for trends and forecasts" },
+    { "slug": "navigation", "name": "Navigation", "category": "navigation", "sourceKind": "from-scratch", "confidence": "medium", "variantCount": 2, "priorityHint": "high", "keyInsightSeed": "Mobile-first bottom navigation carrying core dashboard entries" },
+    { "slug": "sidebar", "name": "Sidebar", "category": "navigation", "sourceKind": "from-scratch", "confidence": "medium", "variantCount": 3, "priorityHint": "high", "keyInsightSeed": "Desktop app-shell skeleton for the finance workspace" }
+  ]
+}

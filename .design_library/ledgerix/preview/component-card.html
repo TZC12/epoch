@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+/* Page scaffold — NOT extracted */
+body { margin: 0; padding: 12px; background: var(--background); font-family: var(--font-body); color: var(--foreground); }
+.row { display: flex; gap: var(--space-3); align-items: center; margin-bottom: var(--space-2); flex-wrap: wrap; }
+.label { min-width: 92px; flex-shrink: 0; font-size: var(--font-size-caption); text-transform: uppercase; letter-spacing: .08em; color: var(--muted-foreground); white-space: nowrap; }
+.divider { border: none; border-top: 1px solid var(--border); margin: var(--space-3) 0; }
+/* @component-css-start */
+.card { background: var(--card); backdrop-filter: var(--blur-glass); -webkit-backdrop-filter: var(--blur-glass); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
+.metric-group { display: flex; gap: var(--space-3); flex: 1 1 0; min-width: 0; }
+.metric-card { background: var(--card); backdrop-filter: var(--blur-glass); -webkit-backdrop-filter: var(--blur-glass); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); padding: var(--space-4); flex: 1 1 0; min-width: 132px; }
+.metric-label { display: block; font-size: var(--font-size-caption); color: var(--muted-foreground); margin-bottom: var(--space-1); white-space: nowrap; }
+.metric-value { display: block; font-size: var(--font-size-h4); font-weight: var(--font-weight-h4); line-height: var(--line-height-h4); margin-bottom: var(--space-2); }
+.delta { display: inline-flex; align-items: center; gap: var(--space-1); min-width: 28px; padding: var(--space-1) var(--space-2); font-size: var(--font-size-caption); font-weight: 600; border-radius: var(--radius-full); white-space: nowrap; flex-shrink: 0; }
+.delta::before { content: ""; width: 6px; height: 6px; border-radius: var(--radius-full); flex-shrink: 0; }
+.delta-up { background: var(--green-accent-soft); color: #86efac; }
+.delta-up::before { background: var(--green-accent-dot); }
+.delta-down { background: var(--red-accent-soft); color: #fca5a5; }
+.delta-down::before { background: var(--red-accent-dot); }
+.insight-card { position: relative; background: var(--card); backdrop-filter: var(--blur-glass); -webkit-backdrop-filter: var(--blur-glass); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); padding: var(--space-4) var(--space-4) var(--space-4) var(--space-5); flex: 1 1 0; min-width: 0; max-width: 520px; overflow: hidden; }
+.insight-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--space-1); background: var(--green-accent); }
+.insight-text { margin: 0 0 var(--space-3); font-size: var(--font-size-body); line-height: var(--line-height-body); }
+.insight-foot { display: flex; align-items: center; gap: var(--space-3); }
+.confidence-tag { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--font-size-caption); color: #86efac; background: var(--green-accent-soft); border-radius: var(--radius-full); padding: var(--space-1) var(--space-2); white-space: nowrap; flex-shrink: 0; }
+.confidence-tag::before { content: ""; width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--green-accent-dot); flex-shrink: 0; }
+.card-link { color: var(--foreground); text-decoration: none; font-size: var(--font-size-caption); white-space: nowrap; flex-shrink: 0; transition: background .15s, border-color .15s; opacity: .7; }
+.card-link:hover { background: var(--muted); border-radius: var(--radius-sm); opacity: 1; }
+.default-card { width: 100%; max-width: 520px; padding: var(--space-4); }
+.card-header { padding-bottom: var(--space-3); margin-bottom: var(--space-3); border-bottom: 1px solid var(--border); }
+.card-title { font-size: var(--font-size-body); font-weight: var(--font-weight-h4); }
+.card-body { margin: 0; font-size: var(--font-size-body); color: var(--muted-foreground); }
+/* @component-css-end */
+</style>
+</head>
+<body>
+<div class="row"><span class="label">Metric</span>
+  <div class="metric-group">
+    <div class="metric-card"><span class="metric-label">Monthly Income</span><span class="metric-value">$48,920</span><span class="delta delta-up">+12.4%</span></div>
+    <div class="metric-card"><span class="metric-label">Net Profit</span><span class="metric-value">$12,480</span><span class="delta delta-up">+8.2%</span></div>
+    <div class="metric-card"><span class="metric-label">Cash on Hand</span><span class="metric-value">$86,150</span><span class="delta delta-down">-3.1%</span></div>
+  </div>
+</div>
+<hr class="divider">
+<div class="row"><span class="label">Insight</span>
+  <div class="insight-card">
+    <p class="insight-text">Monthly Income is up 12.4% vs last month, ahead of forecast.</p>
+    <div class="insight-foot"><span class="confidence-tag">High confidence</span><a href="#" class="card-link">View insights</a></div>
+  </div>
+</div>
+<div class="row"><span class="label">Default</span>
+  <div class="card default-card">
+    <div class="card-header"><span class="card-title">Net Profit</span></div>
+    <p class="card-body">Item 1 · Item 2</p>
+  </div>
+</div>
+</body>
+</html>

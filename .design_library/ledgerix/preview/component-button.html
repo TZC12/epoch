@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body { margin: 0; padding: var(--space-3); background: var(--background); color: var(--foreground); font-family: var(--font-body); }
+.row { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-2); flex-wrap: wrap; }
+.label { flex-shrink: 0; width: 92px; font-size: var(--font-size-caption); font-weight: var(--font-weight-caption); text-transform: uppercase; letter-spacing: .04em; color: var(--muted-foreground); }
+.divider { border: none; border-top: 1px solid var(--border); margin: var(--space-4) 0; }
+/* @component-css-start */
+.btn { display: inline-flex; align-items: center; justify-content: center; border: 1px solid transparent; cursor: pointer; font-family: var(--font-body); font-size: var(--font-size-body); font-weight: 600; line-height: 1; white-space: nowrap; transition: background .15s, border-color .15s, filter .15s; }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary { background: var(--surface-container); color: var(--foreground); border-color: var(--border); backdrop-filter: var(--blur-glass); -webkit-backdrop-filter: var(--blur-glass); }
+.btn-secondary:hover { border-color: rgba(255,255,255,0.2); background: var(--muted); }
+.btn-ghost { background: transparent; color: var(--muted-foreground); }
+.btn-ghost:hover { background: var(--muted); color: var(--foreground); }
+.btn-danger { background: var(--red-accent-soft); color: var(--red-accent); border-color: rgba(239,68,68,0.2); backdrop-filter: var(--blur-glass); -webkit-backdrop-filter: var(--blur-glass); }
+.btn-danger:hover { background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.3); }
+.size-sm { height: var(--size-button-sm); min-width: var(--size-button-sm); padding: 0 var(--space-3); border-radius: var(--radius-sm); }
+.size-md { height: var(--size-button-md); min-width: var(--size-button-md); padding: 0 var(--space-4); border-radius: var(--radius-md); }
+.size-lg { height: var(--size-button-lg); min-width: var(--size-button-lg); padding: 0 var(--space-5); border-radius: var(--radius-lg); }
+.btn:disabled { background: var(--muted); color: var(--muted-foreground); border-color: var(--border); cursor: not-allowed; }
+.btn:disabled:hover { filter: none; background: var(--muted); border-color: var(--border); }
+.btn-ghost:disabled { background: transparent; }
+/* @component-css-end */
+</style>
+</head>
+<body>
+<div class="row" data-evidence-sample="Primary / Md">
+  <span class="label">Primary</span>
+  <button class="btn btn-primary size-md" type="button">Export Report</button>
+  <button class="btn btn-primary size-md" type="button" disabled>Export Report</button>
+</div>
+<div class="row" data-evidence-sample="Secondary">
+  <span class="label">Secondary</span>
+  <button class="btn btn-secondary size-md" type="button">View Forecast</button>
+  <button class="btn btn-secondary size-md" type="button" disabled>View Forecast</button>
+</div>
+<div class="row" data-evidence-sample="Ghost">
+  <span class="label">Ghost</span>
+  <button class="btn btn-ghost size-md" type="button">Ask AI</button>
+  <button class="btn btn-ghost size-md" type="button" disabled>Ask AI</button>
+</div>
+<div class="row" data-evidence-sample="Danger">
+  <span class="label">Danger</span>
+  <button class="btn btn-danger size-md" type="button">Add Income</button>
+  <button class="btn btn-danger size-md" type="button" disabled>Add Income</button>
+</div>
+<hr class="divider">
+<div class="row">
+  <span class="label">Sizes</span>
+  <button class="btn btn-primary size-sm" type="button">Export Report</button>
+  <button class="btn btn-primary size-md" type="button">Export Report</button>
+  <button class="btn btn-primary size-lg" type="button">Export Report</button>
+</div>
+</body>
+</html>

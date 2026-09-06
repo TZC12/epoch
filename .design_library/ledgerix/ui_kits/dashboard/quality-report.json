@@ -1,0 +1,12 @@
+{
+  "screensGenerated": 3,
+  "inventedComponents": [],
+  "coreComponentsUsed": ["button", "card", "chart", "table", "navigation", "sidebar"],
+  "interactiveStatesRendered": ["hover", "disabled", "selected", "active"],
+  "primaryActionPerScreen": true,
+  "previewClassReuseRate": 0.62,
+  "mockDataDensity": {
+    "tableRows": 8,
+    "chartPoints": 12
+  }
+}

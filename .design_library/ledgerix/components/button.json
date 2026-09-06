@@ -1,0 +1,56 @@
+{
+  "slug": "button",
+  "schemaVersion": 2,
+  "name": "Button",
+  "category": "action",
+  "sourceKind": "from-scratch",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    { "type": "button", "confidence": 0.9, "evidence": ["primary CTA control on finance dashboards", "black/white monochrome style with glassmorphic feel"] }
+  ],
+  "sourceSignals": {
+    "uiCopySamples": ["Export Report", "Add Income", "Ask AI", "View Forecast"]
+  },
+  "variantDimensions": {
+    "variant": ["primary", "secondary", "ghost", "danger"],
+    "size": ["sm", "md", "lg"]
+  },
+  "representativeVariants": [
+    {
+      "name": "Primary / Md",
+      "whySelected": "Brand-defining action: white fill on dark glass background, high contrast monochrome",
+      "traits": { "fill": "solid white #f5f5f5", "label": "near-black #0a0a0a, semibold", "radius": "medium 12px", "height": "40px", "state": "hover slightly dims to gray" },
+      "childrenDigest": "Single text label, no icon"
+    },
+    {
+      "name": "Secondary",
+      "whySelected": "Glassmorphic alternative: transparent with white-opacity border",
+      "traits": { "fill": "rgba(255,255,255,0.06) with backdrop-blur", "label": "white #f5f5f5", "radius": "medium 12px", "height": "40px", "border": "1px solid rgba(255,255,255,0.1)" },
+      "childrenDigest": "Single text label"
+    },
+    {
+      "name": "Ghost",
+      "whySelected": "Borderless inline action inside cards",
+      "traits": { "fill": "transparent", "label": "light gray #a3a3a3", "radius": "medium 12px", "height": "40px", "state": "hover shows subtle white fill" },
+      "childrenDigest": "Single text label"
+    },
+    {
+      "name": "Danger",
+      "whySelected": "Destructive financial action",
+      "traits": { "fill": "rgba(239,68,68,0.1) glass tint", "label": "error red #ef4444", "radius": "medium 12px", "height": "40px", "border": "1px solid rgba(239,68,68,0.2)" },
+      "childrenDigest": "Single text label"
+    }
+  ],
+  "anatomy": {
+    "container": "button element",
+    "label": "span text node"
+  },
+  "structurePatterns": ["Monochrome white-on-dark or glassmorphic transparent", "Semibold 14-16px label", "Min width per size token"],
+  "usageHints": {
+    "priorityHint": "high",
+    "bestFor": ["Primary CTAs on dashboard and export flows", "Inline row actions in tables"]
+  },
+  "doNotInvent": ["Green-filled buttons — green is accent only", "Icons or loading spinners not present in source", "Pill radius — brand uses 12px"],
+  "unknowns": ["Exact icon usage in buttons"],
+  "keyInsightSeed": "Monochrome black/white buttons with glassmorphic transparency, green never used as fill"
+}

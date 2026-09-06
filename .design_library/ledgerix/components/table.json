@@ -1,0 +1,51 @@
+{
+  "slug": "table",
+  "schemaVersion": 2,
+  "name": "Table",
+  "category": "data-display",
+  "sourceKind": "from-scratch",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    { "type": "table", "confidence": 0.85, "evidence": ["transaction lists on dark glassmorphic dashboard", "monochrome rows with subtle dividers"] }
+  ],
+  "sourceSignals": {
+    "uiCopySamples": ["Date", "Description", "Category", "Amount", "Status"]
+  },
+  "variantDimensions": {
+    "variant": ["default", "compact", "with-status"]
+  },
+  "representativeVariants": [
+    {
+      "name": "Default",
+      "whySelected": "Standard transaction list with clear column hierarchy on dark surface",
+      "traits": { "header": "caption gray uppercase", "rows": "hairline dividers rgba(255,255,255,0.06)", "radius": "large 16px container glass" },
+      "childrenDigest": "Header row plus 4-5 data rows with numeric right-aligned amounts in white"
+    },
+    {
+      "name": "Compact",
+      "whySelected": "Dense mobile-first table for small screens",
+      "traits": { "padding": "tight", "font": "14px", "dividers": "hairline only" },
+      "childrenDigest": "Reduced row height, same columns"
+    },
+    {
+      "name": "With Status",
+      "whySelected": "Financial status affordances (paid/pending/overdue) as tiny colored dots",
+      "traits": { "status": "small dot indicator with semantic color — green=paid, yellow=pending, red=overdue", "amount": "semibold white" },
+      "childrenDigest": "Status column rendered as small colored dots with text label"
+    }
+  ],
+  "anatomy": {
+    "container": "div.table wrapper glass",
+    "header": "thead",
+    "rows": "tbody tr",
+    "status": "span dot badge in row"
+  },
+  "structurePatterns": ["Glassmorphic container surface", "Hairline white-opacity row dividers", "Semantic status as tiny dots not pills"],
+  "usageHints": {
+    "priorityHint": "high",
+    "bestFor": ["Transaction history", "Invoice lists", "Forecast comparisons"]
+  },
+  "doNotInvent": ["Row selection checkboxes", "Sorting controls", "Pagination", "Pill-shaped status badges"],
+  "unknowns": ["Exact column set and row density"],
+  "keyInsightSeed": "Dark glassmorphic transaction table with hairline dividers, status as tiny semantic dots"
+}

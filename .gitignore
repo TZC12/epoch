@@ -1,0 +1,28 @@
+node_modules
+dist
+dev-dist
+.env
+.env.*
+!.env.example
+*.local
+
+# WorkBuddy / 编辑器本地文件
+.workbuddy/plans/
+.workbuddy/memory/
+.trae
+.agents
+.workbuddy/connectors/
+.workbuddy/mcp.json
+
+# 浏览器自动化 / 部署工作区
+.deploy
+.playwright-cli
+.pw-profile
+
+# Cloudflare Wrangler 本地缓存
+.wrangler
+.wrangler-home
+
+# OS / 日志
+.DS_Store
+*.log

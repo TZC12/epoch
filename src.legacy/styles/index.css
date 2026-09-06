@@ -1,0 +1,180 @@
+@import 'tailwindcss';
+@import '../../.design_library/ledgerix/colors_and_type.css';
+@import '../../.design_library/ledgerix/components.css';
+
+@theme {
+  --font-sans:
+    'Urbanist', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC',
+    'HarmonyOS Sans SC', 'MiSans', 'Noto Sans SC', 'Microsoft YaHei', 'Segoe UI',
+    Roboto, sans-serif;
+}
+
+/* ── TraeWork-inspired token aliases ──────────────────────────
+   Bridges TraeWork's border/overlay/spacing/animation patterns
+   into the existing ledgerix token system. */
+
+:root {
+  /* TraeWork overlay system — consistent surface layering */
+  --tw-overlay-1: rgba(115, 115, 115, 0.06);
+  --tw-overlay-2: rgba(115, 115, 115, 0.10);
+  --tw-overlay-3: rgba(115, 115, 115, 0.14);
+  --tw-overlay-4: rgba(115, 115, 115, 0.20);
+
+  /* TraeWork border — more subtle than ledgerix, neutral grey base */
+  --tw-border-l1: rgba(115, 115, 115, 0.12);
+  --tw-border-l2: rgba(115, 115, 115, 0.18);
+  --tw-border-l3: rgba(115, 115, 115, 0.36);
+
+  /* TraeWork animation tokens — snappier micro-interactions */
+  --tw-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --tw-dur-fast: 0.12s;
+  --tw-dur-base: 0.16s;
+  --tw-dur-slow: 0.24s;
+
+  /* Enhanced glassmorphism — layered translucency */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-strong: rgba(255, 255, 255, 0.85);
+  --glass-blur: blur(20px) saturate(1.8);
+  --glass-blur-heavy: blur(28px) saturate(1.8);
+  --glass-border: 1px solid var(--tw-border-l1);
+  --glass-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --glass-highlight: inset 0 0.5px 0 rgba(255, 255, 255, 0.6);
+
+  /* TraeWork icon sizes */
+  --tw-icon-12: 12px;
+  --tw-icon-14: 14px;
+  --tw-icon-16: 16px;
+  --tw-icon-20: 20px;
+  --tw-icon-24: 24px;
+}
+
+.dark {
+  --tw-overlay-1: rgba(255, 255, 255, 0.05);
+  --tw-overlay-2: rgba(255, 255, 255, 0.08);
+  --tw-overlay-3: rgba(255, 255, 255, 0.12);
+  --tw-overlay-4: rgba(255, 255, 255, 0.16);
+
+  --tw-border-l1: rgba(255, 255, 255, 0.08);
+  --tw-border-l2: rgba(255, 255, 255, 0.14);
+  --tw-border-l3: rgba(255, 255, 255, 0.24);
+
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg-strong: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.25);
+  --glass-highlight: inset 0 0.5px 0 rgba(255, 255, 255, 0.08);
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+/* iOS 安全区 */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 隐藏滚动条但保留滚动 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* ── TraeWork-inspired glassmorphism utilities ── */
+
+/* Glass card — layered translucency with inner highlight */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--tw-border-l1);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
+}
+
+.glass-card-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  border: 1px solid var(--tw-border-l1);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
+}
+
+/* TraeWork-style overlay hover */
+.tw-hover-overlay {
+  transition: background var(--tw-dur-fast) var(--tw-ease);
+}
+.tw-hover-overlay:hover {
+  background: var(--tw-overlay-2);
+}
+.tw-hover-overlay:active {
+  background: var(--tw-overlay-3);
+}
+
+/* TraeWork-style tap feedback — subtle, no jarring scale */
+.tw-tap {
+  transition: background var(--tw-dur-fast) var(--tw-ease), opacity var(--tw-dur-fast) var(--tw-ease);
+}
+.tw-tap:active {
+  opacity: 0.7;
+}
+
+/* Smooth color transition — TraeWork 0.12s pattern */
+.tw-color {
+  transition: color var(--tw-dur-fast) var(--tw-ease), background-color var(--tw-dur-fast) var(--tw-ease), border-color var(--tw-dur-fast) var(--tw-ease);
+}
+
+/* Skeleton shimmer — TraeWork style */
+.tw-skeleton {
+  background: var(--tw-overlay-2);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.tw-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--tw-overlay-3), transparent);
+  animation: tw-shimmer 1.6s ease-in-out infinite;
+}
+@keyframes tw-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* MUI 组件与 design tokens 对齐 */
+.MuiPaper-root {
+  background-image: none !important;
+  background-color: var(--card) !important;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--tw-border-l1);
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

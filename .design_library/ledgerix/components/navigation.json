@@ -1,0 +1,44 @@
+{
+  "slug": "navigation",
+  "schemaVersion": 2,
+  "name": "Navigation",
+  "category": "navigation",
+  "sourceKind": "from-scratch",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    { "type": "navigation", "confidence": 0.8, "evidence": ["mobile-first app with dark glassmorphic bottom navigation", "active state uses subtle accent not bright fill"] }
+  ],
+  "sourceSignals": {
+    "uiCopySamples": ["Home", "Income", "Forecast", "Ask AI", "Profile"]
+  },
+  "variantDimensions": {
+    "variant": ["top", "bottom"]
+  },
+  "representativeVariants": [
+    {
+      "name": "Bottom Nav (mobile)",
+      "whySelected": "Primary mobile navigation pattern for the dashboard app",
+      "traits": { "surface": "rgba(10,10,10,0.8) with backdrop-blur(20px) — dark frosted glass", "border": "top hairline rgba(255,255,255,0.06)", "active": "white icon + label, small green dot indicator", "inactive": "gray #737373 icon + label", "height": "56-64px" },
+      "childrenDigest": "4-5 icon-plus-label items, active item shows white with tiny green dot above icon"
+    },
+    {
+      "name": "Top Nav",
+      "whySelected": "Brand bar for landing and secondary screens",
+      "traits": { "surface": "rgba(10,10,10,0.6) glass or solid near-black", "logo": "ledgerix wordmark white", "links": "gray text with white hover" },
+      "childrenDigest": "Wordmark left, 3-4 links right, optional CTA button in white"
+    }
+  ],
+  "anatomy": {
+    "container": "nav element",
+    "items": "a or button elements",
+    "active": "aria-current item"
+  },
+  "structurePatterns": ["Dark glassmorphic bottom bar with backdrop-blur", "Active item: white icon/label + tiny green dot accent (no green fill)"],
+  "usageHints": {
+    "priorityHint": "high",
+    "bestFor": ["Mobile dashboard shell", "Landing page header"]
+  },
+  "doNotInvent": ["Hamburger drawer patterns", "Dropdown mega-menus", "Green-filled active states"],
+  "unknowns": ["Exact icon set and label count"],
+  "keyInsightSeed": "Dark glassmorphic bottom navigation with backdrop-blur, active state shows tiny green dot accent only"
+}

@@ -1,0 +1,50 @@
+{
+  "slug": "card",
+  "schemaVersion": 2,
+  "name": "Card",
+  "category": "container",
+  "sourceKind": "from-scratch",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    { "type": "card", "confidence": 0.85, "evidence": ["glassmorphic frosted glass cards on dark background", "semi-transparent with backdrop-blur and hairline white-opacity borders"] }
+  ],
+  "sourceSignals": {
+    "uiCopySamples": ["Monthly Income", "+12.4% vs last month", "Net Profit", "Cash on Hand"]
+  },
+  "variantDimensions": {
+    "variant": ["default", "metric", "insight"]
+  },
+  "representativeVariants": [
+    {
+      "name": "Metric Card",
+      "whySelected": "Primary dashboard data block: large KPI number with delta indicator",
+      "traits": { "surface": "rgba(255,255,255,0.05) with backdrop-blur(12px)", "border": "1px solid rgba(255,255,255,0.08)", "radius": "large 16px", "shadow": "soft shadow-1" },
+      "childrenDigest": "Caption label in gray, large semibold white number, small delta with green dot for positive / red dot for negative"
+    },
+    {
+      "name": "Insight Card",
+      "whySelected": "AI-generated insight surface with subtle green accent dot",
+      "traits": { "surface": "rgba(255,255,255,0.05) glass", "border": "1px solid rgba(255,255,255,0.08)", "radius": "large 16px", "accent": "small green dot indicator only — no green fill" },
+      "childrenDigest": "Short AI insight sentence in white, optional confidence tag, optional action link"
+    },
+    {
+      "name": "Default",
+      "whySelected": "Generic content container for lists and groups",
+      "traits": { "surface": "rgba(255,255,255,0.05) glass", "border": "1px solid rgba(255,255,255,0.08)", "radius": "large 16px" },
+      "childrenDigest": "Section title row and body content"
+    }
+  ],
+  "anatomy": {
+    "container": "div.card with backdrop-filter",
+    "header": "optional title row",
+    "body": "content region"
+  },
+  "structurePatterns": ["Glassmorphic surface: semi-transparent white + backdrop-blur(12-20px)", "Hairline white-opacity border", "Large 16px radius", "Soft layered shadows on dark"],
+  "usageHints": {
+    "priorityHint": "high",
+    "bestFor": ["KPI metric groups", "AI insight feeds", "Section grouping"]
+  },
+  "doNotInvent": ["White opaque surfaces", "Green-filled cards", "Heavy shadows", "Gradient surfaces"],
+  "unknowns": ["Exact blur radius and border opacity"],
+  "keyInsightSeed": "Frosted glass cards with semi-transparent white surface, backdrop-blur, hairline borders, green only as tiny status dots"
+}

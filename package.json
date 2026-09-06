@@ -1,0 +1,14 @@
+{
+  "name": "epoch",
+  "private": true,
+  "version": "0.2.0",
+  "description": "Epoch — A personal system for becoming. Soft Glass · Aurora Gradient · Minimal UI.",
+  "scripts": {
+    "dev": "node scripts/inject.mjs && wrangler pages dev . --port 8788",
+    "build": "node scripts/inject.mjs",
+    "preview:serve": "wrangler pages dev . --port 8788"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

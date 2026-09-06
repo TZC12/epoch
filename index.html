@@ -1,0 +1,3177 @@
+<!doctype html>
+<html lang="zh-CN" data-page-node-id="cSMI0sHLQABbENjG9FEl30">
+<head data-page-node-id="6dFBz35q6E2VeTmmg4RYn6">
+<meta charset="UTF-8" data-page-node-id="SGDFETYk2rRvDEJS5nOnRa" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0" data-page-node-id="hfGDhVdkJHaMJtEGphpXE6" />
+<meta name="theme-color" content="#F8F9FF" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Epoch" />
+<meta name="description" content="A personal system for becoming. Shape your time. Shape yourself." />
+<meta name="robots" content="noindex, nofollow" />
+<title>Epoch · 时</title>
+<!-- Environment placeholders; replaced at build time by scripts/inject.mjs -->
+<meta name="x-supabase-url" content="__SUPABASE_URL__" />
+<meta name="x-supabase-anon" content="__SUPABASE_ANON_KEY__" />
+<!-- supabase-js -->
+<script src="https://esm.sh/@supabase/supabase-js@2"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   Epoch — A personal system for becoming.
+   Soft Glass · Aurora Gradient · Minimal UI
+   设计原则：Task is the hero. Chrome stays quiet.
+   ══════════════════════════════════════════════════════════════════ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  /* ── 文字层级：用明度而非颜色建立层级 ── */
+  --ink-1: #22252A;   /* 标题 / 任务 */
+  --ink-2: #4B5058;   /* 正文 */
+  --ink-3: #8A9099;   /* 次要 */
+  --ink-4: #B2B8C1;   /* 弱提示 */
+
+  /* ── 唯一强调色：柔和绿，只用于「完成 / 进行中 / 活跃」 ── */
+  --accent: #5BAE82;
+  --accent-ink: #3C8A61;
+  --accent-soft: rgba(91, 174, 130, 0.13);
+  --accent-line: rgba(91, 174, 130, 0.28);
+
+  --danger: #C46464;
+  --danger-soft: rgba(196, 100, 100, 0.11);
+
+  /* ── Glass ── */
+  --glass: rgba(255, 255, 255, 0.50);
+  --glass-2: rgba(255, 255, 255, 0.62);
+  --glass-thin: rgba(255, 255, 255, 0.34);
+  --brd: rgba(255, 255, 255, 0.72);
+  --brd-soft: rgba(255, 255, 255, 0.55);
+  --blur: blur(26px);
+  --blur-l: blur(34px) saturate(1.7);
+  --sh: 0 8px 32px rgba(60, 70, 100, 0.055);
+
+  --hair: rgba(34, 37, 42, 0.055);
+
+  --r-xl: 28px; --r-lg: 24px; --r-md: 20px; --r-sm: 14px;
+  --ease: cubic-bezier(0.32, 0.72, 0.24, 1);
+}
+
+html, body { height: 100%; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Noto Sans SC',
+    'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif;
+  background: #E7EBF3;
+  color: var(--ink-2);
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 桌面端：手机容器像一台真正的设备 */
+@media (min-width: 520px) {
+  body { padding: 32px 0; background: linear-gradient(180deg, #E5EAF1 0%, #ECEFF5 100%); align-items: center; }
+  .phone {
+    border-radius: 44px;
+    border: 1px solid rgba(255,255,255,.6);
+    box-shadow: 0 32px 80px rgba(60,70,100,.18), 0 4px 16px rgba(60,70,100,.06);
+    min-height: 880px;
+    max-height: 880px;
+  }
+}
+@media (prefers-color-scheme: dark) and (min-width: 520px) {
+  body { background: linear-gradient(180deg, #0B0D11 0%, #11141A 100%); }
+  .phone { border-color: rgba(255,255,255,.06); }
+}
+
+/* ═══════════ 手机容器 ═══════════ */
+.phone {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  background: #F8F9FF;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+}
+
+/* ── Aurora：大范围、柔和、低透明度、缓慢移动 ── */
+.aurora { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(92px); will-change: transform; }
+.blob-1 { width: 132%; height: 46%; top: -20%; left: -40%; background: #DCE8FF; opacity: .62; animation: d1 48s ease-in-out infinite alternate; }
+.blob-2 { width: 92%;  height: 40%; top: 4%;  right: -44%; background: #E6E0FF; opacity: .55; animation: d2 60s ease-in-out infinite alternate; }
+.blob-3 { width: 112%; height: 42%; bottom: -22%; left: -32%; background: #EDE9FF; opacity: .58; animation: d3 54s ease-in-out infinite alternate; }
+.blob-4 { width: 74%;  height: 34%; bottom: 6%;  right: -28%; background: #F0F4FF; opacity: .6;  animation: d1 66s ease-in-out infinite alternate-reverse; }
+@keyframes d1 { from { transform: translate(0,0) scale(1); }      to { transform: translate(9%, 6%) scale(1.12); } }
+@keyframes d2 { from { transform: translate(0,0) scale(1); }      to { transform: translate(-8%, 9%) scale(1.08); } }
+@keyframes d3 { from { transform: translate(0,0) scale(1); }      to { transform: translate(10%, -7%) scale(1.1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .blob { animation: none; }
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+
+/* ═══════════ 状态栏（安静的 chrome）═══════════ */
+.statusbar {
+  position: relative; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 22px 0;
+  height: 46px;
+  flex-shrink: 0;
+}
+.statusbar .clock { font-size: 14px; font-weight: 600; color: var(--ink-1); font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+.statusbar .right { display: flex; align-items: center; gap: 6px; }
+.icon-btn {
+  width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer;
+  background: transparent; color: var(--ink-3);
+  display: flex; align-items: center; justify-content: center;
+  transition: color .15s var(--ease), background .15s var(--ease);
+}
+.icon-btn:hover { background: rgba(255,255,255,.5); color: var(--ink-1); }
+.icon-btn:active { transform: scale(.92); }
+.icon-btn svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.7; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.phone[data-mode="dark"] .icon-btn:hover { background: rgba(255,255,255,.07); }
+
+/* ═══════════ 屏幕容器 ═══════════ */
+.stage { position: relative; z-index: 1; flex: 1; overflow: hidden; }
+
+.screen, .panel {
+  position: absolute; inset: 0;
+  overflow-y: auto; overscroll-behavior-y: contain;
+  padding: 0 22px 140px;
+  -webkit-overflow-scrolling: touch;
+}
+.screen::-webkit-scrollbar, .panel::-webkit-scrollbar, .sheet::-webkit-scrollbar { display: none; }
+
+.screen { opacity: 0; pointer-events: none; transform: translateY(6px); transition: opacity .26s var(--ease), transform .26s var(--ease); }
+.screen.on { opacity: 1; transform: none; pointer-events: auto; }
+
+/* 次级页面：不透明毛玻璃底，盖住行内容，不再重叠 */
+.panel {
+  background: rgba(248,249,255,.94);
+  backdrop-filter: blur(30px) saturate(1.5); -webkit-backdrop-filter: blur(30px) saturate(1.5);
+  transform: translateX(100%);
+  transition: transform .34s var(--ease);
+  padding-bottom: 60px;
+}
+.panel.on { transform: translateX(0); box-shadow: -24px 0 48px rgba(60,70,100,.08); }
+
+/* ═══════════ 排版 ═══════════ */
+.t-page   { font-size: 32px; line-height: 1.14; font-weight: 600; color: var(--ink-1); letter-spacing: -.022em; margin-top: 5px; }
+.t-panel  { font-size: 26px; line-height: 1.2;  font-weight: 600; color: var(--ink-1); letter-spacing: -.018em; }
+.t-card   { font-size: 19px; line-height: 1.34; font-weight: 600; color: var(--ink-1); letter-spacing: -.012em; }
+.t-body   { font-size: 16px; line-height: 1.45; font-weight: 500; color: var(--ink-1); }
+.t-sub    { font-size: 14px; line-height: 1.5;  color: var(--ink-3); }
+.t-cap    { font-size: 12px; line-height: 1.5;  color: var(--ink-4); }
+.eyebrow  { font-size: 12px; font-weight: 600; letter-spacing: .07em; color: var(--ink-3); }
+.num      { font-variant-numeric: tabular-nums; }
+
+.head { padding-top: 6px; }
+.head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.sub-note { margin-top: 4px; font-size: 13px; color: var(--ink-3); }
+
+/* 区块标题：用间距而非分割线 */
+.sec { margin: 34px 0 12px; display: flex; align-items: baseline; gap: 9px; }
+.sec h2 { font-size: 15px; font-weight: 600; color: var(--ink-2); letter-spacing: .005em; }
+.sec .n { font-size: 11.5px; color: var(--ink-4); margin-left: auto; }
+.sec.tight { margin-top: 26px; }
+
+/* ═══════════ Glass Surface（克制使用）═══════════ */
+.glass {
+  background: var(--glass);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--brd);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh);
+}
+.glass-2 { background: var(--glass-2); }
+
+/* ═══════════ TODAY ═══════════ */
+.greet { font-size: 22px; font-weight: 600; color: var(--ink-1); letter-spacing: -.015em; }
+.date-line { font-size: 14px; color: var(--ink-3); margin-top: 3px; }
+.date-line b { color: var(--ink-2); font-weight: 600; }
+
+.prog { display: flex; align-items: baseline; gap: 9px; margin-top: 16px; }
+.prog .n1 { font-size: 22px; font-weight: 600; color: var(--ink-1); }
+.prog .n2 { font-size: 14px; color: var(--ink-3); }
+.prog .bar { flex: 1; height: 3px; border-radius: 99px; background: rgba(34,37,42,.075); position: relative; top: -3px; }
+.prog .bar i { position: absolute; inset: 0 auto 0 0; border-radius: 99px; background: var(--accent); transition: width .45s var(--ease); }
+
+/* Timeline — 时间是结构线索，不是卡片 */
+.tl-row {
+  display: grid; grid-template-columns: 50px 1fr 26px;
+  align-items: center; gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--hair);
+  cursor: pointer; position: relative;
+  transition: opacity .22s var(--ease), padding .22s var(--ease);
+}
+.tl-row:last-child { border-bottom: none; }
+.tl-row:active .tl-title { opacity: .6; }
+.tl-time { font-size: 12.5px; font-weight: 500; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.tl-main { min-width: 0; }
+.tl-title { font-size: 16.5px; font-weight: 500; color: var(--ink-1); line-height: 1.36; letter-spacing: -.008em; }
+.tl-meta { font-size: 11.5px; color: var(--ink-4); margin-top: 2px; }
+.tl-check {
+  width: 23px; height: 23px; border-radius: 50%; border: 1.5px solid rgba(34,37,42,.18);
+  display: flex; align-items: center; justify-content: center; justify-self: end;
+  transition: all .18s var(--ease);
+}
+.tl-check svg { width: 11px; height: 11px; stroke: #fff; stroke-width: 2.6; fill: none; opacity: 0; transform: scale(.5); transition: all .18s var(--ease); }
+.tl-row.done { opacity: .42; padding: 11px 0; }
+.tl-row.done .tl-title { text-decoration: line-through; text-decoration-color: rgba(34,37,42,.28); }
+.tl-row.done .tl-check { background: var(--accent); border-color: var(--accent); }
+.tl-row.done .tl-check svg { opacity: 1; transform: scale(1); }
+
+/* 进行中：一条细线 + 轻标签，不用大色块 */
+.tl-row.now::before { content: ''; position: absolute; left: -13px; top: 14px; bottom: 14px; width: 2.5px; border-radius: 99px; background: var(--accent); }
+.tl-row.now .tl-time { color: var(--accent-ink); }
+.tag-now { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--accent-ink); margin-top: 4px; }
+.tag-now i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 2.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+.tag-next { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; color: var(--ink-4); margin-top: 4px; }
+
+/* 任务行（Main / Secondary）— 去掉玻璃，安静到只有线和点 */
+.task {
+  display: flex; align-items: center; gap: 13px;
+  padding: 13px 2px; border-radius: 0;
+  background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;
+  border-bottom: 1px solid var(--hair);
+  margin-bottom: 0; cursor: pointer;
+  transition: opacity .22s var(--ease), padding .22s var(--ease);
+}
+.task:first-child { border-top: 1px solid var(--hair); }
+.task:active .t { opacity: .6; }
+.task .dot { width: 21px; height: 21px; border-radius: 50%; border: 1.5px solid rgba(34,37,42,.2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .18s var(--ease); }
+.task .dot svg { width: 10px; height: 10px; stroke: #fff; stroke-width: 2.8; fill: none; opacity: 0; transform: scale(.5); transition: all .18s var(--ease); }
+.task .t { font-size: 15px; font-weight: 500; color: var(--ink-1); flex: 1; min-width: 0; letter-spacing: -.006em; }
+.task .g { font-size: 11px; color: var(--ink-4); flex-shrink: 0; }
+.task.done { opacity: .42; padding: 11px 2px; }
+.task.done .t { text-decoration: line-through; text-decoration-color: rgba(34,37,42,.28); }
+.task.done .dot { background: var(--accent); border-color: var(--accent); }
+.task.done .dot svg { opacity: 1; transform: scale(1); }
+.task.mini { padding: 10px 2px; }
+.task.mini .t { font-size: 14.5px; font-weight: 400; color: var(--ink-2); }
+.task.enter { animation: enterIn .32s var(--ease); }
+@keyframes enterIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+/* 今日习惯 — 一行三列，玻璃去掉，只剩线 */
+.habits { display: flex; gap: 0; margin-top: 6px; border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
+.habit-chip {
+  flex: 1; padding: 12px 10px; border: none; background: transparent;
+  text-align: left; cursor: pointer;
+  transition: opacity .18s var(--ease);
+}
+.habit-chip + .habit-chip { border-left: 1px solid var(--hair); }
+.habit-chip:active { opacity: .7; }
+.habit-chip .hn { font-size: 12.5px; font-weight: 500; color: var(--ink-2); line-height: 1.3; }
+.habit-chip .hs { font-size: 10.5px; color: var(--ink-4); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+.habit-chip .hs i { width: 5px; height: 5px; border-radius: 50%; background: rgba(34,37,42,.16); display: block; }
+.habit-chip.on .hn { color: var(--accent-ink); }
+.habit-chip.on .hs { color: var(--accent-ink); }
+.habit-chip.on .hs i { background: var(--accent); }
+
+/* 负载提醒 — 帮助，不催促 */
+.note {
+  display: flex; align-items: center; gap: 10px; margin-top: 18px;
+  padding: 12px 15px; border-radius: var(--r-md);
+  background: var(--glass-thin); border: 1px solid var(--brd-soft);
+  font-size: 13px; color: var(--ink-3);
+}
+.note .acts { margin-left: auto; display: flex; gap: 5px; flex-shrink: 0; }
+
+/* 健康建议：与负载提醒同形态，轻 accent 底色 */
+.note.energy-note { background: var(--accent-soft); border-color: var(--accent-line); color: var(--ink-2); line-height: 1.5; }
+.conn-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; margin-right: 6px; vertical-align: 1px; }
+
+/* ═══════════ 按钮 ═══════════ */
+.btn {
+  font-family: inherit; border: none; cursor: pointer; border-radius: var(--r-md);
+  transition: transform .14s var(--ease), opacity .14s var(--ease), background .18s var(--ease);
+}
+.btn:active { transform: scale(.975); }
+.btn-p { width: 100%; height: 52px; background: var(--ink-1); color: #fff; font-size: 16px; font-weight: 600; letter-spacing: -.006em; }
+.btn-p.acc { background: var(--accent); }
+.btn-g { height: 46px; background: rgba(34,37,42,.05); color: var(--ink-2); font-size: 14px; font-weight: 500; flex: 1; }
+.btn-g.acc-t { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+.btn-q {
+  height: 30px; padding: 0 12px; border-radius: 99px;
+  background: var(--accent-soft); color: var(--accent-ink);
+  font-size: 12px; font-weight: 600;
+}
+.btn-q.neutral { background: rgba(34,37,42,.055); color: var(--ink-3); }
+.btn-d { background: none; color: var(--danger); font-size: 13px; font-weight: 500; opacity: .78; padding: 12px; }
+.btn-row { display: flex; gap: 9px; }
+.btn-sm { height: 44px; font-size: 14px; border-radius: var(--r-sm); }
+
+/* ═══════════ 分段控件 ═══════════ */
+.seg {
+  display: flex; gap: 2px; margin-top: 18px; padding: 3px;
+  background: var(--glass-thin); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--brd-soft); border-radius: var(--r-sm);
+  overflow-x: auto; scrollbar-width: none;
+}
+.seg::-webkit-scrollbar { display: none; }
+.seg button {
+  flex: 1 0 auto; height: 32px; padding: 0 13px; border: none; border-radius: 11px;
+  background: transparent; font-family: inherit; font-size: 13px; font-weight: 500;
+  color: var(--ink-3); cursor: pointer; white-space: nowrap;
+  transition: all .18s var(--ease);
+}
+.seg button.on { background: rgba(255,255,255,.92); color: var(--ink-1); font-weight: 600; box-shadow: 0 1px 6px rgba(60,70,100,.08); }
+
+/* ═══════════ 周条 ═══════════ */
+.week-strip { display: flex; gap: 6px; margin-top: 18px; }
+.wd {
+  flex: 1; text-align: center; padding: 9px 0 8px; border-radius: var(--r-sm);
+  background: var(--glass-thin); border: 1px solid var(--brd-soft); cursor: pointer;
+  transition: all .18s var(--ease);
+}
+.wd:active { transform: scale(.96); }
+.wd .l { font-size: 10.5px; color: var(--ink-4); }
+.wd .n { font-size: 14px; font-weight: 500; color: var(--ink-2); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.wd .mk { display: flex; justify-content: center; gap: 3px; margin-top: 5px; height: 4px; }
+.wd .mk i { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); opacity: .85; }
+.wd .mk i.m { background: var(--ink-4); opacity: .55; }
+.wd.today { background: rgba(255,255,255,.74); border-color: rgba(255,255,255,.92); }
+.wd.today .n { color: var(--ink-1); font-weight: 600; }
+.wd.today .l { color: var(--ink-3); }
+
+/* ═══════════ PLAN ═══════════ */
+.item {
+  display: flex; align-items: center; gap: 12px; padding: 14px 2px;
+  border-bottom: 1px solid var(--hair); border-radius: 0;
+  margin-bottom: 0;
+  background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;
+  cursor: pointer;
+  transition: opacity .22s var(--ease);
+}
+.item:first-child { border-top: 1px solid var(--hair); }
+.item:active .t { opacity: .6; }
+.item .t { font-size: 15px; font-weight: 500; color: var(--ink-1); flex: 1; letter-spacing: -.006em; }
+.item .h { font-size: 11.5px; color: var(--ink-4); text-align: right; flex-shrink: 0; }
+.item .h em { font-style: normal; color: var(--accent-ink); font-weight: 500; }
+.item .drag { width: 14px; height: 10px; flex-shrink: 0; opacity: .3; background:
+  radial-gradient(circle 1.4px at 3px 2px, var(--ink-3) 99%, transparent) ,
+  radial-gradient(circle 1.4px at 3px 5px, var(--ink-3) 99%, transparent) ,
+  radial-gradient(circle 1.4px at 3px 8px, var(--ink-3) 99%, transparent); }
+
+/* Adaptive：修复计划，不惩罚 */
+.adapt { margin-top: 20px; padding: 18px 20px; border-radius: var(--r-xl); background: var(--glass-2);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid var(--brd); }
+.adapt .q { font-size: 15.5px; font-weight: 600; color: var(--ink-1); line-height: 1.45; letter-spacing: -.008em; }
+.adapt .d { font-size: 12.5px; color: var(--ink-3); margin-top: 5px; line-height: 1.5; }
+.adapt .why { font-size: 12px; color: var(--ink-4); margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--hair); line-height: 1.5; }
+.adapt .btn-row { margin-top: 14px; }
+.adapt .btn-g { flex: 1; height: 44px; border-radius: var(--r-sm); }
+.adapt .btn-p { flex: 1.5; height: 44px; font-size: 14px; border-radius: var(--r-sm); }
+
+/* Plan My Day 入口 */
+.myday { margin-top: 20px; padding: 20px; border-radius: var(--r-xl); cursor: pointer;
+  background: linear-gradient(135deg, rgba(255,255,255,.62), rgba(255,255,255,.40));
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  border: 1px solid rgba(255,255,255,.78); box-shadow: var(--sh);
+  transition: transform .14s var(--ease); }
+.myday:active { transform: scale(.985); }
+.myday .q { font-size: 17px; font-weight: 600; color: var(--ink-1); margin-top: 5px; letter-spacing: -.012em; }
+.myday .d { font-size: 13px; color: var(--ink-3); margin-top: 5px; line-height: 1.55; }
+.myday .go { display: flex; align-items: center; gap: 6px; margin-top: 13px; font-size: 13px; font-weight: 600; color: var(--accent-ink); }
+.myday .go svg { width: 13px; height: 13px; stroke: currentColor; stroke-width: 2.2; fill: none; }
+
+/* ═══════════ PROGRESS ═══════════ */
+.big { font-size: 46px; font-weight: 600; color: var(--ink-1); letter-spacing: -.032em; font-variant-numeric: tabular-nums; line-height: 1; }
+.big small { font-size: 21px; color: var(--ink-3); font-weight: 500; letter-spacing: -.01em; }
+.metric { display: flex; align-items: center; gap: 12px; padding: 14px 2px; border-bottom: 1px solid var(--hair); }
+.metric:last-child { border-bottom: none; }
+.metric .m { font-size: 15px; font-weight: 500; color: var(--ink-2); flex: 1; }
+.metric .v { font-size: 15px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.metric .v b { color: var(--ink-1); font-weight: 600; }
+
+/* 7-day rhythm：细柱，无网格无坐标轴 */
+.rhythm { display: flex; align-items: flex-end; gap: 8px; height: 92px; margin-top: 8px; }
+.rhythm .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.rhythm .bar { width: 100%; max-width: 26px; height: 60px; border-radius: 99px; background: rgba(34,37,42,.085); position: relative; }
+.rhythm .bar i { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 99px; background: var(--accent); opacity: .9; }
+.rhythm .bar.low i { opacity: .42; }
+.rhythm .l { font-size: 10.5px; color: var(--ink-4); }
+
+/* 月度一致性 — 极简点阵 */
+.grid-dots { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 10px; }
+.grid-dots i { width: 100%; max-width: 15px; height: 15px; flex: 1 1 15px; border-radius: 5px; background: rgba(34,37,42,.07); }
+.grid-dots i.on { background: var(--accent); }
+.grid-dots i.mid { background: var(--accent); opacity: .4; }
+
+.insight { margin-top: 20px; padding: 17px 19px; border-radius: var(--r-lg); background: var(--glass);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid var(--brd); }
+.insight .q { font-size: 14.5px; font-weight: 600; color: var(--ink-1); line-height: 1.45; }
+.insight .d { font-size: 12.5px; color: var(--ink-3); margin-top: 5px; line-height: 1.55; }
+
+.field {
+  margin-top: 13px; width: 100%; border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 14.5px; color: var(--ink-1); line-height: 1.55; resize: none;
+}
+.field::placeholder { color: var(--ink-4); }
+
+/* ═══════════ ME ═══════════ */
+.direction { margin-top: 22px; padding: 22px; border-radius: var(--r-xl); background: var(--glass-2);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid rgba(255,255,255,.82); cursor: pointer;
+  transition: transform .14s var(--ease); }
+.direction:active { transform: scale(.99); }
+.direction .eyebrow { color: var(--accent-ink); }
+.direction .state { font-size: 20px; font-weight: 600; color: var(--ink-1); line-height: 1.42; margin-top: 9px; letter-spacing: -.014em; }
+.domains { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.domains span { font-size: 12px; color: var(--ink-3); padding: 5px 11px; border-radius: 99px;
+  background: rgba(255,255,255,.5); border: 1px solid rgba(255,255,255,.72); }
+
+/* 链路 Direction → Goals → Routines → Today */
+.chain { display: flex; align-items: center; gap: 5px; margin-top: 15px; flex-wrap: wrap; }
+.chain .node { font-size: 10.5px; font-weight: 600; color: var(--ink-3); padding: 4px 8px; border-radius: 8px;
+  background: rgba(255,255,255,.46); border: 1px solid rgba(255,255,255,.68); letter-spacing: .01em; }
+.chain .node.on { color: var(--accent-ink); background: var(--accent-soft); border-color: var(--accent-line); }
+.chain .arr { color: var(--ink-4); font-size: 10px; }
+
+.goal { margin-top: 9px; padding: 16px 18px; border-radius: var(--r-lg); background: var(--glass);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid var(--brd); cursor: pointer;
+  transition: transform .14s var(--ease); }
+.goal:active { transform: scale(.985); }
+.goal .g { font-size: 11px; font-weight: 600; color: var(--ink-3); letter-spacing: .06em; }
+.goal .t { font-size: 15.5px; font-weight: 600; color: var(--ink-1); margin-top: 5px; letter-spacing: -.01em; }
+.goal .f { font-size: 12.5px; color: var(--ink-3); margin-top: 3px; }
+.goal .lv { display: flex; gap: 4px; margin-top: 11px; }
+.goal .lv i { height: 3.5px; flex: 1; border-radius: 99px; background: rgba(34,37,42,.08); }
+.goal .lv i.on { background: var(--accent); }
+
+.row { display: flex; align-items: center; gap: 12px; padding: 13px 2px; border-bottom: 1px solid var(--hair); cursor: pointer; }
+.row:last-child { border-bottom: none; }
+.row .t { font-size: 15px; font-weight: 500; color: var(--ink-1); flex: 1; letter-spacing: -.006em; }
+.row .d { font-size: 12px; color: var(--ink-4); }
+.row .chev { width: 7px; height: 7px; border-top: 1.8px solid var(--ink-4); border-right: 1.8px solid var(--ink-4); transform: rotate(45deg); flex-shrink: 0; }
+
+/* ═══════════ 底部导航 — 安静 ═══════════ */
+.tabbar {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 30;
+  display: flex; align-items: stretch;
+  padding: 7px 10px calc(13px + env(safe-area-inset-bottom));
+  background: rgba(255,255,255,.56);
+  backdrop-filter: blur(26px) saturate(1.6); -webkit-backdrop-filter: blur(26px) saturate(1.6);
+  border-top: 1px solid rgba(255,255,255,.68);
+  transition: transform .3s var(--ease), opacity .3s var(--ease);
+}
+.phone[data-nav="panel"] .tabbar { transform: translateY(110%); opacity: 0; pointer-events: none; }
+.phone[data-nav="panel"] .fab { transform: scale(0); opacity: 0; pointer-events: none; }
+.tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  padding: 6px 0; border-radius: var(--r-sm); color: var(--ink-4);
+  transition: color .16s var(--ease);
+}
+.tab svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 1.7; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.tab span { font-size: 10.5px; font-weight: 500; letter-spacing: .005em; }
+.tab.on { color: var(--ink-1); }
+.tab.on svg { stroke-width: 2; }
+
+/* Quick Add */
+.fab {
+  position: absolute; right: 20px; bottom: 96px; z-index: 25;
+  width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.82);
+  background: rgba(255,255,255,.68);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  box-shadow: 0 8px 28px rgba(60,70,100,.12);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .22s var(--ease), opacity .22s var(--ease);
+}
+.fab:active { transform: scale(.9); }
+.fab svg { width: 19px; height: 19px; stroke: var(--ink-1); stroke-width: 2.1; fill: none; stroke-linecap: round; }
+
+/* 次级页面返回条 */
+.panel-bar {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 0 12px; margin-bottom: 4px;
+  background: linear-gradient(to bottom, rgba(248,249,255,.96) 60%, rgba(248,249,255,0));
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.back { display: flex; align-items: center; gap: 5px; background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 500; color: var(--ink-3); padding: 4px 8px 4px 0; }
+.back svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.back:active { opacity: .6; }
+
+/* ═══════════ 弹层 ═══════════ */
+.scrim { position: absolute; inset: 0; z-index: 40; background: rgba(30,34,44,.17);
+  opacity: 0; pointer-events: none; transition: opacity .26s var(--ease); }
+.scrim.on { opacity: 1; pointer-events: auto; }
+
+.sheet {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 50;
+  background: rgba(252,253,255,.88);
+  backdrop-filter: var(--blur-l); -webkit-backdrop-filter: var(--blur-l);
+  border-top: 1px solid rgba(255,255,255,.92);
+  border-radius: 30px 30px 0 0;
+  padding: 11px 24px calc(28px + env(safe-area-inset-bottom));
+  transform: translateY(105%); transition: transform .38s var(--ease);
+  max-height: 90%; overflow-y: auto;
+}
+.sheet.on { transform: translateY(0); }
+.grab { width: 38px; height: 4.5px; border-radius: 99px; background: rgba(34,37,42,.13); margin: 0 auto 18px; }
+
+.td-grid { margin-top: 18px; }
+.td-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 2px; border-bottom: 1px solid var(--hair); }
+.td-row .k { font-size: 13px; color: var(--ink-3); }
+.td-row .v { font-size: 14px; font-weight: 500; color: var(--ink-1); text-align: right; }
+.td-row .v.link { color: var(--accent-ink); font-weight: 600; cursor: pointer; }
+.td-notes { font-size: 13px; color: var(--ink-3); line-height: 1.65; margin-top: 15px; }
+.td-acts { margin-top: 22px; }
+
+.qa-input { width: 100%; border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 21px; font-weight: 500; color: var(--ink-1);
+  padding: 4px 0 14px; border-bottom: 1px solid var(--hair); letter-spacing: -.012em; }
+.qa-input::placeholder { color: var(--ink-4); font-weight: 400; }
+.qa-sug { display: flex; align-items: center; gap: 9px; margin-top: 18px; font-size: 13px; color: var(--ink-3); flex-wrap: wrap; }
+
+.md-row { display: grid; grid-template-columns: 50px 1fr; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--hair); align-items: center; }
+.md-row .tm { font-size: 12.5px; font-weight: 500; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.md-row .ti { font-size: 15px; font-weight: 500; color: var(--ink-1); letter-spacing: -.008em; }
+.md-row .src { font-size: 11px; color: var(--ink-4); margin-top: 1px; }
+.md-note { font-size: 12.5px; color: var(--ink-3); margin-top: 14px; line-height: 1.55; }
+
+/* ═══════════ Focus — 全屏安静 ═══════════ */
+.veil { position: absolute; inset: 0; z-index: 60; background: rgba(248,249,255,.86);
+  backdrop-filter: blur(40px) saturate(1.5); -webkit-backdrop-filter: blur(40px) saturate(1.5);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .32s var(--ease); padding: 0 32px; }
+.veil.on { opacity: 1; pointer-events: auto; }
+.focus-task { font-size: 17px; font-weight: 500; color: var(--ink-3); text-align: center; }
+.focus-time { font-size: 68px; font-weight: 600; color: var(--ink-1); letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums; margin-top: 16px; line-height: 1; }
+.focus-time.done-c { color: var(--accent); font-size: 46px; }
+.focus-start { margin-top: 38px; padding: 15px 54px; border-radius: 99px; border: none; cursor: pointer;
+  background: var(--ink-1); color: #fff; font-family: inherit; font-size: 16px; font-weight: 600;
+  transition: transform .14s var(--ease); }
+.focus-start:active { transform: scale(.97); }
+.focus-quit { margin-top: 20px; background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: 13px; color: var(--ink-4); }
+
+/* ═══════════ 空 / 加载 / 错误 状态 — 安静 ═══════════ */
+.empty { text-align: center; padding: 52px 20px 40px; }
+.empty .e1 { font-size: 16px; font-weight: 500; color: var(--ink-2); letter-spacing: -.008em; }
+.empty .e2 { font-size: 12.5px; color: var(--ink-4); margin-top: 5px; line-height: 1.6; }
+.empty .ea { margin-top: 20px; display: inline-flex; }
+
+.skel { border-radius: 10px; background: linear-gradient(90deg, rgba(34,37,42,.055) 25%, rgba(34,37,42,.09) 37%, rgba(34,37,42,.055) 63%);
+  background-size: 400% 100%; animation: shimmer 1.5s ease-in-out infinite; }
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+.skel-row { display: grid; grid-template-columns: 50px 1fr 26px; gap: 14px; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--hair); }
+.skel-row:last-child { border-bottom: none; }
+
+.err { margin-top: 30px; padding: 26px 22px; border-radius: var(--r-lg); text-align: center;
+  background: var(--danger-soft); border: 1px solid rgba(196,100,100,.2); }
+.err .e1 { font-size: 14.5px; font-weight: 500; color: var(--danger); line-height: 1.55; }
+.err .btn-g { margin-top: 14px; flex: none; display: inline-flex; align-items: center; justify-content: center; padding: 0 22px; }
+
+/* ═══════════ 全屏覆盖层（引导 / 屏幕目录）═══════════ */
+.overlay { position: absolute; inset: 0; z-index: 70; display: flex; flex-direction: column;
+  background: rgba(248,249,255,.94); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+  opacity: 0; pointer-events: none; transform: scale(.99); transition: opacity .3s var(--ease), transform .3s var(--ease); }
+.overlay.on { opacity: 1; pointer-events: auto; transform: none; }
+
+/* 屏幕目录 */
+.gal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px 10px; flex-shrink: 0; }
+.gal-body { flex: 1; overflow-y: auto; padding: 0 22px 40px; }
+.gal-group { margin-top: 18px; }
+.gal-group > .eyebrow { margin-bottom: 9px; display: block; }
+.gal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.gal-cell { padding: 13px 14px; border-radius: var(--r-md); border: 1px solid var(--brd);
+  background: var(--glass); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  cursor: pointer; text-align: left; transition: transform .14s var(--ease); }
+.gal-cell:active { transform: scale(.97); }
+.gal-cell .n { font-size: 13.5px; font-weight: 600; color: var(--ink-1); letter-spacing: -.008em; }
+.gal-cell .s { font-size: 11px; color: var(--ink-4); margin-top: 3px; line-height: 1.4; }
+
+/* ═══════════ 引导流程 ═══════════ */
+.ob { flex: 1; display: flex; flex-direction: column; padding: 0 26px 34px; overflow-y: auto; }
+.ob::-webkit-scrollbar { display: none; }
+.ob-top { display: flex; align-items: center; gap: 10px; padding: 16px 0 0; flex-shrink: 0; }
+.ob-dots { display: flex; gap: 5px; }
+.ob-dots i { width: 5px; height: 5px; border-radius: 50%; background: rgba(34,37,42,.14); transition: all .3s var(--ease); }
+.ob-dots i.on { width: 16px; border-radius: 99px; background: var(--ink-1); }
+.ob-skip { margin-left: auto; background: none; border: none; font-family: inherit; font-size: 13px; color: var(--ink-4); cursor: pointer; }
+.ob-body { flex: 1; padding-top: 34px; }
+.ob-q { font-size: 27px; font-weight: 600; color: var(--ink-1); letter-spacing: -.022em; line-height: 1.24; }
+.ob-d { font-size: 14px; color: var(--ink-3); margin-top: 11px; line-height: 1.6; }
+.ob-opts { margin-top: 28px; display: flex; flex-direction: column; gap: 9px; }
+.ob-opt { display: flex; align-items: center; gap: 13px; padding: 16px 18px; border-radius: var(--r-lg);
+  background: var(--glass); border: 1px solid var(--brd); cursor: pointer; text-align: left;
+  font-family: inherit; transition: all .2s var(--ease); }
+.ob-opt:active { transform: scale(.985); }
+.ob-opt .t { font-size: 15.5px; font-weight: 600; color: var(--ink-1); letter-spacing: -.008em; }
+.ob-opt .d { font-size: 12.5px; color: var(--ink-3); margin-top: 3px; line-height: 1.45; }
+.ob-opt .box { width: 21px; height: 21px; border-radius: 7px; border: 1.5px solid rgba(34,37,42,.2); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; transition: all .18s var(--ease); }
+.ob-opt .box svg { width: 11px; height: 11px; stroke: #fff; stroke-width: 2.8; fill: none; opacity: 0; transform: scale(.5); transition: all .18s var(--ease); }
+.ob-opt.sel { background: var(--accent-soft); border-color: var(--accent-line); }
+.ob-opt.sel .box { background: var(--accent); border-color: var(--accent); }
+.ob-opt.sel .box svg { opacity: 1; transform: scale(1); }
+.ob-opt.sel .t { color: var(--accent-ink); }
+
+.time-pick { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 26px; }
+.time-pick .u { font-size: 36px; font-weight: 600; color: var(--ink-1); font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+  padding: 8px 4px; min-width: 74px; text-align: center; border-radius: var(--r-sm); border: 1px solid var(--brd); background: var(--glass-thin); }
+.time-pick .sep { font-size: 26px; color: var(--ink-4); }
+.time-pick .ampm { font-size: 15px; font-weight: 600; color: var(--ink-3); align-self: flex-end; padding-bottom: 14px; }
+
+.ob-in { width: 100%; margin-top: 22px; padding: 14px 0; border: none; border-bottom: 1px solid var(--hair);
+  background: transparent; outline: none; font-family: inherit; font-size: 17px; font-weight: 500; color: var(--ink-1); letter-spacing: -.01em; }
+.ob-in::placeholder { color: var(--ink-4); font-weight: 400; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 22px; }
+.chip { padding: 8px 14px; border-radius: 99px; border: 1px solid var(--brd); background: var(--glass-thin);
+  font-family: inherit; font-size: 13.5px; font-weight: 500; color: var(--ink-2); cursor: pointer; transition: all .18s var(--ease); }
+.chip.sel { background: var(--accent-soft); border-color: var(--accent-line); color: var(--accent-ink); font-weight: 600; }
+
+.ob-foot { padding-top: 26px; flex-shrink: 0; display: flex; gap: 10px; align-items: center; }
+.ob-foot .btn-p { flex: 1; height: 52px; }
+.ob-foot .btn-g { flex: none; padding: 0 20px; height: 52px; }
+
+.ob-gen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 30px; }
+.spinner { width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid rgba(34,37,42,.1); border-top-color: var(--accent); animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ob-gen .lbl { font-size: 15px; font-weight: 500; color: var(--ink-1); margin-top: 22px; }
+.ob-gen .sub { font-size: 13px; color: var(--ink-4); margin-top: 6px; line-height: 1.6; }
+
+/* ═══════════ 深色模式 — 深色 Frosted Glass ═══════════ */
+.phone[data-mode="dark"] {
+  background: #0D0F13;
+  --ink-1: #F1F3F6; --ink-2: #C9CED6; --ink-3: #8B919B; --ink-4: #6C727B;
+  --accent: #5BAE82; --accent-ink: #82CBA4; --accent-soft: rgba(91,174,130,.17); --accent-line: rgba(91,174,130,.3);
+  --danger: #D47878; --danger-soft: rgba(212,120,120,.14);
+  --glass: rgba(255,255,255,.055); --glass-2: rgba(255,255,255,.085); --glass-thin: rgba(255,255,255,.035);
+  --brd: rgba(255,255,255,.09); --brd-soft: rgba(255,255,255,.07);
+  --hair: rgba(255,255,255,.062);
+  --sh: 0 8px 32px rgba(0,0,0,.22);
+}
+.phone[data-mode="dark"] .blob-1 { background: #1B2740; opacity: .5; }
+.phone[data-mode="dark"] .blob-2 { background: #241F3D; opacity: .44; }
+.phone[data-mode="dark"] .blob-3 { background: #16283A; opacity: .5; }
+.phone[data-mode="dark"] .blob-4 { background: #1A2436; opacity: .4; }
+.phone[data-mode="dark"] .tabbar { background: rgba(13,15,19,.62); border-top-color: rgba(255,255,255,.07); }
+.phone[data-mode="dark"] .fab { background: rgba(32,36,44,.72); border-color: rgba(255,255,255,.1); }
+.phone[data-mode="dark"] .fab svg { stroke: var(--ink-1); }
+.phone[data-mode="dark"] .sheet { background: rgba(23,26,32,.9); border-top-color: rgba(255,255,255,.1); }
+.phone[data-mode="dark"] .scrim { background: rgba(0,0,0,.44); }
+.phone[data-mode="dark"] .veil { background: rgba(13,15,19,.9); }
+.phone[data-mode="dark"] .overlay { background: rgba(13,15,19,.95); }
+.phone[data-mode="dark"] .btn-p { background: #F1F3F6; color: #0D0F13; }
+.phone[data-mode="dark"] .btn-p.acc { background: var(--accent); color: #fff; }
+.phone[data-mode="dark"] .btn-g { background: rgba(255,255,255,.07); color: var(--ink-2); }
+.phone[data-mode="dark"] .btn-g.acc-t { color: var(--accent-ink); background: var(--accent-soft); }
+.phone[data-mode="dark"] .seg { background: rgba(255,255,255,.055); border-color: rgba(255,255,255,.08); }
+.phone[data-mode="dark"] .seg button.on { background: rgba(255,255,255,.14); color: var(--ink-1); }
+.phone[data-mode="dark"] .wd { background: rgba(255,255,255,.035); border-color: rgba(255,255,255,.07); }
+.phone[data-mode="dark"] .wd.today { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.16); }
+.phone[data-mode="dark"] .myday { background: linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.035)); border-color: rgba(255,255,255,.1); }
+.phone[data-mode="dark"] .domains span { background: rgba(255,255,255,.055); border-color: rgba(255,255,255,.09); }
+.phone[data-mode="dark"] .chain .node { background: rgba(255,255,255,.055); border-color: rgba(255,255,255,.09); }
+.phone[data-mode="dark"] .tl-check { border-color: rgba(255,255,255,.28); }
+  .phone[data-mode="dark"] .task { border-bottom-color: rgba(255,255,255,.062); }
+  .phone[data-mode="dark"] .task:first-child { border-top-color: rgba(255,255,255,.062); }
+  .phone[data-mode="dark"] .task .dot { border-color: rgba(255,255,255,.3); }
+  .phone[data-mode="dark"] .task.done .t { text-decoration-color: rgba(241,243,246,.42); }
+  .phone[data-mode="dark"] .item { border-bottom-color: rgba(255,255,255,.062); }
+  .phone[data-mode="dark"] .item:first-child { border-top-color: rgba(255,255,255,.062); }
+  .phone[data-mode="dark"] .habits { border-color: rgba(255,255,255,.062); }
+  .phone[data-mode="dark"] .habit-chip + .habit-chip { border-left-color: rgba(255,255,255,.062); }
+.phone[data-mode="dark"] .ob-opt .box { border-color: rgba(255,255,255,.3); }
+.phone[data-mode="dark"] .tl-row.done .tl-title { text-decoration-color: rgba(241,243,246,.42); }
+.phone[data-mode="dark"] .task.done .t { text-decoration-color: rgba(241,243,246,.42); }
+.phone[data-mode="dark"] .rhythm .bar { background: rgba(255,255,255,.09); }
+.phone[data-mode="dark"] .prog .bar { background: rgba(255,255,255,.12); }
+.phone[data-mode="dark"] .grid-dots i { background: rgba(255,255,255,.08); }
+.phone[data-mode="dark"] .qa-input { border-bottom-color: rgba(255,255,255,.1); }
+.phone[data-mode="dark"] .ob-in { border-bottom-color: rgba(255,255,255,.12); }
+.phone[data-mode="dark"] .grab { background: rgba(255,255,255,.18); }
+.phone[data-mode="dark"] .panel-bar { background: linear-gradient(to bottom, rgba(13,15,19,.96) 60%, rgba(13,15,19,0)); }
+.phone[data-mode="dark"] .panel { background: rgba(13,15,19,.94); }
+.phone[data-mode="dark"] .skel { background: linear-gradient(90deg, rgba(255,255,255,.05) 25%, rgba(255,255,255,.09) 37%, rgba(255,255,255,.05) 63%); background-size: 400% 100%; }
+.phone[data-mode="dark"] .ob-dots i { background: rgba(255,255,255,.16); }
+.phone[data-mode="dark"] .ob-dots i.on { background: var(--ink-1); }
+</style>
+</head>
+<body data-page-node-id="MCSZqaEXfFQnKMIEG9CKVM">
+
+<div class="phone" data-mode="light" data-nav="tabs" data-page-node-id="9ZDkSA70Fo68Zwon2ZrnRH">
+  <div class="aurora" data-page-node-id="MhlR3N9coYt8aQ3Lkj1G2Z">
+    <div class="blob blob-1" data-page-node-id="Dh9AAvRb1pkmpj23CGFXJT"></div><div class="blob blob-2" data-page-node-id="XQqvFAodCDgUtwqCEWCy30"></div>
+    <div class="blob blob-3" data-page-node-id="EUtefbm3kODBYNuCs4AJF1"></div><div class="blob blob-4" data-page-node-id="4n0zI9MZDIB64oFahBs9gF"></div>
+  </div>
+
+  <!-- 状态栏 -->
+  <div class="statusbar" data-page-node-id="H4ypDqaFIIzltoSn3wJaoA">
+    <span class="clock" id="sb-clock" data-page-node-id="pzexxhvXmjArssdco5cDoQ">10:32</span>
+    <div class="right" data-page-node-id="5eK06qyAjFvwxCY55LbAlZ">
+      <button class="icon-btn" id="btn-gallery" aria-label="屏幕目录" data-page-node-id="DqO8eFwYsKYkw6XH9qgANC">
+        <svg viewBox="0 0 24 24" data-page-node-id="UfvwbdVRpqmvdDh4nQ56mF"><rect x="3.5" y="3.5" width="7" height="7" rx="2" data-page-node-id="lDhAoHxJGwpG38xN9RcCmg"/><rect x="13.5" y="3.5" width="7" height="7" rx="2" data-page-node-id="8HMTJjk3gDNnlLpfPwemFQ"/><rect x="3.5" y="13.5" width="7" height="7" rx="2" data-page-node-id="M7Zo3GHhwi9QvVhm5A3l27"/><rect x="13.5" y="13.5" width="7" height="7" rx="2" data-page-node-id="dmM9XrZUyLDXtyhz8SVEnK"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="stage" data-page-node-id="ZYmvJWBiTVZ9uIXTo2aoaV">
+
+    <!-- ══════════════════════ AUTH ══════════════════════ -->
+    <section class="screen auth-screen" data-screen="auth" aria-label="登录" style="padding:48px 28px;display:flex;flex-direction:column;gap:18px;justify-content:center;min-height:70vh;">
+      <div style="text-align:center;margin-bottom:6px;">
+        <div style="font-size:34px;font-weight:600;color:var(--ink-1);letter-spacing:-.01em;line-height:1;">Epoch · 时</div>
+        <div style="font-size:13px;color:var(--ink-3);margin-top:8px;letter-spacing:.02em;">Shape your time. Shape yourself.</div>
+      </div>
+
+      <div class="auth-card" style="background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur-l);border:1px solid var(--brd);border-radius:var(--r-lg);padding:22px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:14px;">
+        <input class="field" id="auth-email" type="email" autocomplete="email" placeholder="邮箱" />
+        <input class="field" id="auth-pwd" type="password" autocomplete="current-password" placeholder="密码" />
+
+        <button class="btn btn-p" id="auth-signin" style="margin-top:6px;">登录</button>
+        <button class="btn btn-g" id="auth-signup">创建账号</button>
+        <div id="auth-err" style="font-size:12.5px;color:var(--danger);min-height:18px;text-align:center;"></div>
+      </div>
+
+      <button class="btn" id="auth-apple" style="background:#000;color:#fff;border:none;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16.365 1.43c0 1.14-.46 2.21-1.21 3.01-.79.85-2.07 1.51-3.21 1.43-.13-1.13.43-2.31 1.16-3.07.81-.87 2.18-1.55 3.26-1.37zM20.5 17.4c-.55 1.27-.81 1.83-1.51 2.95-.99 1.59-2.39 3.57-4.13 3.59-1.55.02-1.95-1.01-4.05-.99-2.1.02-2.54 1.01-4.09.99-1.74-.02-3.07-1.81-4.07-3.4C.07 16.71-.27 11.34 1.4 8.16 2.6 5.86 4.71 4.46 6.72 4.46c2.05 0 3.34 1.13 5.03 1.13 1.64 0 2.64-1.13 5.01-1.13 1.79 0 3.69.97 5.04 2.65-4.43 2.43-3.71 8.74-1.3 10.29z"/></svg>
+        使用 Apple 登录
+      </button>
+
+      <div style="text-align:center;font-size:11.5px;color:var(--ink-3);line-height:1.55;margin-top:10px;">
+        数据同步到云端，加密传输，仅你本人可见。<br/>
+        <a href="#" id="auth-forgot" style="color:var(--ink-2);text-decoration:underline;">忘记密码？</a>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ TODAY ══════════════════════ -->
+    <section class="screen on" data-screen="today" data-page-node-id="BuJbzpD95BFLy6ItPqUJyk">
+      <div class="head" data-page-node-id="L4W7wMedqfIDJv1Vv8bFOi">
+        <div class="greet" id="greet" data-page-node-id="SwOv4XNO0C3Td4m62RuGza">Good morning.</div>
+        <div class="date-line" id="date-line" data-page-node-id="XjLgmCYxgzoZk7AQaCWDSk"></div>
+        <div class="prog" data-page-node-id="f26fXtZT6NEdZZRYqcFIWj">
+          <span class="n1 num" id="prog-a" data-page-node-id="UlKZGmbU6hHVaeGhgqO7UP">3</span>
+          <span class="n2" id="prog-b" data-page-node-id="ZqfHNeztbyhJNXClQRlD74">/ 6 · completed</span>
+          <div class="bar" data-page-node-id="l7jHPH13JlWioc3ulnDObl"><i id="prog-bar" style="width:50%" data-page-node-id="4u9R4tkVFKfZmg7qIJuHlq"></i></div>
+        </div>
+      </div>
+
+      <div id="today-body" data-page-node-id="mPndbwRFZFhgAkEcM8b5UC"></div>
+    </section>
+
+    <!-- ══════════════════════ PLAN ══════════════════════ -->
+    <section class="screen" data-screen="plan" data-page-node-id="hdg9UwUDw9MfhEXebOvKVi">
+      <div class="head" data-page-node-id="4hqXcAv3SvwxEaRb0gKd5t">
+        <div class="eyebrow" data-page-node-id="0nDWCN751BxukRWBCCj5N7">Plan</div>
+        <div class="t-page" data-page-node-id="ClMYTg0EtbpUHvzLxOXQMz">规划</div>
+        <div class="sub-note" data-page-node-id="ZC00QMFLJOqkbVE1zaTIE9">先收集，后安排。不要强迫自己立刻决定日期。</div>
+      </div>
+
+      <div class="seg" id="plan-seg" data-page-node-id="8KfphmPmwoIWs809Uk3vWz">
+        <button class="on" data-page-node-id="dbqw21wT2VBurTHrsE77TK">Inbox</button><button data-page-node-id="FgkcGyjiYIm5YC4RxCofxL">Today</button><button data-page-node-id="7YJ3keB5fqGrTo61qW1N8S">This Week</button><button data-page-node-id="FcIvD2eBSFs7Bswnv5PzDO">Upcoming</button><button data-page-node-id="iSCiFd473aR36yhTBmrVDD">Unscheduled</button>
+      </div>
+
+      <div class="week-strip" id="plan-week" data-page-node-id="rUy8ISXfUF3E83HC61Eg3S"></div>
+
+      <div class="adapt" id="adapt-card" data-page-node-id="AmUXY27V3IYKReAgqWhn6Z">
+        <div class="q" data-page-node-id="98McOB43X7ZJlBEQg3JqNt">英语没有完成。</div>
+        <div class="d" data-page-node-id="rrIO9MxQVjIOMml6FfIgOP">Move English to Saturday 15:30?</div>
+        <div class="why" data-page-node-id="FCec4I0nvtW4r9YOv9xf9o">判断依据：优先级中 · 周六 15:30 有 60 分钟空档 · 与「阅读」不冲突</div>
+        <div class="btn-row" data-page-node-id="xqAdmAxXZHrJXUbgSjEIQx">
+          <button class="btn btn-p" id="adapt-accept" data-page-node-id="3lDmHrNrQfv4SvyXHCwsEz">Accept</button>
+          <button class="btn btn-g" id="adapt-change" data-page-node-id="hN156uU78VYvidMqz5drP8">Change</button>
+        </div>
+      </div>
+
+      <div class="myday" data-open="sheet-myday" data-page-node-id="wFD1H3R7r5reu4Wi09DcVs">
+        <div class="eyebrow" data-page-node-id="lehQx8rCyQpHLZ3RyKmBuo">Plan My Day</div>
+        <div class="q" data-page-node-id="B290G7iRn1fWEDlXVidUDw">生成建议日程</div>
+        <div class="d" data-page-node-id="wla4SwAfRAkVAIUCLnLEBA">根据固定工作时间、Routines、运动与学习安排，以及你今天的空档，自动生成一版时间轴。</div>
+        <div class="go" data-page-node-id="kJaiPM4GYHMJ8YBcZvQEq5">Generate <svg viewBox="0 0 24 24" data-page-node-id="Y1cjCAElDiwFzW7tyciyzB"><path d="M5 12h14M13 6l6 6-6 6" data-page-node-id="VIVwZumiQf02OeR6N33f9w"/></svg></div>
+      </div>
+
+      <div class="sec tight" data-page-node-id="qKVkKi5uIc2ZgeidAlMPqU"><h2 id="plan-label" data-page-node-id="y6sovSIZpjYarSLt5Zmg6T">Inbox</h2><span class="n" id="plan-count" data-page-node-id="6eHOCcGD7DHJHKOIpZNqf3"></span></div>
+      <div id="plan-list" data-page-node-id="uJKvpeDA8HLDgF9kYU85nK"></div>
+    </section>
+
+    <!-- ══════════════════════ PROGRESS ══════════════════════ -->
+    <section class="screen" data-screen="progress" data-page-node-id="jQOKNxKoUjrYOZiUavlkLA">
+      <div class="head" data-page-node-id="mqgHtkpNURnDvZSyCj8maz">
+        <div class="eyebrow" data-page-node-id="fhFioAafmBm3fLcWQ4SQ96">Progress</div>
+        <div class="t-page" id="prog-title" data-page-node-id="C07JBH4FuMdZ85gmoULvtT">本周</div>
+        <div class="sub-note" data-page-node-id="EZFr7Wb8b1AeT3iCMPMMkD">不做鸡血。只展示真正影响下一步判断的数据。</div>
+      </div>
+
+      <div class="seg" id="prog-seg" data-page-node-id="yXFeWQtd8872PpuOAIaY88">
+        <button class="on" data-page-node-id="lzECH3Dsb4Edz3hqaF6Cyw">This Week</button><button data-page-node-id="9rmqIWCWjg1oHK3CbswPrM">This Month</button>
+      </div>
+
+      <div id="prog-body" data-page-node-id="pWU4vBQeA43YsnSnn6RGac"></div>
+    </section>
+
+    <!-- ══════════════════════ ME ══════════════════════ -->
+    <section class="screen" data-screen="me" data-page-node-id="apjLJFlrpjTtBSllCCA6Jx">
+      <div class="head" data-page-node-id="6RUUKu5plh6hviOVdH8DTm">
+        <div class="eyebrow" data-page-node-id="rSsDzZZFCJhqQbA1rOKTEg">Me</div>
+        <div class="t-page" data-page-node-id="PTT5WNyDBvebJMlxB6ralW">我的系统</div>
+        <div class="sub-note" data-page-node-id="xeKkj5SChmt8L0Z6RpLPLA">长期方向、目标、Routines 与习惯。</div>
+      </div>
+
+      <div class="direction" data-push="direction" data-page-node-id="GpWbDRpNIiRlEhE2kL32Z5">
+        <div class="eyebrow" data-page-node-id="GFub9IicIuVTgUyU3r4apF">Direction</div>
+        <div class="state" id="dir-state" data-page-node-id="QGVn6wwdBrMdG9JyEnAQSN">I want more freedom<br data-page-node-id="ODjNygaNgYBmfCLMagJ1kB"/>and more choices.</div>
+        <div class="domains" id="dir-domains" data-page-node-id="zp7dVeV7ngetm6fxj7jr0Z">
+          <span data-page-node-id="MGGZhuiHtwZiGC1y8tKsRm">Career</span><span data-page-node-id="MOD0wSt8bA5mHKPXdyvkfX">Income</span><span data-page-node-id="3FiGvTysBXxnw1PnhXOVSt">Health</span><span data-page-node-id="mzJtctMXv0URU4I1brmHeh">English</span><span data-page-node-id="e7RCIMbf5wepfTNW8HSwFu">Travel</span><span data-page-node-id="W7S8aQxrBAU8FlCeZGHEEy">Knowledge</span>
+        </div>
+        <div class="chain" data-page-node-id="6PYVN9CTJciZRzB6S6Nn3u">
+          <span class="node on" data-page-node-id="a6mDAP7vhODvrdnfq0QAOr">Direction</span><span class="arr" data-page-node-id="PLrKlc81mHDyqjV2AesBub">→</span>
+          <span class="node on" data-page-node-id="FdnB9DRvzBcFK6yOEGQnvW">Goals</span><span class="arr" data-page-node-id="o9UeM3F8LzCTnFeRPm1VkO">→</span>
+          <span class="node on" data-page-node-id="e87NrezlvJRKEQUxaHVmdM">Routines</span><span class="arr" data-page-node-id="TbdIqBuldnQdERfwtFH52b">→</span>
+          <span class="node" data-page-node-id="ehcEW4EOQZ0vCIQ5TZILgX">Today</span>
+        </div>
+      </div>
+
+      <div class="sec" data-page-node-id="e4RrVQf61HbzG34aYHGKlT"><h2 data-page-node-id="hd4rHGiFKjmY6IUCMAEkn8">Goals</h2><span class="n" data-page-node-id="ep6U5VtPVfRwXH334VRAzC">当前焦点</span></div>
+      <div id="me-goals" data-page-node-id="HTDwtOVnaIKp84rGJ8QOsP"></div>
+
+      <div class="sec" data-page-node-id="dXZLQz0G7AiDbVGygf0Kym"><h2 data-page-node-id="KtPI4LUUCZ3C3WJUb8ewpv">Routines &amp; Habits</h2><span class="n" data-page-node-id="FhGxaeNLVAoEmcDmZmms0i">5</span></div>
+      <div id="me-routines" data-page-node-id="zP9D3jn6GAbasQLhk68dcE"></div>
+
+      <div class="sec" data-page-node-id="VkgUsZHujBALtVH1AN1H5S"><h2 data-page-node-id="43F7rilqyVDK1LRyO0DsG0">Health</h2><span class="n" id="me-health-label" data-page-node-id="ORWzxVnK2Y8sedtBK0FcSW">未连接</span></div>
+      <div id="me-health" data-page-node-id="CDwJxNFbMiJhMN7WLmhyN2"></div>
+
+      <div class="sec" data-page-node-id="jWHkEG6Tt0UMF4UvEY8aCC"><h2 data-page-node-id="lBUGRNLEMhD6dnEJ2zI5pH">System</h2></div>
+      <div class="glass" style="padding:2px 18px" data-page-node-id="XdV0jGCd1KCYg6pP5a6bsC">
+        <div class="row" data-push="weekly" data-page-node-id="Pfh0DEIfqXAKhgNNUPDZSj"><span class="t" data-page-node-id="ctK7flofx4YOmamy33JAJs">Weekly Review</span><span class="d" data-page-node-id="n2JirOY25z8FN7WqbVIKL8">本周待写</span><span class="chev" data-page-node-id="stgC7rvcBOAYMjphu8NNWM"></span></div>
+        <div class="row" data-push="learning" data-page-node-id="2GfIVBTJ9nbpZdZOxvBPaK"><span class="t" data-page-node-id="nAAZQx4Mu0ECtNVigCEhnh">Learning</span><span class="d" data-page-node-id="6nflhonFRgQvoNX54HGVAB">在学 · 4h 20m / 周</span><span class="chev" data-page-node-id="32PNmJbEoE8Ip34TCGlXmQ"></span></div>
+        <div class="row" data-push="journal" data-page-node-id="u5taY8EHC9BHoVsxpnjP26"><span class="t" data-page-node-id="vgxJsSkovC8vC6Uz5Yq2ZN">Journal</span><span class="d" data-page-node-id="9pXL78SZITVgIn3cq4fmQy">回顾 · 2 条</span><span class="chev" data-page-node-id="nnJPfTCPMU6GyNlysgPqgI"></span></div>
+        <div class="row" data-push="health-connect" data-page-node-id="1z8KYcP1jT5Zwg7uX2gcAu"><span class="t" data-page-node-id="juvzsGmFJrf1WdWa8pygFC">Health &amp; Devices</span><span class="d" id="me-hd-sub" data-page-node-id="p9eB8D1ivR9q2dl6MHmJa1">连接数据源</span><span class="chev" data-page-node-id="PFSyusbXtVWFzbCHcv8rIg"></span></div>
+        <div class="row" data-push="settings" data-page-node-id="btMl2lgnXNICs5Kb71EIfG"><span class="t" data-page-node-id="3CwFD9rKsfAAtPYpFTxcgM">Preferences</span><span class="d" data-page-node-id="80w5j4Tc8trLIr0lpPCjF9">外观 · 通知 · 日程</span><span class="chev" data-page-node-id="hoqlLQMpWgksSmNeqDESOL"></span></div>
+        <div class="row" data-overlay-open="onboarding" data-page-node-id="1WWQrptZUx6Bbvsv4g9C6a"><span class="t" data-page-node-id="QYze1gc1RsBbN2SEyRA5Wh">查看首次引导</span><span class="d" data-page-node-id="86niVLp4otOQqe7oZHNmRA">8 步 · 约 50 秒</span><span class="chev" data-page-node-id="NqR4wPoI8DxZ1kuQ55vbDE"></span></div>
+      </div>
+
+      <div style="height:8px" data-page-node-id="MDQ9cK6ObYV8y4DP7BdDTM"></div>
+    </section>
+
+    <!-- ══════════════════════ 次级页面 ══════════════════════ -->
+
+    <!-- Direction -->
+    <section class="panel" data-panel="direction" data-page-node-id="Lc8moH6KefRPyidPmW9AGH">
+      <div class="panel-bar" data-page-node-id="d4dKyN8nvn6wGUmRQAqaQj"><button class="back" data-back data-page-node-id="RqNkvg8mcn3pN1FcLBnNoe">
+        <svg viewBox="0 0 24 24" data-page-node-id="k1FW2J24HG7TOwWBy6U1JN"><path d="M15 5l-7 7 7 7" data-page-node-id="zgQiODhb4QtGApSAKLCLun"/></svg>Me</button>
+      </div>
+      <div class="eyebrow" data-page-node-id="w6ZPEnK2ZwEiHnTtYnKaAp">Direction</div>
+      <div class="t-panel" style="margin-top:8px" data-page-node-id="3NVcD5ZX2C2oK5wHaQprLO">Where are you going?</div>
+      <div class="t-sub" style="margin-top:10px" data-page-node-id="5liX0aihkutxn3YiEh4yhN">不是愿景板，也不是鸡血。只是一句话，用来在你要放弃一项任务时判断它是否还值得。</div>
+
+      <div class="glass" style="padding:20px;margin-top:22px" data-page-node-id="lcCMjoS1FBa9DCf9Ai9pex">
+        <div class="eyebrow" style="color:var(--accent-ink)" data-page-node-id="wIucpBVsigWiOquVZPfvXi">你的方向</div>
+        <div class="t-card" style="margin-top:10px" data-page-node-id="oluj59hESWvj90YYbWRwLj">I want more freedom and more choices.</div>
+        <div class="t-sub" style="margin-top:8px" data-page-node-id="xqDrDZad4YF0GkCGtZGwvs">我想要更大的自由，和更多的选择权。</div>
+        <div class="domains" style="margin-top:16px" data-page-node-id="MaXC3OMuD6SNgWKOaySaGL">
+          <span data-page-node-id="FpTSlx9IFjANfJDWHvDkVI">Career</span><span data-page-node-id="pFDDG8ISQtbsBtglhzoyUA">Income</span><span data-page-node-id="srRBFJ0EyvciTfiEcnYSr6">Health</span><span data-page-node-id="svEdKjUFpnOHMXZDy6VJEi">English</span><span data-page-node-id="c9J4weSpIe53ExM6xtjJFG">Travel</span><span data-page-node-id="TuNKVF1aA2SR50bN8vkTih">Knowledge</span>
+        </div>
+      </div>
+
+      <div class="sec" data-page-node-id="MJLsO2wBP2xdJ7vJpt5VOG"><h2 data-page-node-id="COLn2FKHWnoHuzS5fC0ZGK">这条链路是否成立</h2></div>
+      <div class="glass" style="padding:18px" data-page-node-id="AJVCM3lVcMxLivC8IWjmdk">
+        <div class="metric" data-page-node-id="FkZnKrA3TgUp3Rks64KLHX"><span class="m" data-page-node-id="m2kLhy63URYTVX6M4COBG0">Direction → Goals</span><span class="v" data-page-node-id="M01oWWyMYxT0LjtD6jQTUs"><b data-page-node-id="cV6fhuQ8dhOd7pJ9gY4AKw">6</b> 个目标已关联</span></div>
+        <div class="metric" data-page-node-id="YZUoBfF3xCRwAMGPYqdHsz"><span class="m" data-page-node-id="UBJzxJnNaItvpZR7pO9zM0">Goals → Routines</span><span class="v" data-page-node-id="sea6zPpscgAhMdaB70RyEj"><b data-page-node-id="oT8NJYG7BZ5FluhwC2lk1f">4</b> 条 Routine 在跑</span></div>
+        <div class="metric" data-page-node-id="XVtHFWBFQUrUYnksjcDM2Z"><span class="m" data-page-node-id="PAHXIKJnIU6cG21Zj4pB8g">Routines → Tasks</span><span class="v" data-page-node-id="DKW6xYeTTizBwYYmDKIPbM"><b data-page-node-id="fCQ7LcMZWjDERQ3nzO1Yow">本周 31</b> 项</span></div>
+        <div class="metric" data-page-node-id="EKkavkn4OkIPBprZZEOLln"><span class="m" data-page-node-id="3pGXPcmifyjp6yZrsB3wPc">无关联的任务</span><span class="v" data-page-node-id="5vCgSNYKuB8GyX1J8aizZD">2 项 · 值得清理</span></div>
+      </div>
+
+      <div class="insight" data-page-node-id="oE81Ne5RdqZy1eGZJLVcPU">
+        <div class="q" data-page-node-id="Gs5OrPcadHP1iNRY4eBXP9">有 2 项任务没有挂在任何 Goal 上。</div>
+        <div class="d" data-page-node-id="P4k8DWeSknuM8otGx3E2eX">它们不必然是错的，但也无法回答「我为什么现在做这个」。要不要现在归位，还是先放着？</div>
+        <div class="btn-row" style="margin-top:14px" data-page-node-id="cdQ2U8ZnMg0fI957H24vsk">
+          <button class="btn btn-g btn-sm acc-t" style="flex:1" data-page-node-id="egI3KAlyrFWrAqdEt0mzZH">查看这 2 项</button>
+          <button class="btn btn-g btn-sm" style="flex:1" data-page-node-id="j8q5BobA734hXRDTC8LWZo">先放着</button>
+        </div>
+      </div>
+      <div style="height:24px" data-page-node-id="0YPERzEN6YS5blpjXHU0I9"></div>
+    </section>
+
+    <!-- Goal Detail -->
+    <section class="panel" data-panel="goal" data-page-node-id="r83AmezUUkeULYw7zCF9kZ">
+      <div class="panel-bar" data-page-node-id="T0dhiLYjA4aSWnHLYb2EIk"><button class="back" data-back data-page-node-id="PfWJZSYwCehglcn8TrjOAs">
+        <svg viewBox="0 0 24 24" data-page-node-id="ZzqKsHAVMp3up2GH9jr1W3"><path d="M15 5l-7 7 7 7" data-page-node-id="XSZbK9QUKbJh51vwvmWY3x"/></svg>Me</button>
+      </div>
+      <div class="eyebrow" id="gd-kicker" data-page-node-id="g0cLZTvLUiwBz9I8boGirP">CAREER</div>
+      <div class="t-panel" style="margin-top:8px" id="gd-title" data-page-node-id="hxMjruxTKWLHzZSf5vEY2u">Learn automotive engineering systems</div>
+      <div class="t-sub" style="margin-top:8px" id="gd-note" data-page-node-id="kldIOWlfjBjZGtCkV2h80W">只展开当前层级。更长的周期折叠在后面。</div>
+
+      <div class="glass" style="padding:4px 18px;margin-top:22px" id="gd-ladder" data-page-node-id="7ysVPoFW2Y56YsoxhTsCUM"></div>
+
+      <div class="sec" data-page-node-id="VaBOlwgBiagnDRCu4qITBs"><h2 data-page-node-id="ej1vEoly3K0O2kG4pMTAj3">Progress</h2><span class="n" id="gd-pct" data-page-node-id="xA24PqerP8z6IZPnTw6LDi">62%</span></div>
+      <div class="prog" data-page-node-id="cZIiOyXrgYUShpR8h2iOBT"><div class="bar" style="flex:1;height:5px" data-page-node-id="JJmvPZAZR97bzl03llBDSB"><i id="gd-bar" style="width:62%" data-page-node-id="5OcZrA73vMt589dm8iWUXE"></i></div></div>
+
+      <div class="sec" data-page-node-id="kUDA7zWcsdxihESuUVl5Ly"><h2 data-page-node-id="bTmPS17esuRm2PqVePWQHc">Current Focus</h2></div>
+      <div class="insight" style="margin-top:0" data-page-node-id="xqS9FvFsrF4JR9FaKAroAU">
+        <div class="q" id="gd-focus" data-page-node-id="pmAtjqopVZqwWFGisuMfZA">APQP / PPAP 流程</div>
+        <div class="d" id="gd-next" data-page-node-id="hXq48jKzupyn2IxQdm7gWO">Next step：读完 APQP 第 2 章，输出一页流程对照表</div>
+      </div>
+
+      <div class="sec" data-page-node-id="5wUZ7nul2DlT3ZD16FrWWB"><h2 data-page-node-id="t7uXAED05JbNfQu55BVua9">Associated Routines</h2><span class="n" data-page-node-id="IVIMVfjRtPuNHxGLGJIYGm">2</span></div>
+      <div class="glass" style="padding:2px 18px" data-page-node-id="a4q0AXr7RnEETTdOGSUOw9">
+        <div class="row" data-page-node-id="LFEzGFUmBwSvWqTp5kFxjL"><span class="t" data-page-node-id="HCPPzS6dAL7BtbtoPkJFO8">Tuesday Learning</span><span class="d" data-page-node-id="6qg6xD4cGaAfwaeRpjv5j8">每周二 22:00</span><span class="chev" data-page-node-id="2RSzscFG6L7Fl2A3Q8XC3T"></span></div>
+        <div class="row" data-page-node-id="5l0xmYhXDmmc8SkU4iqxUG"><span class="t" data-page-node-id="2czdgx4Ty5sjDNKemJvmkG">Morning Reading</span><span class="d" data-page-node-id="6JiDexAWChEdGh7750QWjZ">每天 07:20 · 15 min</span><span class="chev" data-page-node-id="AWSvhRCkwE19Fb3r8OUORs"></span></div>
+      </div>
+
+      <div class="sec" data-page-node-id="TWZtohCCfsN7KWmyjoBBgd"><h2 data-page-node-id="ZebCrlvvev6vuQvtdkQ7m7">Associated Tasks</h2><span class="n" data-page-node-id="sWSoswtgd1HT3wJSclPcvp">本周 4 项</span></div>
+      <div class="glass" style="padding:2px 18px" data-page-node-id="hdV0XfvqERy2VPebeFjIQy">
+        <div class="row" data-page-node-id="ER2UK8MlZZYYXL4OLQRppK"><span class="t" data-page-node-id="Cpf2GBdd58U220pPwqClmz">Learn Product Design</span><span class="d" data-page-node-id="iW7TOOOncVUtZ3K5WLNlMe">今天 22:00</span><span class="chev" data-page-node-id="gLHKD7xvJGPwyRDEmUUqz3"></span></div>
+        <div class="row" data-page-node-id="TGQbXBpXQ4Y3GBhCXFrddD"><span class="t" data-page-node-id="TYVZ88khNiZmoZZwfuKCz4">APQP 第 2 章</span><span class="d" data-page-node-id="19aCaX7Jd0qsfqq1eXLBm6">周四 22:00</span><span class="chev" data-page-node-id="8HxUPd4ggzekupQX3Qf37H"></span></div>
+        <div class="row" data-page-node-id="mSubtkapvqQhj1QOEZJqrK"><span class="t" data-page-node-id="la7IrJMLaI3tucKAOx3Ac7">整理 Gentherm 资料</span><span class="d" data-page-node-id="3tijqxdvHrT0FK98PvkLRB">周六 15:30</span><span class="chev" data-page-node-id="QQdpRNvvLqSRFfIJ8jnQZU"></span></div>
+        <div class="row" data-page-node-id="N7htR31F27ZeWNFAvkM6lI"><span class="t" data-page-node-id="3MT5fW1k0g2lyPRgadvpRA">输出流程对照表</span><span class="d" data-page-node-id="Rc5LZFsKPbEHyt4k0qOKwX">周日 20:00</span><span class="chev" data-page-node-id="NH0Uxm3pPG3Gt3zp0Lt14n"></span></div>
+      </div>
+      <div style="height:24px" data-page-node-id="EE0JQe1AfESz9ZFQsGoUdA"></div>
+    </section>
+
+    <!-- Routine Detail -->
+    <section class="panel" data-panel="routine" data-page-node-id="guRhE6kHfAjZj22VVYH8RU">
+      <div class="panel-bar" data-page-node-id="c0CLpq6tNxyOj9Wco1gNaq"><button class="back" data-back data-page-node-id="kusN1uDUsrKZhc9cgugNt3">
+        <svg viewBox="0 0 24 24" data-page-node-id="BcAZ8awpN9TtJAp71nQT4b"><path d="M15 5l-7 7 7 7" data-page-node-id="TP2sDSoimymbVQK6eAI0Lt"/></svg>Me</button>
+      </div>
+      <div class="eyebrow" data-page-node-id="z5cqFI05nY0Osx87cNsXRe">Routine</div>
+      <div class="t-panel" style="margin-top:8px" data-page-node-id="mm9khDz4IDqyqfWhzeKm2H">Tuesday Learning</div>
+      <div class="t-sub" style="margin-top:8px" data-page-node-id="KsHGfxirNmC8ojm1qUuDfk">每周重复出现的生活结构。修改一次，未来的 Task 跟着变。</div>
+
+      <div class="glass" style="padding:4px 18px;margin-top:22px" data-page-node-id="SyF9u2sBVbrfADlMOH7wOT">
+        <div class="metric" data-page-node-id="eCnKcvTNaKPXkn9n6X17L3"><span class="m" data-page-node-id="ceFVwqZucM6wIvF5Ljh17O">重复</span><span class="v" data-page-node-id="pPXh7JEmJQHhJaHQ6JNwck"><b data-page-node-id="SecQhkPfTjbCjuRAQ8vmWE">每周二</b></span></div>
+        <div class="metric" data-page-node-id="2kkBuiGNonSct9XcYMA9P0"><span class="m" data-page-node-id="wVwkMVSHHmrdDytKoQ9pJL">时间</span><span class="v" data-page-node-id="on6buRYiWbQzG3tYNQemsc"><b data-page-node-id="RRJYbSHG21Ek8PwO8BMGAt">22:00</b> · 60 min</span></div>
+        <div class="metric" data-page-node-id="4qAtO8GEZBxSSG7OJnWhkC"><span class="m" data-page-node-id="NEhvyoXyqAeFIJjmDzsEBN">关联 Goal</span><span class="v" data-page-node-id="ecRscyM1BiUWg5kPKkH514">Career</span></div>
+        <div class="metric" data-page-node-id="DGkPBRjtlz3lNYiXE4qCM8"><span class="m" data-page-node-id="jEwwCCaU4WCQGWc4VDGIup">命中率</span><span class="v" data-page-node-id="AEpZbKHmTo1VRnF39LGhal"><b data-page-node-id="swqH6CFFMoiucy1omS51ha">近 8 周 6 次</b></span></div>
+      </div>
+
+      <div class="sec" data-page-node-id="FSV9dVUn4jcRnSGXjYGytZ"><h2 data-page-node-id="QyjcHeVMBtXfs89yBNNd0f">Routine Items</h2><span class="n" data-page-node-id="hcw0TIdN5tuNV7wfWgsVBv">4</span></div>
+      <div class="glass" style="padding:2px 18px" data-page-node-id="fJTCB5VadWI39ssnyNT7V0">
+        <div class="md-row" data-page-node-id="W8rZMKlB2kyynmRAwMsHZ0"><span class="tm" data-page-node-id="MliXCkhBVCzRkDUBhav9HF">22:00</span><div data-page-node-id="vPsAWSjMUnl6wDDOEWx6gF"><div class="ti" data-page-node-id="H0kfsZemsQ57Hmiy3sCKOF">Product Design</div><div class="src" data-page-node-id="8VdNUfwGkGZGqvh0dAHjjx">阅读 + 笔记</div></div></div>
+        <div class="md-row" data-page-node-id="okX0CWXsCgOR5aN42mTNHJ"><span class="tm" data-page-node-id="TZNNxAfoYSN9mn0sFJtsSL">22:30</span><div data-page-node-id="KsWhJLFAWhAySmoz9dlFtw"><div class="ti" data-page-node-id="mXIDOGSBBNisbW9WvktdtB">Case 拆解</div><div class="src" data-page-node-id="ykmLgUgUR0JAvIhxqZ9Zxm">每周一个产品</div></div></div>
+        <div class="md-row" data-page-node-id="fJE2T1yO7j1DqfQFNk0vwk"><span class="tm" data-page-node-id="n5T6Rc8FTY3Zk88r4Qyjr9">22:50</span><div data-page-node-id="WAGtrN3AYO3DC92fBlbFGI"><div class="ti" data-page-node-id="96Gy5jBrSqU4ihCeCgBfhd">输出一页总结</div><div class="src" data-page-node-id="0I4wvUO9b0jcziFXrElq15">必须产出</div></div></div>
+        <div class="md-row" data-page-node-id="GMm2W3Bk8IoIc4MaeFbFcx"><span class="tm" data-page-node-id="otyAvhIrmUI50K2AxDM8kU">23:10</span><div data-page-node-id="ZJICUDsxNDh6rhrmN3R9mL"><div class="ti" data-page-node-id="C4U3w5sWnpTmbLiNm15xY1">准备睡觉</div><div class="src" data-page-node-id="tAxS0yIubSDDDXTQOmjMTO">缓冲</div></div></div>
+      </div>
+
+      <div class="sec" data-page-node-id="QFhwuKnMNfFfE06oH6o9CQ"><h2 data-page-node-id="br0BMd52z7bmV50dn2zqu2">操作</h2></div>
+      <div class="btn-row" data-page-node-id="MIzW8EpZSjgLs6HpveUP4X">
+        <button class="btn btn-g" style="flex:1" data-page-node-id="H5dqt9UkCiyLQ7bIa8NGYp">Skip this week</button>
+        <button class="btn btn-g" style="flex:1" data-page-node-id="olxX8cVBlqxlTAf5bIF8js">Reschedule</button>
+        <button class="btn btn-g" style="flex:1" data-page-node-id="qkzCRosDF4Pv9plBloyfeT">Duplicate</button>
+      </div>
+      <div style="text-align:center" data-page-node-id="dBN15cgH4emmBA6TL9IvXC"><button class="btn btn-d" data-page-node-id="fpfxsFQD8MfAMG2byY2oaA">Delete Routine</button></div>
+    </section>
+
+    <!-- Habit Detail -->
+    <section class="panel" data-panel="habit" data-page-node-id="3WAUs8fRG44KfAx9nk4PuE">
+      <div class="panel-bar" data-page-node-id="5b0rPgfFawdqRDYxjcIAMr"><button class="back" data-back data-page-node-id="JroD863gCaOiJadmxtFeT8">
+        <svg viewBox="0 0 24 24" data-page-node-id="WT7MCmwXSdgRFsvk9k7RGH"><path d="M15 5l-7 7 7 7" data-page-node-id="JNhvKPObQGin437xt0Gb4w"/></svg>Me</button>
+      </div>
+      <div class="eyebrow" data-page-node-id="0S2fhrjyHzqyU5CAFiDQlp">Habit</div>
+      <div class="t-panel" style="margin-top:8px" data-page-node-id="QL9ekDUWejSYQuOAkhfPqe">Run</div>
+
+      <div class="glass" style="padding:4px 18px;margin-top:22px" data-page-node-id="feg7MnarILpMbGk0MT96kU">
+        <div class="metric" data-page-node-id="UMQiMLbLfbNxsmqFAWSffA"><span class="m" data-page-node-id="HeFlQFe1qtYPTnKfDu9OQv">Consistency</span><span class="v" data-page-node-id="d6vPwebsoGNghFE3rXkX0I"><b data-page-node-id="OTDECjVGoogL5xJi4A3Rp5">84%</b></span></div>
+        <div class="metric" data-page-node-id="4KRAi1TKRfWrJxn9csyR0e"><span class="m" data-page-node-id="MRiQehWL8XYTCM1lp59qLb">Frequency</span><span class="v" data-page-node-id="4FhKVW95OIJTUvFQkE4jvz">Mon / Wed / Fri</span></div>
+        <div class="metric" data-page-node-id="7aqoc0jkigfrIvXnxu6Wqp"><span class="m" data-page-node-id="01OSpuUHgiHWOIOMHCbPbI">Reminder</span><span class="v" data-page-node-id="lXGPBzzQrXvH03hsLYezjs">20:00</span></div>
+        <div class="metric" data-page-node-id="ozGy08DWSdmhOD1xpnFjWk"><span class="m" data-page-node-id="0braNpN9bgkCsY4uYtGakX">Current run</span><span class="v" data-page-node-id="o5DVXrIehqbHOAs5d7YLV9"><b data-page-node-id="2AaiPPGOUyxGSYgR09aD2N">3 周</b></span></div>
+      </div>
+
+      <div class="sec" data-page-node-id="NYDr32RCrTdoU2wCW0Ayo2"><h2 data-page-node-id="NOH0yeXyQ3WtBqOlBTRvgE">Calendar</h2><span class="n" data-page-node-id="U8JaCNaqTMsKBogLWBctJx">近 10 周</span></div>
+      <div class="grid-dots" id="habit-dots" data-page-node-id="Comb1QmTFdO8LoLIAH51vm"></div>
+      <div class="t-cap" style="margin-top:10px" data-page-node-id="F5j6W1IAgq4ySoMtXqdkLa">不统计连续天数，不做排行榜。只看节奏是否稳定。</div>
+
+      <div class="insight" style="margin-top:22px" data-page-node-id="1FIMGJVJBYtTAWZkGPJcjc">
+        <div class="q" data-page-node-id="rSyzRRPZ1gbNK6CtTxrTZJ">周三的执行率明显低于周一和周五。</div>
+        <div class="d" data-page-node-id="tbzkSGcgTG9jRkGbD1a40h">如果把周三移到周四 20:15，命中率预计从 62% 到 88%。</div>
+        <div class="btn-row" style="margin-top:14px" data-page-node-id="Lq6Mbu8vrJyvcgZMRXfW0G">
+          <button class="btn btn-g btn-sm acc-t" style="flex:1.3" data-page-node-id="FdJirUahwrJLlS68Twuzri">移到周四</button>
+          <button class="btn btn-g btn-sm" style="flex:1" data-page-node-id="ey5L2MAMUKS8hA9OdCvLH8">保持现状</button>
+        </div>
+      </div>
+      <div style="height:24px" data-page-node-id="SR23fauRJGlgF4rrwXWIVN"></div>
+    </section>
+
+    <!-- Weekly Review -->
+    <section class="panel" data-panel="weekly" data-page-node-id="nJfNCtqcz9Oi3idwvJ5sAj">
+      <div class="panel-bar" data-page-node-id="6GspHZ2k1nmHx29iywTje0"><button class="back" data-back data-page-node-id="kXRK0XWs3yyFe5xYdTFXTY">
+        <svg viewBox="0 0 24 24" data-page-node-id="9bhVqWdAQgNu2qjuOxLw7E"><path d="M15 5l-7 7 7 7" data-page-node-id="pKpLsmJv6Qx7Dixe4oR83q"/></svg>Me</button>
+      </div>
+      <div class="eyebrow" data-page-node-id="GeNvZvtoYCF8drJatEMqyC">Reflection</div>
+      <div class="t-panel" style="margin-top:8px" data-page-node-id="1IcjABN8ewfDbRmvVPiL1a">这一周</div>
+      <div class="t-sub" style="margin-top:8px" data-page-node-id="KJgD8vp7jWneYqs38wFfN9">每周只问三个问题。不做日记系统。</div>
+
+      <div class="glass" style="padding:20px;margin-top:22px" data-page-node-id="WqaQS4Gl9JujMtEFhIWFkD">
+        <div class="t-body" data-page-node-id="xh2pNNwpQJzBc5rvP5TDlq">What went well?</div>
+        <input class="field" placeholder="这周做成了什么…" data-page-node-id="ifHUlzhYnwPS2zhdudvkEb" />
+      </div>
+      <div class="glass" style="padding:20px;margin-top:10px" data-page-node-id="lfylfBEO6s7JEl5jCB1ywS">
+        <div class="t-body" data-page-node-id="F52BfHzDJfuwuAgcJsheqf">What wasted time?</div>
+        <input class="field" placeholder="什么消耗了你…" data-page-node-id="39QCKzczMAfMGGd2AyJOMG" />
+      </div>
+
+      <div class="glass" style="padding:20px;margin-top:18px;border-color:var(--accent-line);background:var(--accent-soft)" data-page-node-id="5thNK5dLDgN3fI5wry271A">
+        <div class="eyebrow" style="color:var(--accent-ink)" data-page-node-id="sMO3fZj2SkCTmKKRPdAQ2S">最重要的一个</div>
+        <div class="t-body" style="margin-top:8px" data-page-node-id="dAXmVnNrhEFc0ObhRcbtuh">One thing to improve next week.</div>
+        <input class="field" id="review-one" placeholder="下周只改这一件事…" data-page-node-id="jZbjx9oyIh0799AQpfFeKr" />
+        <div class="t-cap" style="margin-top:10px" data-page-node-id="0GJUBhLY9gMMuXJSBMa2yA">写完之后，它会变成下周 Today 里的一条轻量提醒。</div>
+      </div>
+
+      <div class="btn-row" style="margin-top:24px" data-page-node-id="BMSosE9716qlrAR44IlsEd">
+        <button class="btn btn-p" style="flex:1" data-back data-page-node-id="1xGx2cOHsABb1jUDHDRD6B">Save &amp; close</button>
+      </div>
+      <div style="height:24px" data-page-node-id="4asdrA2gAwHNsrFGNIKoqj"></div>
+    </section>
+
+    <!-- Settings -->
+    <section class="panel" data-panel="settings" data-page-node-id="nFHHrd5H7w50XXI0LY936h">
+      <div class="panel-bar" data-page-node-id="EMTdFgGg55E3mM7CzYPtao"><button class="back" data-back data-page-node-id="no8bKAvStm05GkiiFExOop">
+        <svg viewBox="0 0 24 24" data-page-node-id="VfWiDrDHTIWPsVuxcxiTdW"><path d="M15 5l-7 7 7 7" data-page-node-id="V5amAvmPht39KN43neWKHI"/></svg>Me</button>
+      </div>
+      <div class="eyebrow" data-page-node-id="cNeTMNNmSIRGYdA2Z24w45">Preferences</div>
+      <div class="t-panel" style="margin-top:8px" data-page-node-id="79jJ4FB0bv5DvLKBEMh8DW">设置</div>
+
+      <div class="sec tight" data-page-node-id="4BbAsuKPv1XPi6VcMZYmu1"><h2 data-page-node-id="78uZ7RzYBgGdaEKmD0oWhx">Appearance</h2><span class="n" data-page-node-id="NG8SQ63DZBRpoN0xQrp8WQ">Soft Glass / Dark Frosted</span></div>
+      <div class="seg" id="theme-seg" data-page-node-id="BYG0qxGcQuyP8ly7vFK4zq">
+        <button data-page-node-id="FdU7xEym4uEmT1sSmTDMC4">System</button><button class="on" data-page-node-id="XSeCh8dzNGh2GOIa0nxrIk">Light</button><button data-page-node-id="4kRfVsHGsRxPXbnAC0H1PY">Dark</button>
+      </div>
+
+      <div class="sec" data-page-node-id="OXT5DZ1CJu517d9xN6H675"><h2 data-page-node-id="R10T9ndmxtqHegf4UCDl6z">Schedule</h2></div>
+      <div class="glass" style="padding:2px 18px" data-page-node-id="7R9DvuzZB7pD46Zu3vvxUg">
+        <div class="row" data-page-node-id="7E1ST5W6PT6L2o8QFupumg"><span class="t" data-page-node-id="7J15gjPDO8dTRDm9pgGwn2">起床</span><span class="d" data-page-node-id="ft6zfV6iLvkrC0fIlorL9i">06:50</span><span class="chev" data-page-node-id="VVaaaBgw65ydAQid1Z8VeZ"></span></div>
+        <div class="row" data-page-node-id="6q0L7ClVzmJVPQblUCMG5r"><span class="t" data-page-node-id="1XEt3R3qXbpwr40y9BCydR">工作时间</span><span class="d" data-page-node-id="dcqhABWOBBhfzXSL3GaAgW">07:30 – 18:30</span><span class="chev" data-page-node-id="IxJUEsNJIJmpYORWAOA6bS"></span></div>
+        <div class="row" data-page-node-id="EeKZWgqfpwDp1RNonR6zWH"><span class="t" data-page-node-id="uHNUatwNr8NsqMU8ts8wmG">睡觉</span><span class="d" data-page-node-id="ltTMDdz4Eyj4sqjqQpXYCU">23:20</span><span class="chev" data-page-node-id="Ph0UGnBR7rZGz1MyGxAJPd"></span></div>
+      </div>
+
+      <div class="sec" data-page-node-id="BROxwxr6bmNnmDBPKBznpu"><h2 data-page-node-id="RGhlCBbzOMCHtsb96BvFP2">Planning Preferences</h2></div>
+      <div class="glass" style="padding:2px 18px" data-page-node-id="Sss9jV8B3BNVqaITdv7Lsh">
+        <div class="row" data-page-node-id="4UlVjGQNtNivPgxvbOOcAy"><span class="t" data-page-node-id="i5D2e8wYUF9sj8lrRED4SX">每日 Main Task 上限</span><span class="d" data-page-node-id="YniLGcyCs6GZOBNgRCqWQ3">3</span><span class="chev" data-page-node-id="5T8BJwSJd7QLxpNUVaFfFF"></span></div>
+        <div class="row" data-page-node-id="Ivm52yYCHSnJevV91LilG9"><span class="t" data-page-node-id="fOtCHMPxX2TkEdTuSiGnvS">运动时段</span><span class="d" data-page-node-id="C01jpouaTLHKZTtUUEZF1X">20:00 – 21:00</span><span class="chev" data-page-node-id="ePLQowtexGS1aFJt2OWdkV"></span></div>
+        <div class="row" data-page-node-id="YU5iRrSlnZiuKUc8pwEFcS"><span class="t" data-page-node-id="eNtlQorGaXuxLG5H98bIw8">学习时段</span><span class="d" data-page-node-id="8ZvXTCk0PhXgUEhGSoLeCB">22:00 – 23:00</span><span class="chev" data-page-node-id="ZJiFDhIxXZrjpBWXbEGvCY"></span></div>
+        <div class="row" data-page-node-id="BPQF0TfKl4eHcpL5w8M0e5"><span class="t" data-page-node-id="T4BfCy62XCUfSYFB2AnIHG">负载提醒</span><span class="d" data-page-node-id="0JWLqsmcdq0P0ReB5VS3Yz">开启</span><span class="chev" data-page-node-id="oiKUULypO2k25jlYxG2Vik"></span></div>
+      </div>
+
+      <div class="sec" data-page-node-id="TzGCFWv8UxnTNRgEekFhcw"><h2 data-page-node-id="oP0UnRJHQCOsRv7Nhv1RFz">Notifications</h2></div>
+      <div class="glass" style="padding:2px 18px" data-page-node-id="7Ith2o17qOjqSi0UqE5F9v">
+        <div class="row" data-page-node-id="Z1w6nuJpebiC0HH9hvpWiR"><span class="t" data-page-node-id="iaCt0F3CZoiGuOxFpEDvtQ">重要任务</span><span class="d" data-page-node-id="AhB2St2yJXnE0DWjXm7wjr">开启</span><span class="chev" data-page-node-id="Y3LQgsWRKyoeWByCg0glX8"></span></div>
+        <div class="row" data-page-node-id="Lfi4AlnDGZ0lDENPXKTrl1"><span class="t" data-page-node-id="g7lcTjKwtC1BRLHTRldmts">Routine 提醒</span><span class="d" data-page-node-id="c36oTmIDxQZ9PJXGBKu4JE">开启</span><span class="chev" data-page-node-id="vBqkr0sRfA9UUiIEvLSyzW"></span></div>
+        <div class="row" data-page-node-id="8ZM5efGUjPkHhdwt6trTuh"><span class="t" data-page-node-id="zbu3J49UFtnZ6n21ZxnnP0">规划建议</span><span class="d" data-page-node-id="gKfW6lTor199iKxlnIO25F">每天 1 次 · 20:30</span><span class="chev" data-page-node-id="WzBCnx1xM8L2soeQzeXHYJ"></span></div>
+      </div>
+      <div class="t-cap" style="margin-top:12px" data-page-node-id="sUdCgGOrJMsdU0oHUSo7qT">每小时提醒、焦虑式文案、连续天数警告 —— 都不会出现。</div>
+
+      <div class="sec" data-page-node-id="dz1G97yGEimTcWFEVxxjbq"><h2 data-page-node-id="8XLaqEnTxjr0IdruAdjFLy">Data</h2></div>
+      <div class="glass" style="padding:2px 18px" data-page-node-id="c9uhqEamgWwZZfkDj78EDX">
+        <div class="row" data-page-node-id="Nl1GtLtQfhAAroFFDotJ0k"><span class="t" data-page-node-id="hn5QvReXoS36F7Jf7Wg5p0">导出</span><span class="d" data-page-node-id="F9PUkbWwd4PHgyKx0oGa8U">JSON / CSV</span><span class="chev" data-page-node-id="EWfhf6niM8ehUsxN8aMDOc"></span></div>
+        <div class="row" data-page-node-id="PUkY3IaqOg7NbNOT8vto7i"><span class="t" data-page-node-id="AV7xCwIdQAIXq1jlcpm0dk">同步</span><span class="d" data-page-node-id="GTgX2cKhNjGcsHVr0h2H6m">本地优先</span><span class="chev" data-page-node-id="QBF5A7WX1CENY6UVqO65Rg"></span></div>
+      </div>
+      <div style="height:24px" data-page-node-id="vOIoSikzphm1GPdJiKTU9X"></div>
+    </section>
+
+    <!-- Learning -->
+    <section class="panel" data-panel="learning" data-page-node-id="SSXEHSNs1AtruqN3G7Horv">
+      <div class="panel-bar" data-page-node-id="HuE2Vy6XVQrUlXPYzRugeo"><button class="back" data-back data-page-node-id="elZeqJTZptOmwTct0sIQFV">
+        <svg viewBox="0 0 24 24" data-page-node-id="6ilOuf3WsyeF8IoMVLI3ls"><path d="M15 5l-7 7 7 7" data-page-node-id="noC0Jsnaln5GsBkQ0xqSIO"/></svg>Me</button></div>
+      <div class="eyebrow" data-page-node-id="zP5CezlQHkkMDRXqD3Itgo">Learning</div>
+      <div class="t-panel" style="margin-top:8px" data-page-node-id="7WWXANLEtVwhCKmgtxFQRw">在学</div>
+      <div class="t-sub" style="margin-top:8px" data-page-node-id="3OI2uaeZ9GZGWL4jA3HBQ0">不是「课程清单」。是现在真正花时间在学的几件事。</div>
+
+      <div class="glass" style="padding:2px 18px;margin-top:22px" data-page-node-id="AQCNOXeRsosNqIfAW2rio1">
+        <div class="metric" data-page-node-id="X5tOBdLnzLpRwAeqCsESn6"><span class="m" data-page-node-id="LOyMXk3B287xmNRJTdUFdV">本周时长</span><span class="v" data-page-node-id="oG4YhPXAsddDva6cOh7rz8"><b data-page-node-id="fmGFa7dWcHlaDnKHDKROC5">4h 20m</b></span></div>
+        <div class="metric" data-page-node-id="QwAaglpi8Ez7idHE0WUSRv"><span class="m" data-page-node-id="IK5yUBx3MzNWl8Clt7MDlr">本月时长</span><span class="v" data-page-node-id="fgOfsAfrCiNHTyWizPDFAc"><b data-page-node-id="FlSz3d0qQZoEz0wWVbBwnx">18h 40m</b></span></div>
+        <div class="metric" data-page-node-id="Crhaf3lYg7EERFIQeb8MkP"><span class="m" data-page-node-id="58C4DhApTDtcyyjuHoCjmD">关联 Goal</span><span class="v" data-page-node-id="E32RpbO4wB3Dq6hOLEjREg">Career</span></div>
+      </div>
+
+      <div class="sec" data-page-node-id="JDMOGqAvypNuyfDPYkK5Cu"><h2 data-page-node-id="RhWUkiBn1tmCGhGIlzc8gM">主题</h2><span class="n" data-page-node-id="08MeNv59H5g8OiwGavOKgG">3</span></div>
+      <div id="learn-list" data-page-node-id="B5sGze80QUvucXZNHleceH"></div>
+
+      <div class="insight" style="margin-top:22px" data-page-node-id="aYdnIb6vKw6ly2e8lLWqAF">
+        <div class="q" data-page-node-id="eujKBiUFnHsQ6TgpQtWDQK">学完之后没有任何输出。</div>
+        <div class="d" data-page-node-id="sS5pGrgCYjWt21tV92g1Wd">Learning 不需要产出文章，但需要能用自己的话讲一遍。每条主题配一行笔记。</div>
+      </div>
+      <div style="height:24px" data-page-node-id="E0dF857SSaIKS34dVzgfj9"></div>
+    </section>
+
+    <!-- Journal -->
+    <section class="panel" data-panel="journal" data-page-node-id="05LQUE0sNuKktsE0AZzDyH">
+      <div class="panel-bar" data-page-node-id="s7esGubH2pf7noWATFKGto"><button class="back" data-back data-page-node-id="cCHBWGgYdzBTEET8QK6smp">
+        <svg viewBox="0 0 24 24" data-page-node-id="geP2eQ3TfhCSf3wlr6IO3M"><path d="M15 5l-7 7 7 7" data-page-node-id="GBVowOrLbFbKClDuLgVZ5u"/></svg>Me</button></div>
+      <div class="eyebrow" data-page-node-id="GAsXuLdrdhGb6z7jMH73Ut">Journal</div>
+      <div class="t-panel" style="margin-top:8px" data-page-node-id="3Bu18yqbnYb3Fvq9aSHCsW">回顾</div>
+      <div class="t-sub" style="margin-top:8px" data-page-node-id="cio4jAJGDpdhJfGB0Gy82C">每周不超过 3 句。这里只是它留下的痕迹。</div>
+
+      <div class="sec tight" data-page-node-id="R2h0e4fz0oIKGCsaKarbeP"><h2 data-page-node-id="79bN1I1BtmOIUZYDUeEPkj">本周</h2><span class="n" data-page-node-id="XL7arBlm9falxEQWy7VLdt">1 条</span></div>
+      <div class="glass" style="padding:18px 20px" data-page-node-id="iBTwFFdzTPE3rBMxEAG0mu">
+        <div class="t-cap" data-page-node-id="YDafHX3qUG3K54QrgJj4zA">9.1 – 9.6</div>
+        <div class="t-body" style="margin-top:8px" data-page-node-id="rXgmXXhfklF4kro3D1srFz">跑步这件事一旦跳过就断了几天。今天开始把它重新放回 Mon/Wed/Fri，不再换。</div>
+      </div>
+
+      <div class="sec" data-page-node-id="g8hm9qEktCIc2Ck5KcmTnW"><h2 data-page-node-id="JDDZBtCI5GY5D59D9UmwZm">上周</h2><span class="n" data-page-node-id="qchsC82S9R9OpOq7dXug6A">1 条</span></div>
+      <div class="glass" style="padding:18px 20px" data-page-node-id="CneiIkc3ND4NAaep7dvjau">
+        <div class="t-cap" data-page-node-id="qIhjSrQwLZtHhfbTf3wi5E">8.25 – 8.31</div>
+        <div class="t-body" style="margin-top:8px" data-page-node-id="0atGdPMrgpRGJ0Zlq0YD04">周四的 Main 排了 4 项，2 项挤掉了。下周回到 3 项。</div>
+      </div>
+      <div style="height:24px" data-page-node-id="44qZxmhxDrccjCfeXv4C2b"></div>
+    </section>
+
+    <!-- Health & Devices：数据源管理 -->
+    <section class="panel" data-panel="health-connect" data-page-node-id="jqHV1Cb6hlCWw80Gkehaej">
+      <div class="panel-bar" data-page-node-id="NJMtAlabQjgT7rbTxqc9ax"><button class="back" data-back data-page-node-id="VvcIr9qtIIlTK0HU19HUiK">
+        <svg viewBox="0 0 24 24" data-page-node-id="eL5wlWDRFpacOzO7dovo1W"><path d="M15 5l-7 7 7 7" data-page-node-id="xs4Lo1QDhmPlJLMcNBjQWb"/></svg>Me</button></div>
+      <div class="eyebrow" data-page-node-id="DtQKpkLIJcBhLurciCQdwF">Health &amp; Devices</div>
+      <div class="t-panel" style="margin-top:8px" data-page-node-id="mO4IoN4wOR6IR1ZrX5uKfT">数据源</div>
+      <div class="t-sub" style="margin-top:8px" data-page-node-id="wLowlj8dbFutdawJCLNN0B">Epoch 不记录健康数据，只读取系统健康层已有的。数据用来回答一个问题：今天的身体，适合什么样的日程。</div>
+
+      <div class="sec" data-page-node-id="pIxUhRXaSXGzekLlv4B3xB"><h2 data-page-node-id="Xu57WmoUQHHcofNWNGfqeY">设备与来源</h2></div>
+      <div id="hc-list" data-page-node-id="ZAsGpukuEGiy6by1FCWf9k"></div>
+
+      <div class="sec" data-page-node-id="1cVE9DasAu8LISdpnVr9dc"><h2 data-page-node-id="srUTAF1mvbNine0PuvpvLP">同步范围</h2><span class="n" data-page-node-id="RQxuuWJ8gyyIKwDUptdt7a">只读</span></div>
+      <div class="glass" style="padding:2px 18px" data-page-node-id="RhGzS2S4lk9cw2vAogCgcg">
+        <div class="row" data-page-node-id="pFhD1s8MGE0Xrvo3voj4Jj"><span class="t" data-page-node-id="sL8hTLQvd7ENL2K3yfIFQp">睡眠分析</span><span class="d" data-page-node-id="DaGlPbQHkFYCwC203SgbuO">用于调整当天强度</span><span class="chev" data-page-node-id="6RMnYKKOGE99nSUG7VLDE8"></span></div>
+        <div class="row" data-page-node-id="0wcGGu4F7hfPastmqNEMBl"><span class="t" data-page-node-id="BTFEuvjoEOkur1CLuJU2Sv">心率 / HRV</span><span class="d" data-page-node-id="9cQ6ahoUYy7sJ5lcHsPtdG">判断恢复状态</span><span class="chev" data-page-node-id="1RPjm7llrmCSc2W5ZDPewO"></span></div>
+        <div class="row" data-page-node-id="FhYDscUedcwg6OYQjo0AqB"><span class="t" data-page-node-id="roJLsD6v669VWzNY040RHU">体能训练</span><span class="d" data-page-node-id="wf2f6tC3XOzoeVh2zQNWcp">计入每周运动量</span><span class="chev" data-page-node-id="24m9OeDYoF4bYOTtdoxKUC"></span></div>
+        <div class="row" data-page-node-id="ncFB1my6poHeR1Kr4Gi4ZV"><span class="t" data-page-node-id="vTwAXiKH1swPE5nFDlIAsI">步数</span><span class="d" data-page-node-id="Dci4yCDRRE3mWSKshQPl9Z">日常活动参考</span><span class="chev" data-page-node-id="HbJll75Ygr8oSjQsbVTGzj"></span></div>
+      </div>
+
+      <div class="insight" style="margin-top:22px" data-page-node-id="dyeeDU7cO6chxkNW2FnNc4">
+        <div class="q" data-page-node-id="oLAHx6oHKSF5rsxBucTGCn">数据留在你的设备上。</div>
+        <div class="d" data-page-node-id="1YHwxkUHCrWztMc2GSQSEl">Epoch 只在本地读取并计算，不会上传健康数据，也不会用于广告或画像。断开连接后，已读取的数据会被清除。</div>
+      </div>
+      <div id="hc-disconnect" style="text-align:center" data-page-node-id="WJpHOamS45tgTH2DRDBWG0"></div>
+      <div style="height:24px" data-page-node-id="bCIA3j43w1xjiiVXPCA4ny"></div>
+    </section>
+
+    <!-- Health：今日身体摘要 -->
+    <section class="panel" data-panel="health" data-page-node-id="oxeBzLIpKftFOguGReqKNI">
+      <div class="panel-bar" data-page-node-id="AkdmPXfxNoHPARGbxL8V5s"><button class="back" data-back data-page-node-id="RwUx3ph5gMnxg2ZGMTu2mq">
+        <svg viewBox="0 0 24 24" data-page-node-id="wf49Dr81qNgoyOiZmXBYCj"><path d="M15 5l-7 7 7 7" data-page-node-id="Y0VAfl0d7HKv1SzZGNWF2S"/></svg>Me</button></div>
+      <div class="eyebrow" data-page-node-id="yFKGYrGG0e5Yu4A9zMhIEq">Health</div>
+      <div class="t-panel" style="margin-top:8px" data-page-node-id="oTwoEXD2qTsVQNoaFrtL8O">今天的身体</div>
+      <div class="t-sub" style="margin-top:8px" id="health-sub" data-page-node-id="Ps9WN5XEpQLaiRdY151mGb">不做健康仪表盘。只看会影响今天安排的几件事。</div>
+
+      <div id="health-body" data-page-node-id="pdXvJwz9HwlQ3WtVKJybMm"></div>
+      <div style="height:24px" data-page-node-id="rpSHDtX3N7LMV2GGrRhwYw"></div>
+    </section>
+
+  </div><!-- /stage -->
+
+  <!-- Quick Add -->
+  <div class="fab" id="fab" aria-label="快速添加" data-page-node-id="d0Xg1gAfr1Y0vXpDEkh2E7">
+    <svg viewBox="0 0 24 24" data-page-node-id="dPRwSylH4TWPol1sPpUKwn"><path d="M12 5v14M5 12h14" data-page-node-id="HLZ1yNJdlrYgg2an90Kqy4"/></svg>
+  </div>
+
+  <!-- 底部导航 -->
+  <nav class="tabbar" data-page-node-id="AqeTIDrNXyfe0CqftSahwi">
+    <button class="tab on" data-tab="today" data-page-node-id="9y0o0PlZrcth7wA7PrEpAF">
+      <svg viewBox="0 0 24 24" data-page-node-id="6H4TB2aO6e2xcnAnwUErTc"><circle cx="12" cy="12" r="8.5" data-page-node-id="8oc9ScjAYTyv5oUNkByvAC"/><path d="M12 7.5V12l3 2" data-page-node-id="OsXbvIXlvVq6dT2xottS82"/></svg><span data-page-node-id="junRidPcGhjj7FDsuFRNwp">Today</span></button>
+    <button class="tab" data-tab="plan" data-page-node-id="gNJZPU8IGyGDdKVad0DfVV">
+      <svg viewBox="0 0 24 24" data-page-node-id="mav1tzJFS4mNM26gcgCqEs"><rect x="4" y="4.5" width="16" height="16" rx="4" data-page-node-id="6QvMbpGHUU9s92SbHmcXPG"/><path d="M8 10h8M8 14h5" data-page-node-id="NQ2HyMhLwJrAMbHaoaghJr"/></svg><span data-page-node-id="mWmgieBw2cp5kCPPpgLGGn">Plan</span></button>
+    <button class="tab" data-tab="progress" data-page-node-id="S04lYqZj82NaxYDyF5NywJ">
+      <svg viewBox="0 0 24 24" data-page-node-id="sOAlWlhHiI0yokMkRTCfqY"><path d="M5 19V11M12 19V5M19 19v-6" data-page-node-id="hPkCt2CzaZ0F8vkF3JUlEd"/></svg><span data-page-node-id="kKu0kXwItUyifgFyugvGGv">Progress</span></button>
+    <button class="tab" data-tab="me" data-page-node-id="RrQGf9s735rZSiWIFVY4Gt">
+      <svg viewBox="0 0 24 24" data-page-node-id="ipWEHBQ3CdtvHYfCbwKFxm"><circle cx="12" cy="8.5" r="3.5" data-page-node-id="744teRO9BGRCMNOfv0l906"/><path d="M5.5 19.5c1.2-3.2 3.6-5 6.5-5s5.3 1.8 6.5 5" data-page-node-id="Q3lRQZ0iuzoDAvZXXUVoLC"/></svg><span data-page-node-id="ctqzc6ZXNpbrlFDmrjc2Cl">Me</span></button>
+  </nav>
+
+  <div class="scrim" id="scrim" data-page-node-id="VwZw1DZC38zOYYUtY1yBbp"></div>
+
+  <!-- ══════════ Sheets ══════════ -->
+
+  <!-- Task Detail -->
+  <div class="sheet" id="sheet-task" data-page-node-id="Cl8BhWm8E8H5uSJHWShE8z">
+    <div class="grab" data-page-node-id="jekFsi2p0ZlBiD3NsRHDKT"></div>
+    <div class="t-panel" id="td-title" data-page-node-id="5xkOHxOZSdS9VGUm85IkBC">Run · 30 min</div>
+    <div class="t-sub" id="td-when" style="margin-top:5px" data-page-node-id="6x6EF84Bc2rzSvJ9DxRJri">Today · 20:15</div>
+    <div class="td-grid" id="td-grid" data-page-node-id="RxlRxekwxs403f9tiaQ4wt"></div>
+    <div class="td-notes" id="td-notes" data-page-node-id="SfrODj4uquttGCLMVlgGKD"></div>
+    <div class="td-acts" data-page-node-id="OzTBw4OFJXm9U6yR08V7f8">
+      <button class="btn btn-p" id="td-complete" data-page-node-id="JFA3FwO0E0YVUgFKd9dvqP">Complete</button>
+      <div class="btn-row" style="margin-top:10px" data-page-node-id="D03rab0UcLAYk8cR6I6Vkt">
+        <button class="btn btn-g acc-t" id="td-focus" data-page-node-id="rQrpvD9DzKnYpJ9vePaxyG">Focus</button>
+        <button class="btn btn-g" id="td-resched" data-page-node-id="AzJSoqTiJIVxOXjvB5xmNq">Reschedule</button>
+        <button class="btn btn-g" id="td-skip" data-page-node-id="0zCU4B7Mx36bdAtvpTtLAD">Skip</button>
+      </div>
+      <div style="text-align:center" data-page-node-id="R3UPNJoFvn5WeqasiYeH9T"><button class="btn btn-d" id="td-delete" data-page-node-id="hwJIJBbrDoItbRYD9FY0Nm">Delete Task</button></div>
+    </div>
+  </div>
+
+  <!-- Quick Add -->
+  <div class="sheet" id="sheet-qa" data-page-node-id="htFts6RLgt3BCGzsNaGeSU">
+    <div class="grab" data-page-node-id="R9ADzXCDYqQDCaz6EkJvZy"></div>
+    <div class="eyebrow" data-page-node-id="QZrKyCncvHG9CiUaKh7E47">Capture</div>
+    <input class="qa-input" id="qa-input" placeholder="想做什么？先记下来…" data-page-node-id="iTu15n5XtKXmUW5kJHhhXt" />
+    <div class="t-cap" style="margin-top:12px" data-page-node-id="61DapHx7yNc3zLuBoiYXh9">不填日期、不填优先级。先进 Inbox，之后再安排。</div>
+    <button class="btn btn-p" style="margin-top:20px" id="qa-save" data-page-node-id="YvqPo8zhmmrYFw7n3qBK2f">保存到 Inbox</button>
+    <div class="qa-sug" id="qa-sug" style="display:none" data-page-node-id="Gp4Q3F3ValP10EKIx2vZwJ">
+      <span data-page-node-id="UdHQGDiDbSZw7VMBLNUQos">建议</span>
+      <button class="btn btn-q" id="qa-accept" data-page-node-id="27uVq5XYXfLk1wdtUreafb">Add to Thursday 22:00?</button>
+    </div>
+  </div>
+
+  <!-- Plan My Day -->
+  <div class="sheet" id="sheet-myday" data-page-node-id="FnqONq6L5XymKn8t1qyGPh">
+    <div class="grab" data-page-node-id="GbTq2iaLAAAHfvY3NasIbh"></div>
+    <div class="eyebrow" data-page-node-id="3KFxlQBoi8UaUGzn4MTtQ1">Plan My Day</div>
+    <div class="t-panel" style="margin-top:6px" data-page-node-id="qZCSLfjwJci0LQpjIDgwoI">Suggested Day</div>
+    <div class="t-sub" style="margin-top:5px" data-page-node-id="IGNDwoEHKF5mi3k4Z3nghI">基于你的 Routines、固定工作时间与今天的空档。</div>
+    <div style="margin-top:16px" id="md-list" data-page-node-id="k0LF6Nu74GGRpDLH4OkPre"></div>
+    <div class="md-note" id="md-note" data-page-node-id="mgPSDCcIoWI7I0TsC68Md3">接受后，这会替换今天的时间轴。被移走的任务会回到 Inbox，不会消失。</div>
+    <div class="btn-row" style="margin-top:20px" data-page-node-id="6LccgpPCVvVoGnyR88U8Co">
+      <button class="btn btn-p" style="flex:1.4" id="md-accept" data-page-node-id="fLSc8V1KFRRtiTRtinrymO">Accept</button>
+      <button class="btn btn-g" style="flex:1" id="md-adjust" data-page-node-id="ImK83ysKnEm8rWJF1OI9bo">Adjust</button>
+    </div>
+  </div>
+
+  <!-- Reschedule -->
+  <div class="sheet" id="sheet-rs" data-page-node-id="3NcenO2nP5sIAjMcjmo9mr">
+    <div class="grab" data-page-node-id="gMNdNzfXNlUnb7eic8YG6L"></div>
+    <div class="eyebrow" data-page-node-id="NmUkZ4G9YXEoaZ7Ielz4iU">Reschedule</div>
+    <div class="t-panel" style="margin-top:6px" id="rs-title" data-page-node-id="zoupEdoyWKyeTg8CEfGVPf">移到什么时候？</div>
+    <div class="t-sub" style="margin-top:5px" data-page-node-id="gCuROxzj8zB0jiKfGaC8gH">系统优先推荐有空档、且不挤掉 Main Task 的位置。</div>
+    <div style="margin-top:18px" id="rs-list" data-page-node-id="wpFrvG1axpwNwqMoFQIaR1"></div>
+    <div class="btn-row" style="margin-top:20px" data-page-node-id="I4uMDNEEozRMl7ziBAc8it">
+      <button class="btn btn-g" style="flex:1" data-close-sheet data-page-node-id="cdWn20it4fGkIhE2RQeDVY">取消</button>
+    </div>
+  </div>
+
+  <!-- 通知预览（说明产品不会用焦虑式文案） -->
+  <div class="sheet" id="sheet-notif" data-page-node-id="pAQuKUjHLlHj4Fcy7EUFFP">
+    <div class="grab" data-page-node-id="bjyTjhKfwjj8IGA05dWzFW"></div>
+    <div class="eyebrow" data-page-node-id="I9Q7I9FkGS9KpU2XjkvSQD">Notifications</div>
+    <div class="t-panel" style="margin-top:6px" data-page-node-id="V5sCOMLVA69hb5rLaccun3">允许的 3 类通知</div>
+    <div class="t-sub" style="margin-top:5px" data-page-node-id="596rCPi1BC4jAo5b255Pp0">每小时提醒、焦虑式文案、连续天数警告 —— 都不会出现。</div>
+
+    <div class="glass" style="padding:18px 20px;margin-top:22px" data-page-node-id="9JANzsxzUM2QAWA86NEWdD">
+      <div class="t-cap" data-page-node-id="d0NFSVy6gzChRXvaFyUfPs">20:15 · Routine 提醒</div>
+      <div class="t-body" style="margin-top:6px" data-page-node-id="wZP0FBHYEHPorODq13NmeY">Run · 30 min 要开始了。</div>
+      <div class="t-cap" style="margin-top:8px" data-page-node-id="7GXfLJ6F0eSOnxugBnZFfV">Snooze · 5 min</div>
+    </div>
+    <div class="glass" style="padding:18px 20px;margin-top:10px" data-page-node-id="uCYuu556BwA7UXdl1UrLRb">
+      <div class="t-cap" data-page-node-id="oYwN0dJVakmd2F7qQcGBr8">22:00 · Important task</div>
+      <div class="t-body" style="margin-top:6px" data-page-node-id="TjrikIxvFBNuzGFACvkiJn">Learn · Product Design</div>
+      <div class="t-cap" style="margin-top:8px" data-page-node-id="Uo5vFZHuao5GHcmGuFgW81">完成 · Reschedule</div>
+    </div>
+    <div class="glass" style="padding:18px 20px;margin-top:10px" data-page-node-id="4ChLt0iJYONLSudfXwwxxO">
+      <div class="t-cap" data-page-node-id="JAUM04blyQQiVMezAHsNW8">20:30 · Planning suggestion</div>
+      <div class="t-body" style="margin-top:6px" data-page-node-id="zKrzepYV5svqncSvjnAZu4">建议明天的安排。看一下？</div>
+      <div class="t-cap" style="margin-top:8px" data-page-node-id="3qKTbMjyNwuNIXyX9nhY84">查看 · 忽略</div>
+    </div>
+    <div class="t-cap" style="margin-top:14px" data-page-node-id="C9QZkEmodFRjEwiHhGJhoi">每天最多 3 条，由你而不是 App 决定时间。</div>
+  </div>
+
+  <!-- 健康授权（模拟系统弹窗） -->
+  <div class="sheet" id="sheet-health-auth" data-page-node-id="9lIkujNMtfGLxvzGj6Dbfh">
+    <div class="grab" data-page-node-id="Lxhr1lojggeEl2pxIt47rD"></div>
+    <div class="eyebrow" data-page-node-id="msbdeKKHVAOJ8b5YMGhtC7">Apple 健康</div>
+    <div class="t-panel" style="margin-top:6px" data-page-node-id="uODFjggGe50WaARn4acSua">允许「Epoch」读取</div>
+    <div class="t-sub" style="margin-top:5px" data-page-node-id="1M2QeppHOvsdVJWRPRCmzc">只读取，不写入。你可以随时在系统健康 App 里关闭。</div>
+    <div class="glass" style="padding:2px 18px;margin-top:18px" id="auth-scopes" data-page-node-id="JBNLLDfa1m5cZziL5NIW2h">
+      <div class="row" data-page-node-id="FXxwzAdouRQvRAHextn3ZW"><span class="t" data-page-node-id="NylzWzkL1VE2QPFg0lvHo6">睡眠分析</span><span class="d" data-page-node-id="RtgyECDVH7U3yD9k3WsvIr">调整当天强度</span><span class="chev" data-page-node-id="QV23FsXdH0R0cMQ8zlNpY8"></span></div>
+      <div class="row" data-page-node-id="L6Y0OSF8eMxknDV0VEofxt"><span class="t" data-page-node-id="7f6qwXwyqqq6pWKww2fZJ2">心率 / HRV</span><span class="d" data-page-node-id="eVsrUL62kf5XGx4RUqPuao">判断恢复状态</span><span class="chev" data-page-node-id="gaJbnrexxzy6bwZHQwBnLI"></span></div>
+      <div class="row" data-page-node-id="VzhYpHt4OepihiEiP5YKsd"><span class="t" data-page-node-id="0meptDexud2aQKU7Yxwjz2">体能训练</span><span class="d" data-page-node-id="mQTqO8HOSlAUyhDg0pGJak">计入每周运动量</span><span class="chev" data-page-node-id="8Ja7YLqQ2HssItEKhGUpNe"></span></div>
+      <div class="row" data-page-node-id="7RE0wRxgfs6NtVajnmkQHV"><span class="t" data-page-node-id="CDTJZ3AOz5YYwPZwbJHvgK">步数</span><span class="d" data-page-node-id="Ihk0jBEzLAMvWRmksCCoKc">日常活动参考</span><span class="chev" data-page-node-id="4qzT3hyap3iw3dax7glwg4"></span></div>
+    </div>
+    <div class="t-cap" style="margin-top:14px" data-page-node-id="d6BTTyCKjJsXa6X0Qn6org">数据留在设备上，本地处理。不会上传，不会用于广告。</div>
+    <div class="btn-row" style="margin-top:18px" data-page-node-id="nTaEFpNPrEKl49hBVSHGJt">
+      <button class="btn btn-g" style="flex:1" id="auth-deny" data-page-node-id="snibJw6BgeEUnVVLt0zOaj">不允许</button>
+      <button class="btn btn-p" style="flex:1.4" id="auth-allow" data-page-node-id="eDrEKwOsLrAjfmPE0BMqHC">允许</button>
+    </div>
+  </div>
+
+  <!-- 同步中 -->
+  <div class="sheet" id="sheet-syncing" data-page-node-id="vAfuhwb8e3d9SdrfGTuikv">
+    <div class="grab" data-page-node-id="zKEDPKVDjfzphnL9EeL36q"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;padding:22px 0 8px" data-page-node-id="V29CRx8HFpHIPTsxpGLxqT">
+      <div class="spinner" data-page-node-id="iDTT0YyLrpWhibt0zHnf9s"></div>
+      <div class="ob-gen-lbl" style="font-size:15px;font-weight:500;color:var(--ink-1);margin-top:20px" data-page-node-id="u4W8AaN4by0LqHmQ6CW1je">正在同步…</div>
+      <div class="t-cap" style="margin-top:6px;text-align:center" data-page-node-id="6n0NAPra8GpTnQRj51cVqn">读取近 14 天的睡眠、心率与运动记录。<br data-page-node-id="CJ8ZfEwKucnnCJAnqTDsWD"/>同步在本地完成。</div>
+    </div>
+  </div>
+
+  <!-- ══════════ Focus ══════════ -->
+  <div class="veil" id="focus" data-page-node-id="pOhpn2NE76LkY6VhxNjs8J">
+    <div class="focus-task" id="focus-task" data-page-node-id="1yXhHLg04XnWu1v7aOXXwr">Product Design</div>
+    <div class="focus-time" id="focus-time" data-page-node-id="DhqBVs1AxqOuyADLPOzfKM">40:00</div>
+    <button class="focus-start" id="focus-start" data-page-node-id="KaKCZT0twwejPMGWbJfEuo">Start</button>
+    <button class="focus-quit" id="focus-quit" data-page-node-id="AeqUvjLTLBAS6I099L0aWp">退出专注</button>
+  </div>
+
+  <!-- ══════════ 屏幕目录 ══════════ -->
+  <div class="overlay" id="overlay-gallery" data-page-node-id="Du3SqfVPmyA1diNHcA2mom">
+    <div class="gal-head" data-page-node-id="XexOPohAHCiOYTDLA61bbu">
+      <div data-page-node-id="gLV5kHYC6NpwBpwX2QL6E7">
+        <div class="eyebrow">Epoch · 时</div>
+        <div class="t-card" style="margin-top:4px" data-page-node-id="YUdl4L3rJ0axdd9OiZRI5e">屏幕目录</div>
+      </div>
+      <button class="icon-btn" data-overlay-close="gallery" data-page-node-id="gCtWCaCViHYcXGhrCbCNnU">
+        <svg viewBox="0 0 24 24" data-page-node-id="AmSOXvx98moDiE64DA4Rac"><path d="M6 6l12 12M18 6L6 18" data-page-node-id="d8mET7hciGx72JmEtr1bts"/></svg>
+      </button>
+    </div>
+    <div class="gal-body" id="gal-body" data-page-node-id="ynLHHQHvFdWGpbA8C8eUHR"></div>
+  </div>
+
+  <!-- ══════════ 首次引导 ══════════ -->
+  <div class="overlay" id="overlay-onboarding" data-page-node-id="b5AIkaH1TbVgBKKcKe2QSD">
+    <div class="ob" id="ob-root" data-page-node-id="xTX4EdvoHFrLDfa4vcbCAo"></div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+//  Epoch — 交互与状态
+// ══════════════════════════════════════════════════════════════════
+const $  = (s) => document.querySelector(s);
+const $$ = (s) => Array.from(document.querySelectorAll(s));
+const CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+/* ─────────────── 数据 ─────────────── */
+const WD_CN = ['日','一','二','三','四','五','六'];
+const WD_EN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+const state = {
+  todayState: 'default',          // default | empty | loading | error | completed
+  tasks: [
+    { id:'t1', time:'07:00', title:'早餐', dur:20,  done:true,  tier:'block', goal:null,     routine:'Morning',   notes:'蛋白质优先。不要看手机。' },
+    { id:'t2', time:'07:30', title:'上班 · 专注工作', dur:600, done:true, tier:'block', goal:'Career', routine:'Workday', notes:'' },
+    { id:'t3', time:'12:30', title:'午饭', dur:40,  done:true,  tier:'block', goal:null,     routine:'Workday',   notes:'' },
+    { id:'t4', time:'19:30', title:'晚饭', dur:40,  done:false, tier:'block', goal:null,     routine:'Evening',   notes:'' },
+    { id:'t5', time:'20:15', title:'Run · 30 min', dur:30, done:false, tier:'main', goal:'Health', routine:'Run · Mon/Wed/Fri', notes:'慢跑 · 保持心率区间 · 跑后拉伸 5 分钟' },
+    { id:'t6', time:'22:00', title:'Learn · Product Design', dur:45, done:false, tier:'main', goal:'Career', routine:'Tuesday Learning', notes:'看一个产品，只记录一句「为什么它让我觉得高级」。' },
+    { id:'t7', time:'23:20', title:'睡觉', dur:null, done:false, tier:'block', goal:null, routine:'Evening', notes:'' },
+  ],
+  secondary: [
+    { id:'s1', title:'回复消息', done:false, hint:'' },
+    { id:'s2', title:'整理文件', done:false, hint:'' },
+    { id:'s3', title:'读一篇文章', done:false, hint:'' },
+  ],
+  habits: [
+    { id:'h1', name:'Posture',  sub:'5 min',  done:true  },
+    { id:'h2', name:'Skincare', sub:'早晚',   done:true  },
+    { id:'h3', name:'Reading',  sub:'20 min', done:false },
+  ],
+  inbox: [
+    { id:'i1', title:'Research Gentherm',      hint:'建议', hintEm:'周四 22:00' },
+    { id:'i2', title:'Learn English',          hint:'未安排' },
+    { id:'i3', title:'Make A5L campaign',      hint:'未安排' },
+    { id:'i4', title:'Sort export documents',  hint:'未安排' },
+  ],
+  week: [
+    { id:'w1', title:'Learn English',        hint:'周四 · 22:00' },
+    { id:'w2', title:'Run · 30 min',         hint:'周三 / 周五 · 20:15' },
+    { id:'w3', title:'Learn Product Design', hint:'周四 · 22:00' },
+    { id:'w4', title:'APQP 第 2 章',          hint:'周六 · 15:30' },
+  ],
+  upcoming: [
+    { id:'u1', title:'体检预约',   hint:'下周二' },
+    { id:'u2', title:'续保保险',   hint:'下周五' },
+  ],
+  unscheduled: [],
+  goals: [
+    { id:'g1', kicker:'CAREER', title:'Learn automotive engineering systems', note:'当前季度 · 只展开这一层', pct:62,
+      focus:'APQP / PPAP 流程', next:'读完 APQP 第 2 章，输出一页流程对照表',
+      ladder:[
+        { lv:'3-Year',  t:'Automotive Product / International Business', cur:false },
+        { lv:'1-Year',  t:'Build professional capability',               cur:false },
+        { lv:'Quarter', t:'Learn automotive engineering systems',        cur:true  },
+        { lv:'Month',   t:'Learn APQP / PPAP',                           cur:false },
+        { lv:'Week',    t:'Study specific topic',                        cur:false },
+      ]},
+    { id:'g2', kicker:'HEALTH', title:'体态与精力改善', note:'当前季度 · 只展开这一层', pct:40,
+      focus:'每日体态 5 分钟 + 每周 3 跑', next:'把周三的跑步移到周四，先稳定三天',
+      ladder:[
+        { lv:'3-Year',  t:'拥有能支撑长期工作的身体', cur:false },
+        { lv:'1-Year',  t:'体重与体态回到可持续区间', cur:false },
+        { lv:'Quarter', t:'体态与精力改善',          cur:true  },
+        { lv:'Month',   t:'每周 3 跑 + 每日拉伸',     cur:false },
+        { lv:'Week',    t:'本周 3 次跑步',           cur:false },
+      ]},
+  ],
+  routines: [
+    { id:'r1', name:'Run',              sub:'Mon / Wed / Fri', type:'habit'   },
+    { id:'r2', name:'Posture',          sub:'Daily',           type:'habit'   },
+    { id:'r3', name:'Skincare',         sub:'Daily',           type:'habit'   },
+    { id:'r4', name:'Reading',          sub:'Tue / Thu',       type:'habit'   },
+    { id:'r5', name:'Tuesday Learning', sub:'Routine · 22:00', type:'routine' },
+  ],
+  rsTarget: null,
+  activeTask: null,
+  // 应用状态（Onboarding 可改）
+  direction: 'I want more freedom and more choices.',
+  domains:   ['Career','Income','Health','English','Travel','Knowledge'],
+  wake:  '06:50',
+  sleep: '23:20',
+  work:  '08:00 – 18:30',
+  obCompleted: false,
+  lang: 'zh',              // 界面语言：zh | en（用户内容不翻译，只切换界面 chrome）
+  // 健康助手：Epoch 只读系统健康层，数据影响今天的规划
+  health: {
+    connected: false,
+    source: null,          // 'apple-health' | 'health-connect' | 'garmin' | 'oura'
+    sourceName: '',
+    lastSyncAt: null,
+    energyDismissed: false, // 用户今天点了「保持」
+    // 模拟的今日摘要（连接后由同步填充）
+    today: {
+      sleepHours: 6.33, usualSleep: 7.5,
+      restingHR: 58, usualRestingHR: 56,
+      hrv: 41, hrvTrend: 'down', hrvDownDays: 3,
+      steps: 6230, activeEnergy: 380,
+      syncedLabel: '刚刚',
+    },
+  },
+};
+
+/* ─────────────── 健康助手 ─────────────── */
+const fmtH = (h) => {
+  const hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+  return mm ? `${hh}h ${mm}m` : `${hh}h`;
+};
+
+/* 能量状态：定性，不打分。规则简单可解释（见 docs/epoch-spec-v1.md 六之二） */
+function energyOf() {
+  const h = state.health;
+  if (!h.connected) return null;
+  const t = h.today;
+  const lowSleep = t.sleepHours < t.usualSleep - 1;
+  const lowHrv = t.hrvTrend === 'down' && t.hrvDownDays >= 3;
+  if (lowSleep || lowHrv) {
+    const reasons = [];
+    if (lowSleep) reasons.push(`昨晚 ${fmtH(t.sleepHours)}，比平时少 ${fmtH(t.usualSleep - t.sleepHours)}`);
+    if (lowHrv) reasons.push(`HRV 连续 ${t.hrvDownDays} 天下降`);
+    return { level:'low', reasons, suggestion:'Run 改成 Walk 20 min' };
+  }
+  if (t.sleepHours >= t.usualSleep && t.hrvTrend === 'up') {
+    return { level:'high', reasons:['身体状态不错'], suggestion:null };
+  }
+  return { level:'normal', reasons:[], suggestion:null };
+}
+
+/* ─────────────── 多语言（只切换界面 chrome，用户内容不翻译）─────────────── */
+const I18N = {
+  zh: {
+    'tab.today':'今天','tab.plan':'规划','tab.progress':'进展','tab.me':'我的',
+    'greet.morning':'早上好。','greet.midday':'中午好。','greet.afternoon':'下午好。','greet.evening':'晚上好。','greet.night':'夜深了。',
+    'today.completed':'已完成','today.loading':'正在读取今天','today.readfail':'读取失败',
+    'today.err.1':'没能读取今天的安排。<br/>你的数据仍然在本地，没有丢失。','today.retry':'重试',
+    'today.empty.1':'今天是空的。','today.empty.2':'今天还没有安排。<br/>不用现在就填满它。',
+    'today.alldone.1':'全部完成了。','today.alldone.2':'今天结束了。去生活。',
+    'tag.now':'正在进行','tag.next':'下一个',
+    'sec.today':'今天','sec.timeline':'时间轴','sec.timeline.note':'时间是结构线索',
+    'sec.main':'重点','sec.main.note':'今日重点 · 最多 3 项',
+    'sec.secondary':'次要','sec.secondary.note':'{n} 项待处理',
+    'sec.habits':'习惯','sec.habits.note':'今天',
+    'note.heavy':'今天排得有点满。','note.move':'移走','note.reduce':'减少','note.skip':'跳过',
+    'energy.ok':'好','energy.keep':'保持',
+    'plan.title':'规划','plan.sub':'先收集，后安排。不要强迫自己立刻决定日期。',
+    'seg.inbox':'收集箱','seg.today':'今天','seg.week':'本周','seg.upcoming':'以后','seg.unscheduled':'未安排',
+    'plan.count.inbox':'先记录，后安排','plan.count.today':'今天已安排的','plan.count.week':'本周','plan.count.upcoming':'更远','plan.count.unscheduled':'没有日期',
+    'plan.items':'{n} 项 · ',
+    'empty.inbox.1':'没什么在等你。','empty.inbox.2':'收集箱是空的。想到什么随时丢进来。',
+    'empty.unscheduled.1':'没什么在等你。','empty.unscheduled.2':'所有事情都已经有位置了。',
+    'empty.today.1':'今天是空的。','empty.today.2':'今天还没有安排。',
+    'empty.upcoming.1':'还没有安排。','empty.upcoming.2':'更远的未来还是空的。',
+    'empty.week.1':'还没有安排。','empty.week.2':'本周还没有安排。',
+    'adapt.q':'英语没有完成。','adapt.d':'把英语移到周六 15:30？',
+    'adapt.why':'判断依据：优先级中 · 周六 15:30 有 60 分钟空档 · 与「阅读」不冲突',
+    'adapt.accept':'接受','adapt.change':'调整',
+    'myday.q':'生成建议日程','myday.d':'根据固定工作时间、Routines、运动与学习安排，以及你今天的空档，自动生成一版时间轴。',
+    'myday.go':'生成',
+    'hint.suggest':'建议','hint.none':'未安排','hint.captured':'刚捕获','hint.movedback':'移回收集箱',
+    'prog.title.week':'本周','prog.title.month':'本月',
+    'prog.sub':'不做鸡血。只展示真正影响下一步判断的数据。',
+    'prog.completion':'完成率','prog.consistency':'一致性','prog.last30':'近 30 天',
+    'prog.planned':'31 项计划中完成了 24 项。','prog.monthdays':'30 天中有 24 天完成了当天的重点。',
+    'm.learning':'学习','m.exercise':'运动','m.habits':'习惯','m.sleep':'睡眠','m.hrv':'HRV','m.avg':'平均',
+    'rhythm.title':'7 天节奏','rhythm.note':'每日完成节奏',
+    'dots.note':'每一格是一天。颜色深浅代表完成比例，不做连续天数。',
+    'insight.week.q':'周四和周六明显低于其他日子。',
+    'insight.week.d':'这两天都排了 4 项重点任务。把上限调回 3 项，先试一周。',
+    'insight.week.a':'调整上限','insight.keep':'保持现状',
+    'insight.month.q':'睡眠比上月少了 22 分钟，主要丢在周五和周六。',
+    'insight.month.d':'这两天的完成率也是全月最低。问题可能不是自律，而是日程本身排得太满。',
+    'reflect.title':'回顾','reflect.q':'下周只改进一件事。','reflect.ph':'只写一件事…',
+    'reflect.note':'写完之后，它会变成下周 Today 里的一条轻量提醒。',
+    'me.title':'我的系统','me.sub':'长期方向、目标、Routines 与习惯。',
+    'sec.goals':'目标','sec.goals.note':'当前焦点','sec.routines':'Routines 与习惯','sec.health':'健康','sec.system':'系统',
+    'me.focus':'当前焦点：','me.language':'语言',
+    'me.weekly.sub':'本周待写','me.learning.sub':'在学 · 4h 20m / 周','me.journal.sub':'回顾 · 2 条',
+    'me.hd.connect':'连接数据源','me.prefs.sub':'外观 · 通知 · 日程',
+    'me.ob':'查看首次引导','me.ob.sub':'8 步 · 约 50 秒',
+    'me.h.invite.t':'让身体状态影响今天的安排',
+    'me.h.invite.d':'连接 Apple 健康 / Health Connect 后，睡眠、心率、运动会自动参与每天的建议。数据留在设备上。',
+    'me.h.connect':'连接数据源','me.h.connected':'已连接','me.h.disconnected':'未连接',
+    'me.h.sleep':'睡眠','me.h.rhr':'静息心率','me.h.steps':'步数',
+    'h.usual':'平时','h.synced':'同步',
+    'td.duration':'时长','td.goal':'目标','td.routine':'Routine','td.time':'时间',
+    'td.nogoal':'未关联','td.noroutine':'无','td.nonotes':'还没有备注。','td.today':'今天',
+    'td.complete':'完成','td.undo':'已完成 · 撤销','td.focus':'专注','td.resched':'改期','td.skip':'跳过','td.delete':'删除任务',
+    'qa.kicker':'快速记录','qa.ph':'想做什么？先记下来…',
+    'qa.note':'不填日期、不填优先级。先进收集箱，之后再安排。',
+    'qa.save':'保存到收集箱','qa.suggest':'建议','qa.accept':'放到周四 22:00？',
+    'md.title':'建议日程','md.sub':'基于你的 Routines、固定工作时间与今天的空档。',
+    'md.note':'接受后，这会替换今天的时间轴。被移走的任务会回到收集箱，不会消失。',
+    'md.note.low':'考虑到{reasons}，已自动降低强度。接受后，这会替换今天的时间轴。',
+    'md.accept':'接受','md.adjust':'调整',
+    'rs.title':'移到什么时候？','rs.sub':'系统优先推荐有空档、且不挤掉重点任务的位置。',
+    'rs.opt1.t':'今晚 22:00','rs.opt1.d':'今天还剩 45 分钟空档',
+    'rs.opt2.t':'周四 22:00','rs.opt2.d':'学习时段 · 推荐',
+    'rs.opt3.t':'周六 15:30','rs.opt3.d':'60 分钟空档 · 不挤掉重点任务',
+    'rs.opt4.t':'放进收集箱','rs.opt4.d':'先不决定','rs.cancel':'取消',
+    'notif.title':'允许的 3 类通知','notif.sub':'每小时提醒、焦虑式文案、连续天数警告 —— 都不会出现。',
+    'notif.1.t':'20:15 · Routine 提醒','notif.1.a':'Snooze · 5 min',
+    'notif.2.t':'22:00 · 重要任务','notif.2.a':'完成 · 改期',
+    'notif.3.t':'20:30 · 规划建议','notif.3.b':'建议明天的安排。看一下？','notif.3.a':'查看 · 忽略',
+    'notif.note':'每天最多 3 条，由你而不是 App 决定时间。',
+    'auth.title':'允许「Epoch」读取','auth.sub':'只读取，不写入。你可以随时在系统健康 App 里关闭。',
+    'auth.scope.sleep':'睡眠分析','auth.scope.sleep.d':'调整当天强度',
+    'auth.scope.hr':'心率 / HRV','auth.scope.hr.d':'判断恢复状态',
+    'auth.scope.workout':'体能训练','auth.scope.workout.d':'计入每周运动量',
+    'auth.scope.steps':'步数','auth.scope.steps.d':'日常活动参考',
+    'auth.note':'数据留在设备上，本地处理。不会上传，不会用于广告。',
+    'auth.deny':'不允许','auth.allow':'允许',
+    'sync.title':'正在同步…','sync.sub':'读取近 14 天的睡眠、心率与运动记录。<br/>同步在本地完成。',
+    'hc.title':'数据源',
+    'hc.sub':'Epoch 不记录健康数据，只读取系统健康层已有的。数据用来回答一个问题：今天的身体，适合什么样的日程。',
+    'hc.sec.sources':'设备与来源','hc.sec.scopes':'同步范围','hc.readonly':'只读',
+    'hc.src.apple.d':'iPhone / Apple Watch · 睡眠 心率 运动 步数',
+    'hc.src.android.d':'Android · 小米 / 华为 / 三星通过它汇聚',
+    'hc.src.garmin.d':'通过 Open Wearables 连接','hc.src.other.d':'通过 Open Wearables 连接',
+    'hc.connected':'已连接','hc.none':'未连接',
+    'hc.privacy.q':'数据留在你的设备上。',
+    'hc.privacy.d':'Epoch 只在本地读取并计算，不会上传健康数据，也不会用于广告或画像。断开连接后，已读取的数据会被清除。',
+    'hc.disconnect':'断开连接并清除数据',
+    'health.title':'今天的身体','health.sub':'不做健康仪表盘。只看会影响今天安排的几件事。',
+    'health.empty.1':'还没有连接数据源。','health.empty.2':'连接 Apple 健康 / Health Connect 后，这里会出现会影响今天安排的几件事。',
+    'health.go':'去连接',
+    'health.low.d':'今天的身体适合轻一点的日程。{suggestion}，Learning 减半。休息是计划的一部分，不是失败。',
+    'health.adapt':'按建议调整今天','health.keep':'保持原计划',
+    'health.ok.q':'身体状态在正常范围。','health.ok.d':'照常就好。出现持续异常时，这里才会说话。',
+    'health.from':'数据来自 {src} · {when}同步 · 本地处理，不上传。',
+    'dir.kicker':'Direction','dir.title':'Where are you going?',
+    'dir.sub':'不是愿景板，也不是鸡血。只是一句话，用来在你要放弃一项任务时判断它是否还值得。',
+    'dir.yours':'你的方向','dir.chain':'这条链路是否成立',
+    'dir.m1':'Direction → Goals','dir.m1.v':'6 个目标已关联','dir.m2':'Goals → Routines','dir.m2.v':'4 条 Routine 在跑',
+    'dir.m3':'Routines → Tasks','dir.m3.v':'本周 31 项','dir.m4':'无关联的任务','dir.m4.v':'2 项 · 值得清理',
+    'dir.insight.q':'有 2 项任务没有挂在任何 Goal 上。',
+    'dir.insight.d':'它们不必然是错的，但也无法回答「我为什么现在做这个」。要不要现在归位，还是先放着？',
+    'dir.insight.a1':'查看这 2 项','dir.insight.a2':'先放着',
+    'gd.note':'只展开当前层级。更长的周期折叠在后面。',
+    'gd.progress':'进展','gd.focus':'当前焦点','gd.routines':'关联 Routines','gd.tasks':'关联任务','gd.tasks.note':'本周 4 项','gd.next':'下一步：',
+    'rt.kicker':'Routine','rt.sub':'每周重复出现的生活结构。修改一次，未来的 Task 跟着变。',
+    'rt.repeat':'重复','rt.repeat.v':'每周二','rt.time':'时间','rt.goal':'关联 Goal','rt.hit':'命中率','rt.hit.v':'近 8 周 6 次',
+    'rt.items':'Routine Items','rt.ops':'操作',
+    'hb.kicker':'Habit','hb.last10':'近 10 周',
+    'hb.note':'不统计连续天数，不做排行榜。只看节奏是否稳定。',
+    'hb.insight.q':'周三的执行率明显低于周一和周五。',
+    'hb.insight.d':'如果把周三移到周四 20:15，命中率预计从 62% 到 88%。',
+    'hb.move':'移到周四','hb.keep':'保持现状',
+    'wr.kicker':'Reflection','wr.title':'这一周','wr.sub':'每周只问三个问题。不做日记系统。',
+    'wr.q1.ph':'这周做成了什么…','wr.q2.ph':'什么消耗了你…',
+    'wr.q3.kicker':'最重要的一个','wr.q3.ph':'下周只改这一件事…',
+    'wr.q3.note':'写完之后，它会变成下周 Today 里的一条轻量提醒。','wr.save':'保存并关闭',
+    'ln.title':'在学','ln.sub':'不是「课程清单」。是现在真正花时间在学的几件事。',
+    'ln.week':'本周时长','ln.month':'本月时长','ln.goal':'关联 Goal','ln.topics':'主题',
+    'ln.insight.q':'学完之后没有任何输出。',
+    'ln.insight.d':'Learning 不需要产出文章，但需要能用自己的话讲一遍。每条主题配一行笔记。',
+    'jn.title':'回顾','jn.sub':'每周不超过 3 句。这里只是它留下的痕迹。',
+    'jn.thisweek':'本周','jn.lastweek':'上周','jn.count':'1 条',
+    'st.title':'设置','st.appearance':'外观','st.appearance.note':'Soft Glass / Dark Frosted',
+    'st.schedule':'日程','st.planning':'规划偏好','st.notifications':'通知','st.data':'数据','st.language':'语言',
+    'st.wake':'起床','st.work':'工作时间','st.sleep':'睡觉',
+    'st.maincap':'每日重点上限','st.exercise':'运动时段','st.study':'学习时段','st.loadnote':'负载提醒',
+    'st.notif.important':'重要任务','st.notif.routine':'Routine 提醒','st.notif.plan':'规划建议','st.notif.plan.v':'每天 1 次 · 20:30',
+    'st.notif.note':'每小时提醒、焦虑式文案、连续天数警告 —— 都不会出现。',
+    'st.export':'导出','st.sync':'同步','st.sync.v':'本地优先',
+    'ob.skip':'跳过','ob.back':'上一步','ob.next':'继续','ob.start':'开始','ob.enter':'进入 Today',
+    'ob.welcome.q':'Shape your time.<br/>Shape yourself.',
+    'ob.welcome.d':'Epoch 不是待办清单，也不是习惯打卡。<br/>它只帮你回答两个问题：<b style="color:var(--ink-1);font-weight:600">今天该做什么</b>，以及 <b style="color:var(--ink-1);font-weight:600">为什么</b>。',
+    'ob.welcome.1.t':'从一套默认作息开始','ob.welcome.1.d':'推荐 · 之后可以改。大约 50 秒就能得到今天。',
+    'ob.welcome.2.t':'我自己设置','ob.welcome.2.d':'工作时间、起床与睡觉时间都手动填。',
+    'ob.sched.q':'你的一天大概怎么过？','ob.sched.d':'只需要三个时间点。之后系统会围绕它们安排，不会往里塞东西。',
+    'ob.sched.wake':'起床 / 睡觉',
+    'ob.sched.1.d':'标准班','ob.sched.2.d':'弹性班','ob.sched.3.t':'轮班 / 不固定','ob.sched.3.d':'系统只安排工作之外的空档',
+    'ob.routines.q':'先挑几个想开始的。','ob.routines.d':'可以全都不选。Routine 是把「想做的事」变成「固定发生的事」的方式，但一次别挑太多。',
+    'ob.health.q':'连接健康数据吗？','ob.health.d':'可选。连接后，睡眠、心率、运动会影响每天的建议——比如睡得少时，系统会主动把 Run 改成 Walk。数据留在设备上，只读，不上传。',
+    'ob.health.1.t':'连接 Apple 健康','ob.health.1.d':'iPhone / Apple Watch · 之后可在 Health & Devices 管理',
+    'ob.health.2.t':'稍后再说','ob.health.2.d':'Today 依然可用，随时可以在 Me 里连接',
+    'ob.dir.q':'Where are you going?','ob.dir.d':'一句话就够。它会在你想放弃一项任务时，帮你判断这件事是否还值得做。',
+    'ob.dir.ph':'例如：我想要更大的自由和更多的选择权。','ob.dir.domains':'主要涉及哪些方面',
+    'ob.goal.q':'这个季度，一件想推进的事。','ob.goal.d':'只写一件。系统之后会帮你拆到月、周，再到今天。',
+    'ob.goal.ph':'例如：学会 APQP 流程','ob.goal.note':'写不出来也没关系。可以先跳过，Today 依然可用。',
+    'ob.gen.lbl':'正在生成第一周…','ob.gen.sub':'根据你的作息与 Routines 排入今天和本周的空档。<br/>之后每天 20:30 会再排一次。',
+    'ob.done.q':'好了。','ob.done.d':'今天有 3 个重点任务。先做完第一个，剩下的明天再说。',
+    'focus.quit':'退出专注','focus.start':'开始','focus.pause':'暂停','focus.resume':'继续','focus.done':'完成',
+    'toast.back2inbox':'已移回收集箱，不删除','toast.skiptoday':'今天跳过，明天不再提醒',
+    'toast.walk':'已改成 Walk · 20 min','toast.keep':'保持原计划',
+    'toast.saved':'已存入收集箱','toast.scheduled':'已安排到{when}',
+    'toast.timeline':'今天的时间轴已更新','toast.adjust':'可以在规划里逐项调整',
+    'toast.moved':'已移到周六 15:30','toast.skip':'今天跳过','toast.deleted':'已删除',
+    'toast.connected':'已连接 · 基线需要约 2 周数据','toast.disconnected':'已断开，数据已清除',
+    'toast.denied':'未授权，健康功能保持关闭','toast.week':'第一周已生成',
+    'toast.health-connect':'Apple 健康接入（移动端可用）','toast.adapted':'已按建议调整今天',
+    'plan.myday.entry':'Plan My Day',
+  },
+  en: {
+    'tab.today':'Today','tab.plan':'Plan','tab.progress':'Progress','tab.me':'Me',
+    'greet.morning':'Good morning.','greet.midday':'Good midday.','greet.afternoon':'Good afternoon.','greet.evening':'Good evening.','greet.night':'Good night.',
+    'today.completed':'completed','today.loading':'Loading your day','today.readfail':'Load failed',
+    'today.err.1':"Couldn't load today.<br/>Your data is still safe on this device.",'today.retry':'Retry',
+    'today.empty.1':'Your day is clear.','today.empty.2':'Nothing planned yet.<br/>No need to fill it right now.',
+    'today.alldone.1':'Everything is done.','today.alldone.2':"That's today. Go live.",
+    'tag.now':'Now','tag.next':'Next',
+    'sec.today':'Today','sec.timeline':'Timeline','sec.timeline.note':'Time as structure',
+    'sec.main':'Main','sec.main.note':"Today's focus · max 3",
+    'sec.secondary':'Secondary','sec.secondary.note':'{n} open',
+    'sec.habits':'Habits','sec.habits.note':'Today',
+    'note.heavy':'Your day looks heavy.','note.move':'Move','note.reduce':'Reduce','note.skip':'Skip',
+    'energy.ok':'OK','energy.keep':'Keep',
+    'plan.title':'Plan','plan.sub':'Capture first, plan later. No pressure to pick a date right away.',
+    'seg.inbox':'Inbox','seg.today':'Today','seg.week':'This Week','seg.upcoming':'Upcoming','seg.unscheduled':'Unscheduled',
+    'plan.count.inbox':'capture first, plan later','plan.count.today':'scheduled for today','plan.count.week':'this week','plan.count.upcoming':'later','plan.count.unscheduled':'no date',
+    'plan.items':'{n} · ',
+    'empty.inbox.1':'Nothing waiting.','empty.inbox.2':'Inbox is empty. Drop anything here anytime.',
+    'empty.unscheduled.1':'Nothing waiting.','empty.unscheduled.2':'Everything already has a place.',
+    'empty.today.1':'Your day is clear.','empty.today.2':'Nothing planned for today.',
+    'empty.upcoming.1':'Nothing planned yet.','empty.upcoming.2':'The further future is still empty.',
+    'empty.week.1':'Nothing planned yet.','empty.week.2':'Nothing planned this week.',
+    'adapt.q':'English was not completed.','adapt.d':'Move English to Saturday 15:30?',
+    'adapt.why':'Why: medium priority · Sat 15:30 has a 60-min gap · no conflict with Reading',
+    'adapt.accept':'Accept','adapt.change':'Change',
+    'myday.q':'Generate a suggested day','myday.d':'Auto-builds a timeline from your work hours, routines, exercise and learning, plus the gaps in your day.',
+    'myday.go':'Generate',
+    'hint.suggest':'Suggested','hint.none':'Unscheduled','hint.captured':'Just captured','hint.movedback':'Back to Inbox',
+    'prog.title.week':'This Week','prog.title.month':'This Month',
+    'prog.sub':'No hype. Only data that informs your next step.',
+    'prog.completion':'Completion','prog.consistency':'Consistency','prog.last30':'Last 30 days',
+    'prog.planned':'24 of 31 planned done.','prog.monthdays':'Main tasks done on 24 of 30 days.',
+    'm.learning':'Learning','m.exercise':'Exercise','m.habits':'Habits','m.sleep':'Sleep','m.hrv':'HRV','m.avg':'avg',
+    'rhythm.title':'7-day rhythm','rhythm.note':'Daily completion',
+    'dots.note':'Each dot is a day. Depth shows completion — no streak counting.',
+    'insight.week.q':'Thursday and Saturday clearly lag the other days.',
+    'insight.week.d':'Both had 4 main tasks scheduled. Try capping at 3 for a week.',
+    'insight.week.a':'Adjust cap','insight.keep':'Keep as is',
+    'insight.month.q':'Sleep is down 22 minutes vs last month, mostly on Fri and Sat.',
+    'insight.month.d':'Those two days also have the lowest completion. Maybe the schedule itself is too full, not discipline.',
+    'reflect.title':'Reflection','reflect.q':'One thing to improve next week.','reflect.ph':'Just one thing…',
+    'reflect.note':'It becomes a gentle reminder in next week\u2019s Today.',
+    'me.title':'Me','me.sub':'Direction, goals, routines and habits.',
+    'sec.goals':'Goals','sec.goals.note':'Current focus','sec.routines':'Routines & Habits','sec.health':'Health','sec.system':'System',
+    'me.focus':'Focus: ','me.language':'Language',
+    'me.weekly.sub':'Not written this week','me.learning.sub':'Active · 4h 20m / week','me.journal.sub':'2 entries',
+    'me.hd.connect':'Connect a source','me.prefs.sub':'Appearance · Notifications · Schedule',
+    'me.ob':'View onboarding','me.ob.sub':'8 steps · ~50s',
+    'me.h.invite.t':'Let your body shape today\u2019s plan',
+    'me.h.invite.d':'Connect Apple Health / Health Connect and sleep, heart rate and workouts join every daily suggestion. Data stays on-device.',
+    'me.h.connect':'Connect a source','me.h.connected':'Connected','me.h.disconnected':'Not connected',
+    'me.h.sleep':'Sleep','me.h.rhr':'Resting HR','me.h.steps':'Steps',
+    'h.usual':'usual','h.synced':'synced',
+    'td.duration':'Duration','td.goal':'Goal','td.routine':'Routine','td.time':'Time',
+    'td.nogoal':'Not linked','td.noroutine':'None','td.nonotes':'No notes yet.','td.today':'Today',
+    'td.complete':'Complete','td.undo':'Done · Undo','td.focus':'Focus','td.resched':'Reschedule','td.skip':'Skip','td.delete':'Delete Task',
+    'qa.kicker':'Capture','qa.ph':'What\u2019s on your mind?',
+    'qa.note':'No date, no priority. Inbox first, schedule later.',
+    'qa.save':'Save to Inbox','qa.suggest':'Suggested','qa.accept':'Add to Thursday 22:00?',
+    'md.title':'Suggested Day','md.sub':'Based on your routines, work hours and today\u2019s gaps.',
+    'md.note':'Accepting replaces today\u2019s timeline. Anything moved out goes back to Inbox — nothing is lost.',
+    'md.note.low':'Given {reasons}, intensity is lowered automatically. Accepting replaces today\u2019s timeline.',
+    'md.accept':'Accept','md.adjust':'Adjust',
+    'rs.title':'Move it to when?','rs.sub':'We suggest gaps that don\u2019t crowd out your main tasks.',
+    'rs.opt1.t':'Tonight 22:00','rs.opt1.d':'45 min left today',
+    'rs.opt2.t':'Thursday 22:00','rs.opt2.d':'Learning slot · suggested',
+    'rs.opt3.t':'Saturday 15:30','rs.opt3.d':'60-min gap · keeps main tasks intact',
+    'rs.opt4.t':'Back to Inbox','rs.opt4.d':'Decide later','rs.cancel':'Cancel',
+    'notif.title':'Only 3 kinds of notifications','notif.sub':'No hourly pings, no guilt-trip copy, no streak warnings.',
+    'notif.1.t':'20:15 · Routine reminder','notif.1.a':'Snooze · 5 min',
+    'notif.2.t':'22:00 · Important task','notif.2.a':'Complete · Reschedule',
+    'notif.3.t':'20:30 · Planning suggestion','notif.3.b':'A suggested plan for tomorrow. Take a look?','notif.3.a':'View · Dismiss',
+    'notif.note':'At most 3 a day, at times you choose.',
+    'auth.title':'Allow “Epoch” to read','auth.sub':'Read-only. You can turn this off anytime in the system Health app.',
+    'auth.scope.sleep':'Sleep analysis','auth.scope.sleep.d':'Adjusts daily intensity',
+    'auth.scope.hr':'Heart rate / HRV','auth.scope.hr.d':'Reads recovery',
+    'auth.scope.workout':'Workouts','auth.scope.workout.d':'Counts weekly exercise',
+    'auth.scope.steps':'Steps','auth.scope.steps.d':'Daily activity reference',
+    'auth.note':'Data stays on-device and is processed locally. Never uploaded, never used for ads.',
+    'auth.deny':'Don\u2019t Allow','auth.allow':'Allow',
+    'sync.title':'Syncing…','sync.sub':'Reading the last 14 days of sleep, heart rate and workouts.<br/>Synced locally.',
+    'hc.title':'Sources',
+    'hc.sub':'Epoch never records health data — it reads what the system health layer already has, to answer one question: what kind of day is your body ready for?',
+    'hc.sec.sources':'Devices & sources','hc.sec.scopes':'Scopes','hc.readonly':'Read-only',
+    'hc.src.apple.d':'iPhone / Apple Watch · Sleep HR Workouts Steps',
+    'hc.src.android.d':'Android · Xiaomi / Huawei / Samsung flow into it',
+    'hc.src.garmin.d':'Via Open Wearables','hc.src.other.d':'Via Open Wearables',
+    'hc.connected':'Connected','hc.none':'Not connected',
+    'hc.privacy.q':'Data stays on your device.',
+    'hc.privacy.d':'Epoch reads and computes locally. Health data is never uploaded or used for ads or profiling. Disconnecting wipes what was read.',
+    'hc.disconnect':'Disconnect and wipe data',
+    'health.title':'Your body today','health.sub':'Not a health dashboard. Only what affects today\u2019s plan.',
+    'health.empty.1':'No source connected yet.','health.empty.2':'Connect Apple Health / Health Connect and the few things that affect today will show up here.',
+    'health.go':'Connect',
+    'health.low.d':'Your body suits a lighter day. {suggestion}, and halve Learning. Rest is part of the plan, not a failure.',
+    'health.adapt':'Adjust today','health.keep':'Keep as planned',
+    'health.ok.q':'Your body is within normal range.','health.ok.d':'Carry on. This page only speaks when something persists.',
+    'health.from':'From {src} · synced {when} · processed locally, never uploaded.',
+    'dir.kicker':'Direction','dir.title':'Where are you going?',
+    'dir.sub':'Not a vision board, not hype. Just one sentence to judge whether a task is still worth doing.',
+    'dir.yours':'Your direction','dir.chain':'Does the chain hold',
+    'dir.m1':'Direction → Goals','dir.m1.v':'6 goals linked','dir.m2':'Goals → Routines','dir.m2.v':'4 routines running',
+    'dir.m3':'Routines → Tasks','dir.m3.v':'31 this week','dir.m4':'Unlinked tasks','dir.m4.v':'2 · worth a look',
+    'dir.insight.q':'2 tasks are not linked to any goal.',
+    'dir.insight.d':'Not necessarily wrong — but they can\u2019t answer “why am I doing this now”. Place them now, or later?',
+    'dir.insight.a1':'Review these 2','dir.insight.a2':'Later',
+    'gd.note':'Only the current level is expanded. Longer horizons stay folded.',
+    'gd.progress':'Progress','gd.focus':'Current Focus','gd.routines':'Associated Routines','gd.tasks':'Associated Tasks','gd.tasks.note':'4 this week','gd.next':'Next step: ',
+    'rt.kicker':'Routine','rt.sub':'A recurring structure of life. Change it once and future tasks follow.',
+    'rt.repeat':'Repeats','rt.repeat.v':'Every Tuesday','rt.time':'Time','rt.goal':'Linked Goal','rt.hit':'Hit rate','rt.hit.v':'6 of last 8 weeks',
+    'rt.items':'Routine Items','rt.ops':'Actions',
+    'hb.kicker':'Habit','hb.last10':'Last 10 weeks',
+    'hb.note':'No streak counting, no leaderboard. Just whether the rhythm is stable.',
+    'hb.insight.q':'Wednesday clearly trails Monday and Friday.',
+    'hb.insight.d':'Moving Wed to Thu 20:15 should raise the hit rate from 62% to 88%.',
+    'hb.move':'Move to Thursday','hb.keep':'Keep as is',
+    'wr.kicker':'Reflection','wr.title':'This week','wr.sub':'Only three questions a week. Not a journal system.',
+    'wr.q1.ph':'What got done…','wr.q2.ph':'What drained you…',
+    'wr.q3.kicker':'The one that matters','wr.q3.ph':'Change just this next week…',
+    'wr.q3.note':'It becomes a gentle reminder in next week\u2019s Today.','wr.save':'Save & close',
+    'ln.title':'Learning','ln.sub':'Not a course list. Just what you\u2019re actually spending time on.',
+    'ln.week':'This week','ln.month':'This month','ln.goal':'Linked Goal','ln.topics':'Topics',
+    'ln.insight.q':'Nothing gets produced after learning.',
+    'ln.insight.d':'Learning doesn\u2019t need an essay — but you should be able to say it in your own words. One line of notes per topic.',
+    'jn.title':'Journal','jn.sub':'At most three sentences a week. This is just the trace they leave.',
+    'jn.thisweek':'This week','jn.lastweek':'Last week','jn.count':'1 entry',
+    'st.title':'Preferences','st.appearance':'Appearance','st.appearance.note':'Soft Glass / Dark Frosted',
+    'st.schedule':'Schedule','st.planning':'Planning Preferences','st.notifications':'Notifications','st.data':'Data','st.language':'Language',
+    'st.wake':'Wake up','st.work':'Work hours','st.sleep':'Sleep',
+    'st.maincap':'Daily main-task cap','st.exercise':'Exercise window','st.study':'Learning window','st.loadnote':'Load reminder',
+    'st.notif.important':'Important tasks','st.notif.routine':'Routine reminders','st.notif.plan':'Planning suggestions','st.notif.plan.v':'Once a day · 20:30',
+    'st.notif.note':'No hourly pings, no guilt-trip copy, no streak warnings.',
+    'st.export':'Export','st.sync':'Sync','st.sync.v':'Local-first',
+    'ob.skip':'Skip','ob.back':'Back','ob.next':'Continue','ob.start':'Start','ob.enter':'Enter Today',
+    'ob.welcome.q':'Shape your time.<br/>Shape yourself.',
+    'ob.welcome.d':'Epoch is not a todo list, nor a habit tracker.<br/>It answers two questions: <b style="color:var(--ink-1);font-weight:600">what to do today</b>, and <b style="color:var(--ink-1);font-weight:600">why</b>.',
+    'ob.welcome.1.t':'Start with a default schedule','ob.welcome.1.d':'Recommended · editable later. A working Today in ~50s.',
+    'ob.welcome.2.t':'Set it up myself','ob.welcome.2.d':'Work hours, wake and sleep times, all manual.',
+    'ob.sched.q':'What does your day look like?','ob.sched.d':'Just three time points. The system plans around them and never stuffs more in.',
+    'ob.sched.wake':'Wake / Sleep',
+    'ob.sched.1.d':'Standard','ob.sched.2.d':'Flexible','ob.sched.3.t':'Shift / irregular','ob.sched.3.d':'We only plan the gaps outside work',
+    'ob.routines.q':'Pick a few to start with.','ob.routines.d':'It\u2019s fine to pick none. Routines turn “want to do” into “happens regularly” — don\u2019t take too many at once.',
+    'ob.health.q':'Connect health data?','ob.health.d':'Optional. Sleep, heart rate and workouts will shape daily suggestions — e.g. a short night turns Run into Walk. On-device, read-only, never uploaded.',
+    'ob.health.1.t':'Connect Apple Health','ob.health.1.d':'iPhone / Apple Watch · manageable later in Health & Devices',
+    'ob.health.2.t':'Maybe later','ob.health.2.d':'Today works either way. Connect anytime in Me.',
+    'ob.dir.q':'Where are you going?','ob.dir.d':'One sentence is enough. It judges whether a task is still worth doing when you want to quit.',
+    'ob.dir.ph':'e.g. I want more freedom and more choices.','ob.dir.domains':'Mainly about',
+    'ob.goal.q':'One thing to move forward this quarter.','ob.goal.d':'Just one. The system breaks it down to month, week, then today.',
+    'ob.goal.ph':'e.g. Learn the APQP process','ob.goal.note':'Can\u2019t write one? Skip it — Today still works.',
+    'ob.gen.lbl':'Building your first week…','ob.gen.sub':'Placing today and this week\u2019s gaps around your schedule and routines.<br/>Re-planned daily at 20:30.',
+    'ob.done.q':'Done.','ob.done.d':'3 main tasks today. Finish the first one — the rest can wait until tomorrow.',
+    'focus.quit':'Quit focus','focus.start':'Start','focus.pause':'Pause','focus.resume':'Resume','focus.done':'Done',
+    'toast.back2inbox':'Back to Inbox — not deleted','toast.skiptoday':'Skipped today, no reminder tomorrow',
+    'toast.walk':'Changed to Walk · 20 min','toast.keep':'Keeping the original plan',
+    'toast.saved':'Saved to Inbox','toast.scheduled':'Scheduled to {when}',
+    'toast.timeline':'Today\u2019s timeline updated','toast.adjust':'Adjust item by item in Plan',
+    'toast.moved':'Moved to Sat 15:30','toast.skip':'Skipped today','toast.deleted':'Deleted',
+    'toast.connected':'Connected · baseline needs ~2 weeks of data','toast.disconnected':'Disconnected, data wiped',
+    'toast.denied':'Not authorized — health stays off','toast.week':'First week generated',
+    'toast.health-connect':'Apple Health available on mobile','toast.adapted':'Today adjusted as suggested',
+    'plan.myday.entry':'Plan My Day',
+  },
+};
+function t(k) {
+  const d = I18N[state.lang] || I18N.zh;
+  if (d[k] !== undefined) return d[k];
+  return I18N.zh[k] !== undefined ? I18N.zh[k] : k;
+}
+const tpl = (k, map) => Object.entries(map || {}).reduce((s, [kk, v]) => s.replace('{' + kk + '}', v), t(k));
+
+/* 应用语言：刷 data-i18n 属性 + 重渲动态区 */
+function applyLang() {
+  document.documentElement.lang = state.lang === 'zh' ? 'zh-CN' : 'en';
+  $$('[data-i18n]').forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  $$('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  $$('[data-lang-seg] button').forEach(b => b.classList.toggle('on', b.dataset.lang === state.lang));
+  // 标签栏
+  $$('.tab').forEach(b => { b.querySelector('span').textContent = t('tab.' + b.dataset.tab); });
+  // 问候与日期
+  $('#greet').textContent = greetOf(now.getHours());
+  const WD = state.lang === 'zh' ? WD_CN : WD_EN;
+  $('#date-line').innerHTML = state.lang === 'zh'
+    ? `<b>${now.getMonth()+1}月${now.getDate()}日 · 星期${WD_CN[now.getDay()]}</b>`
+    : `<b>${now.getMonth()+1}.${now.getDate()} · ${WD_EN[now.getDay()]}</b>`;
+  renderToday(); renderPlan(); renderProgress(); renderMe(); renderMyDay();
+  if (router.panel === 'health-connect') renderHealthConnect();
+  if (router.panel === 'health') renderHealth();
+  if ($('#overlay-onboarding').classList.contains('on')) renderOb();
+}
+
+/* ─────────────── 工具 ─────────────── */
+const now = new Date();
+const minsNow = now.getHours() * 60 + now.getMinutes();
+const toMin = (t) => { const [h,m] = t.split(':').map(Number); return h*60+m; };
+
+function greetOf(h) {
+  const k = h < 5 ? 'night' : h < 11 ? 'morning' : h < 14 ? 'midday' : h < 18 ? 'afternoon' : h < 22 ? 'evening' : 'night';
+  return t('greet.' + k);
+}
+
+/* ─────────────── 路由 ─────────────── */
+const router = { tab:'today', panel:null, sheet:null };
+const TABS   = ['today','plan','progress','me'];
+const PANELS = ['direction','goal','routine','habit','weekly','settings','learning','journal','health-connect','health'];
+
+/* ── URL 路由：可以深链到任意一屏， ── */
+function setRoute(hash, replace) {
+  const url = '#' + hash;
+  if (location.hash === url) return;
+  try {
+    if (replace) history.replaceState(null, '', url);
+    else history.pushState(null, '', url);
+  } catch (_) { /* file:// 下可能被限制，静默降级 */ }
+}
+function applyRoute(hash) {
+  const h = String(hash || '').replace(/^#/, '');
+  if (!h) return goTab('today');
+  const [kind, arg] = h.split(':');
+  if (TABS.includes(kind))   return goTab(kind);
+  if (PANELS.includes(kind)) { if (kind === 'goal') loadGoal(arg || 'g1'); return pushPanel(kind); }
+  if (kind === 'sheet')      return openSheet('sheet-' + arg);
+  if (kind === 'onboarding') return startOnboarding();
+  if (kind === 'gallery')    { renderGallery(); return openOverlay('gallery'); }
+  if (kind === 'focus') {
+    const t = state.tasks.find(x => x.id === arg) || state.tasks.find(x => x.tier === 'main') || state.tasks[0];
+    $('#focus-task').textContent = t ? t.title : 'Focus';
+    resetFocus(); return $('#focus').classList.add('on');
+  }
+  if (kind === 'state') {
+    state.todayState = arg || 'default';
+    if (arg === 'completed') state.secondary.forEach(x => x.done = true);
+    if (arg === 'default')   { state.secondary.forEach(x => x.done = false); state.tasks.forEach((t,i) => t.done = i < 3); }
+    renderToday(); return goTab('today');
+  }
+  goTab('today');
+}
+
+function goTab(tab) {
+  router.tab = tab; router.panel = null; router.sheet = null;
+  $$('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  $$('.screen').forEach(s => s.classList.toggle('on', s.dataset.screen === tab));
+  $$('.panel').forEach(p => p.classList.remove('on'));
+  $('.phone').dataset.nav = 'tabs';
+  closeSheets();
+  setRoute(tab);
+}
+function pushPanel(name, setup) {
+  router.panel = name; router.sheet = null;
+  if (name === 'health-connect') renderHealthConnect();
+  if (name === 'health') renderHealth();
+  $$('.panel').forEach(p => p.classList.toggle('on', p.dataset.panel === name));
+  $('.phone').dataset.nav = 'panel';
+  closeSheets();
+  if (setup) setup();
+  const el = $(`.panel[data-panel="${name}"]`); if (el) el.scrollTop = 0;
+  setRoute(name);
+}
+function popPanel() {
+  router.panel = null;
+  $$('.panel').forEach(p => p.classList.remove('on'));
+  $('.phone').dataset.nav = 'tabs';
+  setRoute(router.tab, true);
+}
+function openSheet(id) {
+  router.sheet = id;
+  $('#scrim').classList.add('on');
+  $('#' + id).classList.add('on');
+  setRoute('sheet:' + id.replace(/^sheet-/, ''));
+}
+function closeSheets() {
+  const was = router.sheet;
+  router.sheet = null;
+  $('#scrim').classList.remove('on');
+  $$('.sheet').forEach(s => s.classList.remove('on'));
+  if (was) setRoute(router.panel || router.tab, true);
+}
+
+/* Goal Detail 内容填充（可被路由或 Me 页触发） */
+function loadGoal(id) {
+  const g = state.goals.find(x => x.id === id) || state.goals[0];
+  if (!g) return;
+  $('#gd-kicker').textContent = g.kicker;
+  $('#gd-title').textContent = g.title;
+  $('#gd-note').textContent = g.note;
+  $('#gd-pct').textContent = g.pct + '%';
+  $('#gd-bar').style.width = g.pct + '%';
+  $('#gd-focus').textContent = g.focus;
+  $('#gd-next').textContent = 'Next step：' + g.next;
+  $('#gd-ladder').innerHTML = g.ladder.map(l => `
+    <div class="metric" style="${l.cur ? '' : 'opacity:.5'}">
+      <span class="m">${l.lv}</span><span class="v" style="flex:2;text-align:right;${l.cur?'font-weight:600;color:var(--ink-1)':''}">${l.t}</span>
+    </div>`).join('');
+  setRoute('goal:' + g.id, true);
+}
+
+/* ─────────────── TODAY 渲染 ─────────────── */
+function renderToday() {
+  const body = $('#today-body');
+  const s = state.todayState;
+
+  if (s === 'loading') {
+    body.innerHTML = `<div class="sec tight"><h2>${t('sec.today')}</h2></div>` +
+      [0,1,2,3,4,5].map((i) => `
+        <div class="skel-row">
+          <div class="skel" style="height:11px;width:34px"></div>
+          <div><div class="skel" style="height:13px;width:${58 + (i%3)*16}%"></div>
+              <div class="skel" style="height:9px;width:32%;margin-top:7px"></div></div>
+          <div class="skel" style="height:22px;width:22px;border-radius:50%;justify-self:end"></div>
+        </div>`).join('');
+    $('#prog-a').textContent = '—';
+    $('#prog-b').textContent = t('today.loading');
+    $('#prog-bar').style.width = '0%';
+    return;
+  }
+
+  if (s === 'error') {
+    body.innerHTML = `
+      <div class="err">
+        <div class="e1">${t('today.err.1')}</div>
+        <button class="btn btn-g" id="err-retry">${t('today.retry')}</button>
+      </div>`;
+    $('#err-retry').onclick = () => { state.todayState = 'default'; renderToday(); };
+    $('#prog-a').textContent = '—';
+    $('#prog-b').textContent = t('today.readfail');
+    $('#prog-bar').style.width = '0%';
+    return;
+  }
+
+  if (s === 'empty') {
+    body.innerHTML = `
+      <div class="empty">
+        <div class="e1">${t('today.empty.1')}</div>
+        <div class="e2">${t('today.empty.2')}</div>
+        <div class="ea"><button class="btn btn-q neutral" id="empty-plan" style="height:38px;padding:0 18px">Plan My Day</button></div>
+      </div>`;
+    $('#empty-plan').onclick = () => openSheet('sheet-myday');
+    $('#prog-a').textContent = '0';
+    $('#prog-b').textContent = `/ 0 · ${t('today.completed')}`;
+    $('#prog-bar').style.width = '0%';
+    return;
+  }
+
+  // ── 正常 / 全完成 ──
+  const tasks = state.tasks.map(t => ({ ...t, done: s === 'completed' ? true : t.done }));
+  if (s === 'completed') state.secondary.forEach(x => x.done = true);
+
+  const actionable = tasks.filter(t => t.title !== '睡觉');
+  const done = actionable.filter(t => t.done).length;
+  const total = actionable.length;
+  $('#prog-a').textContent = done;
+  $('#prog-b').textContent = `/ ${total} · ${t('today.completed')}`;
+  $('#prog-bar').style.width = (total ? (done/total*100) : 0) + '%';
+
+  // 当前 / 下一个
+  let curIdx = -1;
+  tasks.forEach((t, i) => { if (t.time && toMin(t.time) <= minsNow) curIdx = i; });
+  // 「下一个」只在 Main Task 中取，避免把晚饭/睡觉这种 block 标成 next
+  const nextMain = tasks.findIndex(t => t.tier === 'main' && !t.done);
+  const nextIdx = nextMain >= 0 ? nextMain : tasks.findIndex(t => !t.done);
+
+  // Timeline（注意：map 的任务参数名 t 遮蔽了 i18n 函数 t()，i18n 文案需先求值）
+  const tagNowTxt = t('tag.now');
+  const tagNextTxt = t('tag.next');
+  const tl = tasks.map((t, i) => {
+    const tag = (i === curIdx && !t.done)
+      ? `<div class="tag-now"><i></i>${tagNowTxt}</div>`
+      : (i === nextIdx && !t.done ? `<div class="tag-next">${tagNextTxt}</div>` : '');
+    const meta = (t.dur && t.dur >= 60) ? `${Math.round(t.dur/60)} h` : (t.dur ? `${t.dur} min` : '');
+    const metaLine = (meta || t.routine) ? `<div class="tl-meta">${[meta, t.routine].filter(Boolean).join(' · ')}</div>` : '';
+    return `
+      <div class="tl-row ${t.done ? 'done' : ''} ${i === curIdx && !t.done ? 'now' : ''}" data-task="${t.id}">
+        <span class="tl-time">${t.time}</span>
+        <div class="tl-main"><div class="tl-title">${t.title}</div>${metaLine}${tag}</div>
+        <span class="tl-check">${CHECK}</span>
+      </div>`;
+  }).join('');
+
+  // Main
+  const mains = tasks.filter(t => t.tier === 'main');
+  const mainHtml = mains.map(t => `
+    <div class="task ${t.done ? 'done' : ''}" data-task="${t.id}">
+      <span class="dot">${CHECK}</span><span class="t">${t.title}</span><span class="g">${t.goal || ''}</span>
+    </div>`).join('');
+
+  // Secondary
+  const secHtml = state.secondary.map(t => `
+    <div class="task mini ${t.done ? 'done' : ''}" data-task="${t.id}">
+      <span class="dot">${CHECK}</span><span class="t">${t.title}</span>
+    </div>`).join('');
+
+  // Habits
+  const habitHtml = state.habits.map(h => `
+    <div class="habit-chip ${h.done ? 'on' : ''}" data-habit="${h.id}">
+      <div class="hn">${h.name}</div>
+      <div class="hs"><i></i>${h.sub}</div>
+    </div>`).join('');
+
+  // 负载：可行动未完成 > 4
+  const remaining = actionable.filter(t => !t.done).length + state.secondary.filter(t => !t.done).length;
+  const noteHtml = remaining > 4 ? `
+    <div class="note">
+      <span>${t('note.heavy')}</span>
+      <span class="acts">
+        <button class="btn btn-q" data-load="move">${t('note.move')}</button>
+        <button class="btn btn-q" data-load="reduce">${t('note.reduce')}</button>
+        <button class="btn btn-q" data-load="skip">${t('note.skip')}</button>
+      </span>
+    </div>` : '';
+
+  // 健康助手：能量低时给一条温和建议（数据背书的减量，不是惩罚）
+  const energy = energyOf();
+  const energyHtml = (energy && energy.level === 'low' && !state.health.energyDismissed) ? `
+    <div class="note energy-note">
+      <span>${energy.reasons.join(' · ')}。<br/>${energy.suggestion}？</span>
+      <span class="acts">
+        <button class="btn btn-q" data-energy="accept">${t('energy.ok')}</button>
+        <button class="btn btn-q neutral" data-energy="keep">${t('energy.keep')}</button>
+      </span>
+    </div>` : '';
+
+  const allDone = remaining === 0;
+  body.innerHTML = `
+    ${energyHtml}
+    <div class="sec tight"><h2>${t('sec.timeline')}</h2><span class="n">${t('sec.timeline.note')}</span></div>
+    ${tasks.length ? tl : ''}
+    <div class="sec"><h2>${t('sec.main')}</h2><span class="n">${t('sec.main.note')}</span></div>
+    ${mainHtml}
+    <div class="sec"><h2>${t('sec.secondary')}</h2><span class="n">${tpl('sec.secondary.note', {n: state.secondary.filter(x=>!x.done).length})}</span></div>
+    ${secHtml}
+    <div class="sec"><h2>${t('sec.habits')}</h2><span class="n">${t('sec.habits.note')}</span></div>
+    <div class="habits">${habitHtml}</div>
+    ${noteHtml}
+    ${allDone ? `
+      <div class="empty" style="padding-top:36px">
+        <div class="e1">${t('today.alldone.1')}</div>
+        <div class="e2">${t('today.alldone.2')}</div>
+      </div>` : ''}
+  `;
+
+  bindToday(body);
+  save();
+}
+
+function bindToday(root) {
+  root.querySelectorAll('[data-task]').forEach(row => {
+    row.addEventListener('click', (e) => {
+      const id = row.dataset.task;
+      // 勾选区域
+      if (e.target.closest('.tl-check') || e.target.closest('.dot')) {
+        const t = state.tasks.find(x => x.id === id);
+        const s = state.secondary.find(x => x.id === id);
+        if (t && t.tier !== 'block') { t.done = !t.done; renderToday(); }
+        else if (t && t.tier === 'block') { t.done = !t.done; renderToday(); }
+        else if (s) { s.done = !s.done; renderToday(); }
+        return;
+      }
+      const t = state.tasks.find(x => x.id === id);
+      if (t) openTaskDetail(t);
+    });
+  });
+  root.querySelectorAll('[data-habit]').forEach(c => {
+    c.addEventListener('click', () => {
+      const h = state.habits.find(x => x.id === c.dataset.habit);
+      h.done = !h.done; renderToday();
+    });
+  });
+  root.querySelectorAll('[data-load]').forEach(b => {
+    b.addEventListener('click', () => {
+      const act = b.dataset.load;
+      if (act === 'reduce') {
+        const last = state.secondary.filter(x => !x.done).pop();
+        if (last) { state.secondary = state.secondary.filter(x => x.id !== last.id); state.inbox.unshift({ id:'ix'+Date.now(), title:last.title, hint:'移回 Inbox' }); }
+        toast('已移回 Inbox，不删除');
+      } else if (act === 'move') {
+        openSheet('sheet-myday');
+      } else {
+        const last = state.secondary.filter(x => !x.done).pop();
+        if (last) last.done = true;
+        toast('今天跳过，明天不再提醒');
+      }
+      renderToday(); renderPlan();
+    });
+  });
+  root.querySelectorAll('[data-energy]').forEach(b => {
+    b.addEventListener('click', () => {
+      if (b.dataset.energy === 'accept') {
+        // Run → Walk 20 min：数据背书的减量
+        const run = state.tasks.find(t => t.title.startsWith('Run'));
+        if (run) { run.title = 'Walk · 20 min'; run.dur = 20; run.notes = '今天能量偏低，走路也算完成。'; }
+        toast('已改成 Walk · 20 min');
+      } else {
+        state.health.energyDismissed = true;
+        toast('保持原计划');
+      }
+      renderToday();
+    });
+  });
+}
+
+/* ─────────────── Task Detail ─────────────── */
+function taskDuration(t) {
+  if (!t.dur) return '—';
+  return t.dur >= 60 ? `${Math.round(t.dur/60)} h` : `${t.dur} min`;
+}
+function openTaskDetail(t) {
+  state.activeTask = t;
+  $('#td-title').textContent = t.title;
+  $('#td-when').textContent = t.time ? `Today · ${t.time}` : 'Today · 未定时';
+  $('#td-grid').innerHTML = `
+    <div class="td-row"><span class="k">Duration</span><span class="v">${taskDuration(t)}</span></div>
+    <div class="td-row"><span class="k">Goal</span><span class="v link" data-jump="goal">${t.goal || '未关联'}</span></div>
+    <div class="td-row"><span class="k">Routine</span><span class="v link" data-jump="routine">${t.routine || '无'}</span></div>
+    ${t.time ? `<div class="td-row"><span class="k">时间</span><span class="v">${t.time}</span></div>` : ''}
+  `;
+  $('#td-notes').textContent = t.notes || '还没有备注。';
+  const btn = $('#td-complete');
+  btn.textContent = t.done ? '已完成 · 撤销' : 'Complete';
+  btn.classList.toggle('acc', t.done);
+  $('#td-focus').textContent = `Focus · ${String(t.dur && t.dur < 90 ? t.dur : 40).padStart(2,'0')}:00`;
+  $('#sheet-task').querySelectorAll('[data-jump]').forEach(el => {
+    el.onclick = () => { closeSheets(); pushPanel(el.dataset.jump); };
+  });
+  openSheet('sheet-task');
+}
+
+/* ─────────────── PLAN 渲染 ─────────────── */
+function renderPlan() {
+  // 周条
+  const WD = state.lang === 'zh' ? WD_CN : ['S','M','T','W','T','F','S'];
+  const todayWd = now.getDay();
+  const start = new Date(now); start.setDate(now.getDate() - ((todayWd + 6) % 7));
+  $('#plan-week').innerHTML = [1,2,3,4,5,6,0].map((wd, i) => {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    const isToday = d.toDateString() === now.toDateString();
+    const marks = i % 7 === 3 ? [1] : (i % 2 ? [1,1] : [1,1,1]);
+    return `<div class="wd ${isToday ? 'today' : ''}">
+      <div class="l">${WD[wd]}</div><div class="n">${d.getDate()}</div>
+      <div class="mk">${marks.map((m,j) => `<i class="${j===2 && i%3===0 ? 'm' : ''}"></i>`).join('')}</div>
+    </div>`;
+  }).join('');
+
+  const active = $('#plan-seg .on')?.dataset.seg || 'inbox';
+  $('#plan-label').textContent = t('seg.' + active);
+  const list = $('#plan-list');
+
+  let items = [];
+  if (active === 'inbox') items = state.inbox;
+  else if (active === 'today') { const hintNoneTxt = t('hint.none'); items = state.tasks.filter(t => t.tier !== 'block').map(t => ({ id:t.id, title:t.title, hint:t.time || hintNoneTxt, hintEm:'' })); }
+  else if (active === 'week') items = state.week;
+  else if (active === 'upcoming') items = state.upcoming;
+  else items = state.unscheduled;
+
+  if (!items.length) {
+    list.innerHTML = `<div class="empty"><div class="e1">${t('empty.'+active+'.1')}</div><div class="e2">${t('empty.'+active+'.2')}</div></div>`;
+  } else {
+    list.innerHTML = items.map(it => `
+      <div class="item" data-plan-item="${it.id}">
+        <span class="t">${it.title}</span>
+        ${it.hintEm ? `<span class="h">${it.hint} <em>${it.hintEm}</em></span>` : (it.hint ? `<span class="h">${it.hint}</span>` : '')}
+      </div>`).join('');
+  }
+  $('#plan-count').textContent = items.length ? tpl('plan.items', {n: items.length}) + t('plan.count.' + active) : t('plan.count.' + active);
+
+  list.querySelectorAll('[data-plan-item]').forEach(el => {
+    el.addEventListener('click', () => {
+      const t = state.tasks.find(x => x.id === el.dataset.planItem);
+      if (t) { openTaskDetail(t); return; }
+      const it = state.inbox.find(x => x.id === el.dataset.planItem);
+      if (it) { state.rsTarget = it; openReschedule(it.title); }
+    });
+  });
+  save();
+}
+
+function openReschedule(title) {
+  $('#rs-title').textContent = title;
+  const opts = [
+    { t: t('rs.opt1.t'), d: t('rs.opt1.d') },
+    { t: t('rs.opt2.t'), d: t('rs.opt2.d') },
+    { t: t('rs.opt3.t'), d: t('rs.opt3.d') },
+    { t: t('rs.opt4.t'), d: t('rs.opt4.d'), inbox: true },
+  ];
+  $('#rs-list').innerHTML = opts.map((o, i) => `
+    <div class="item" data-rs="${i}"><span class="t">${o.t}</span><span class="h">${o.d}</span></div>`).join('');
+  $('#rs-list').querySelectorAll('[data-rs]').forEach(el => {
+    el.onclick = () => {
+      const o = opts[+el.dataset.rs];
+      const it = state.rsTarget;
+      if (it && !o.inbox) {
+        state.inbox = state.inbox.filter(x => x.id !== it.id);
+        state.week.push({ id: it.id, title: it.title, hint: o.t });
+        toast(tpl('toast.scheduled', {when: ' ' + o.t}));
+      }
+      closeSheets(); renderPlan();
+    };
+  });
+  openSheet('sheet-rs');
+}
+
+/* ─────────────── PROGRESS 渲染 ─────────────── */
+function renderProgress() {
+  const monthly = $('#prog-seg .on')?.textContent === 'This Month';
+  $('#prog-title').textContent = monthly ? '本月' : '本周';
+  const body = $('#prog-body');
+
+  if (monthly) {
+    body.innerHTML = `
+      <div class="sec tight"><h2>Consistency</h2><span class="n">近 30 天</span></div>
+      <div class="big">81<small>%</small></div>
+      <div class="t-sub" style="margin-top:8px">30 天中有 24 天完成了当天的 Main Tasks。</div>
+      <div class="grid-dots" id="month-dots" style="margin-top:18px"></div>
+      <div class="t-cap" style="margin-top:10px">每一格是一天。颜色深浅代表完成比例，不做连续天数。</div>
+
+      <div class="sec"><h2>This Month</h2></div>
+      <div class="glass" style="padding:2px 18px">
+        <div class="metric"><span class="m">Learning</span><span class="v"><b>18h 40m</b></span></div>
+        <div class="metric"><span class="m">Exercise</span><span class="v"><b>13h 20m</b></span></div>
+        <div class="metric"><span class="m">Habits</span><span class="v"><b>79%</b></span></div>
+        <div class="metric"><span class="m">Sleep</span><span class="v"><b>7h 04m</b> · 平均${state.health.connected ? ` · <span class="conn-dot"></span>${state.health.sourceName}` : ''}</span></div>
+      </div>
+
+      <div class="insight">
+        <div class="q">睡眠比上月少了 22 分钟，主要丢在周五和周六。</div>
+        <div class="d">这两天的完成率也是全月最低。问题可能不是自律，而是日程本身排得太满。</div>
+      </div>
+      <div style="height:20px"></div>`;
+    const dots = $('#month-dots');
+    const pattern = [1,1,1,0,1,1,2,1,1,1,1,2,1,0,1,1,1,1,2,1,1,1,0,1,1,1,1,1,2,1];
+    dots.innerHTML = pattern.map(v => `<i class="${v===1?'on':v===2?'mid':''}"></i>`).join('');
+    return;
+  }
+
+  body.innerHTML = `
+    <div class="sec tight"><h2>Completion</h2><span class="n">本周</span></div>
+    <div class="big">78<small>%</small></div>
+    <div class="t-sub" style="margin-top:8px">31 项计划中完成了 24 项。</div>
+
+    <div class="sec"><h2>This Week</h2></div>
+    <div class="glass" style="padding:2px 18px">
+      <div class="metric"><span class="m">Learning</span><span class="v"><b>4h 20m</b></span></div>
+      <div class="metric"><span class="m">Exercise</span><span class="v"><b>3h 10m</b></span></div>
+      <div class="metric"><span class="m">Habits</span><span class="v"><b>84%</b></span></div>
+      <div class="metric"><span class="m">Sleep</span><span class="v"><b>7h 12m</b> · 平均${state.health.connected ? ` · <span class="conn-dot"></span>${state.health.sourceName}` : ''}</span></div>
+      ${state.health.connected ? `<div class="metric"><span class="m">HRV</span><span class="v"><b>${state.health.today.hrv} ms</b> · 连续 ${state.health.today.hrvDownDays} 天下降</span></div>` : ''}
+    </div>
+
+    <div class="sec"><h2>7-day rhythm</h2><span class="n">每日完成节奏</span></div>
+    <div class="rhythm">
+      ${[[86,'一'],[72,'二'],[91,'三'],[64,'四'],[88,'五'],[42,'六'],[55,'日']]
+        .map(([v,l]) => `<div class="col"><div class="bar ${v<60?'low':''}"><i style="height:${v}%"></i></div><span class="l">${l}</span></div>`).join('')}
+    </div>
+
+    <div class="insight">
+      <div class="q">周四和周六明显低于其他日子。</div>
+      <div class="d">这两天都排了 4 项 Main Task。把上限调回 3 项，先试一周。</div>
+      <div class="btn-row" style="margin-top:14px">
+        <button class="btn btn-g btn-sm acc-t" style="flex:1.3">调整上限</button>
+        <button class="btn btn-g btn-sm" style="flex:1">保持现状</button>
+      </div>
+    </div>
+
+    <div class="sec"><h2>Reflection</h2><span class="n">本周</span></div>
+    <div class="glass" style="padding:19px">
+      <div class="q t-body">One thing to improve next week.</div>
+      <input class="field" id="ref-one" placeholder="只写一件事…" />
+      <div class="t-cap" style="margin-top:10px">写完之后，它会变成下周 Today 里的一条轻量提醒。</div>
+    </div>
+    <div style="height:20px"></div>`;
+}
+
+/* ─────────────── ME 渲染 ─────────────── */
+function renderMe() {
+  // Direction 卡由 state 驱动（Onboarding 可改）
+  const dirEl = $('#dir-state');
+  if (dirEl) dirEl.innerHTML = breakLine(state.direction);
+  const domEl = $('#dir-domains');
+  if (domEl) domEl.innerHTML = state.domains.map(d => `<span>${d}</span>`).join('');
+
+  $('#me-goals').innerHTML = state.goals.map(g => `
+    <div class="goal" data-goal="${g.id}">
+      <div class="g">${g.kicker}</div>
+      <div class="t">${g.title}</div>
+      <div class="f">当前焦点：${g.focus}</div>
+      <div class="lv">${[0,1,2,3,4].map(i => `<i class="${i < Math.round(g.pct/20) ? 'on' : ''}"></i>`).join('')}</div>
+    </div>`).join('');
+  $('#me-goals').querySelectorAll('[data-goal]').forEach(el => {
+    el.onclick = () => { loadGoal(el.dataset.goal); pushPanel('goal'); };
+  });
+
+  $('#me-routines').innerHTML = state.routines.map(r => `
+    <div class="row" data-routine="${r.id}"><span class="t">${r.name}</span><span class="d">${r.sub}</span><span class="chev"></span></div>
+  `).join('');
+  $('#me-routines').querySelectorAll('[data-routine]').forEach(el => {
+    el.onclick = () => pushPanel(el.dataset.routine === 'r5' ? 'routine' : 'habit');
+  });
+
+  // Learning 列表
+  const learnEl = $('#learn-list');
+  if (learnEl) {
+    const items = [
+      { t:'Automotive engineering systems', s:'Goal · Career · 本季度' },
+      { t:'Product Design', s:'Routine · Tuesday Learning' },
+      { t:'English', s:'未安排 · 这周移到周四' },
+    ];
+    learnEl.innerHTML = items.map(i => `
+      <div class="row"><span class="t">${i.t}</span><span class="d">${i.s}</span><span class="chev"></span></div>`).join('');
+  }
+
+  // Habit 日历点阵
+  const pat = [
+    1,0,1,1,1,0,1,  1,1,1,0,1,1,1,  1,0,1,1,1,1,0,  1,1,0,1,1,1,1,  0,1,1,1,1,0,1,
+    1,1,1,0,1,1,1,  1,0,1,1,0,1,1,  1,1,1,0,1,1,1,  1,1,0,1,1,1,1,  0,1,1,1,1,0,1,
+  ]; // 10 周 × 7 天 = 70
+  $('#habit-dots').innerHTML = pat.map(v => `<i class="${v ? 'on' : ''}"></i>`).join('');
+
+  // Health 区块
+  renderMeHealth();
+  save();
+}
+
+/* Me 页的 Health 区块：未连接 → 安静邀请卡；已连接 → 今日摘要 */
+function renderMeHealth() {
+  const h = state.health;
+  const wrap = $('#me-health');
+  const label = $('#me-health-label');
+  const hdSub = $('#me-hd-sub');
+  if (!wrap) return;
+  if (!h.connected) {
+    if (label) label.textContent = '未连接';
+    if (hdSub) hdSub.textContent = '连接数据源';
+    wrap.innerHTML = `
+      <div class="goal" data-hc-open style="margin-top:0">
+        <div class="t">让身体状态影响今天的安排</div>
+        <div class="f" style="margin-top:6px">连接 Apple 健康 / Health Connect 后，睡眠、心率、运动会自动参与每天的建议。数据留在设备上。</div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn btn-g btn-sm acc-t" style="flex:1" data-hc-open>连接数据源</button>
+        </div>
+      </div>`;
+  } else {
+    const t = h.today;
+    const energy = energyOf();
+    const diff = t.sleepHours - t.usualSleep;
+    const diffTxt = (diff < 0 ? '−' : '+') + fmtH(Math.abs(diff));
+    if (label) label.textContent = '已连接';
+    if (hdSub) hdSub.textContent = h.sourceName + ' · 已连接';
+    wrap.innerHTML = `
+      <div class="glass" style="padding:2px 18px" data-hc-open>
+        <div class="row"><span class="t">睡眠</span><span class="d">${fmtH(t.sleepHours)} · 平时 ${fmtH(t.usualSleep)} · ${diffTxt}</span><span class="chev"></span></div>
+        <div class="row"><span class="t">静息心率</span><span class="d">${t.restingHR} bpm · 平时 ${t.usualRestingHR}</span><span class="chev"></span></div>
+        <div class="row"><span class="t">HRV</span><span class="d">${t.hrv} ms · 连续 ${t.hrvDownDays} 天下降</span><span class="chev"></span></div>
+        <div class="row"><span class="t">步数</span><span class="d">${t.steps.toLocaleString()} · ${t.syncedLabel}同步</span><span class="chev"></span></div>
+      </div>
+      ${energy && energy.level === 'low' ? `
+        <div class="note energy-note" style="margin-top:10px">
+          <span>${energy.reasons.join(' · ')}。</span>
+        </div>` : ''}`;
+  }
+  wrap.querySelectorAll('[data-hc-open]').forEach(el => {
+    el.addEventListener('click', () => pushPanel(h.connected ? 'health' : 'health-connect'));
+  });
+}
+
+/* Health & Devices 绑定页 */
+function renderHealthConnect() {
+  const h = state.health;
+  const sources = [
+    { id:'apple-health',   name:'Apple 健康',           desc:'iPhone / Apple Watch · 睡眠 心率 运动 步数', primary:true },
+    { id:'health-connect', name:'Health Connect',       desc:'Android · 小米 / 华为 / 三星通过它汇聚' },
+    { id:'garmin',         name:'Garmin',               desc:'通过 Open Wearables 连接' },
+    { id:'oura',           name:'Oura / Whoop / Fitbit',desc:'通过 Open Wearables 连接' },
+  ];
+  $('#hc-list').innerHTML = sources.map(s => {
+    const isConn = h.connected && h.source === s.id;
+    return `
+      <div class="item" data-hc-src="${s.id}" data-primary="${s.primary ? 1 : 0}">
+        <span class="t">${s.name}</span>
+        <span class="h">${s.desc}<br/>${isConn ? '<em><span class="conn-dot"></span>已连接 · ' + h.lastSyncAt + '</em>' : '未连接'}</span>
+      </div>`;
+  }).join('');
+  $('#hc-list').querySelectorAll('[data-hc-src]').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.dataset.hcSrc;
+      if (state.health.connected && state.health.source === id) return;
+      if (el.dataset.primary === '1') openSheet('sheet-health-auth');
+      else toast('Apple 健康接入（移动端可用）');
+    });
+  });
+  $('#hc-disconnect').innerHTML = h.connected
+    ? `<button class="btn btn-d" id="hc-disc-btn">断开连接并清除数据</button>` : '';
+  const disc = $('#hc-disc-btn');
+  if (disc) disc.onclick = () => {
+    state.health.connected = false; state.health.source = null; state.health.sourceName = '';
+    state.health.energyDismissed = false;
+    save(); renderHealthConnect(); renderMe(); renderToday();
+    toast('已断开，数据已清除');
+  };
+}
+
+/* Health 今日摘要页 */
+function renderHealth() {
+  const h = state.health, body = $('#health-body');
+  if (!h.connected) {
+    body.innerHTML = `
+      <div class="empty">
+        <div class="e1">还没有连接数据源。</div>
+        <div class="e2">连接 Apple 健康 / Health Connect 后，这里会出现会影响今天安排的几件事。</div>
+        <div class="ea"><button class="btn btn-q" id="health-go-connect" style="height:38px;padding:0 18px">去连接</button></div>
+      </div>`;
+    $('#health-go-connect').onclick = () => pushPanel('health-connect');
+    return;
+  }
+  const t = h.today;
+  const energy = energyOf();
+  const diff = t.sleepHours - t.usualSleep;
+  const diffTxt = (diff < 0 ? '−' : '+') + fmtH(Math.abs(diff));
+  body.innerHTML = `
+    <div class="glass" style="padding:2px 18px;margin-top:22px">
+      <div class="metric"><span class="m">睡眠</span><span class="v"><b>${fmtH(t.sleepHours)}</b> · 平时 ${fmtH(t.usualSleep)} · ${diffTxt}</span></div>
+      <div class="metric"><span class="m">静息心率</span><span class="v"><b>${t.restingHR}</b> bpm · 平时 ${t.usualRestingHR}</span></div>
+      <div class="metric"><span class="m">HRV</span><span class="v"><b>${t.hrv}</b> ms · 连续 ${t.hrvDownDays} 天下降</span></div>
+      <div class="metric"><span class="m">步数</span><span class="v"><b>${t.steps.toLocaleString()}</b></span></div>
+    </div>
+
+    ${energy && energy.level === 'low' ? `
+      <div class="insight">
+        <div class="q">${energy.reasons.join('，')}。</div>
+        <div class="d">今天的身体适合轻一点的日程。${energy.suggestion}，Learning 减半。休息是计划的一部分，不是失败。</div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn btn-g btn-sm acc-t" style="flex:1.3" id="health-adapt">按建议调整今天</button>
+          <button class="btn btn-g btn-sm" style="flex:1" id="health-keep">保持原计划</button>
+        </div>
+      </div>` : `
+      <div class="insight">
+        <div class="q">身体状态在正常范围。</div>
+        <div class="d">照常就好。出现持续异常时，这里才会说话。</div>
+      </div>`}
+
+    <div class="t-cap" style="margin-top:16px">数据来自 ${h.sourceName} · ${t.syncedLabel}同步 · 本地处理，不上传。</div>
+  `;
+  const adapt = $('#health-adapt');
+  if (adapt) adapt.onclick = () => {
+    const run = state.tasks.find(x => x.title.startsWith('Run'));
+    if (run) { run.title = 'Walk · 20 min'; run.dur = 20; run.notes = '今天能量偏低，走路也算完成。'; }
+    renderToday(); save(); toast('已按建议调整今天');
+  };
+  const keep = $('#health-keep');
+  if (keep) keep.onclick = () => { state.health.energyDismissed = true; save(); renderToday(); renderHealth(); toast('保持原计划'); };
+}
+
+/* 给长句子换行：在中点附近的空格处插入 <br> */
+function breakLine(s) {
+  if (!s) return '';
+  if (s.length <= 30) return s;
+  const mid = Math.floor(s.length / 2);
+  let idx = s.indexOf(' ', mid);
+  if (idx === -1) idx = s.lastIndexOf(' ', mid);
+  if (idx <= 0) return s;
+  return s.slice(0, idx) + '<br/>' + s.slice(idx + 1);
+}
+
+/* ─────────────── Plan My Day ─────────────── */
+/* 由真实状态生成：作息、工作时段、已选 Habit、固定 Routine */
+function buildSuggested() {
+  const wake  = state.wake  || '06:50';
+  const sleep = state.sleep || '23:20';
+  const work  = state.work  || '08:00 – 18:30';
+  const energy = energyOf();
+  const low = energy && energy.level === 'low';
+  const items = [
+    { time: wake,    title:'起床 · 洗漱', src:'固定作息' },
+    { time:'07:20',  title:'早餐',       src:'Routine' },
+    { time:'07:50',  title:'工作',       src:'固定工作时间 ' + work.replace(/\s*–\s*/,'–') },
+    { time:'19:30',  title:'晚饭',       src:'Routine' },
+  ];
+  if (state.routines.find(r => r.name === 'Run')) {
+    items.push(low
+      ? { time:'20:15', title:'Walk · 20 min', src:'Habit · 能量低，自动降强度' }
+      : { time:'20:15', title:'Run · 30 min',  src:'Habit · Mon/Wed/Fri' });
+  }
+  items.push({ time:'21:10', title:'洗澡 · 缓冲', src:'空档' });
+  items.push(low
+    ? { time:'22:00', title:'Learning · 25 min', src:'Goal · Career · 今晚减半' }
+    : { time:'22:00', title:'Learning',          src:'Goal · Career' });
+  items.push({ time: sleep,  title:'睡觉',        src:'Routine' });
+  return items;
+}
+function renderMyDay() {
+  $('#md-list').innerHTML = buildSuggested().map(s => `
+    <div class="md-row"><span class="tm">${s.time}</span>
+      <div><div class="ti">${s.title}</div><div class="src">${s.src}</div></div></div>`).join('');
+  const energy = energyOf();
+  $('#md-note').textContent = (energy && energy.level === 'low')
+    ? `考虑到${energy.reasons.join('，')}，已自动降低强度。接受后，这会替换今天的时间轴。`
+    : '接受后，这会替换今天的时间轴。被移走的任务会回到 Inbox，不会消失。';
+}
+
+/* ─────────────── Toast（安静）─────────────── */
+let toastTimer = null;
+function toast(msg) {
+  let el = $('#toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toast';
+    el.style.cssText = `position:absolute;z-index:80;left:50%;bottom:120px;transform:translate(-50%,10px);
+      padding:10px 18px;border-radius:99px;font-size:13px;font-weight:500;
+      background:rgba(252,253,255,.9);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+      border:1px solid rgba(255,255,255,.8);box-shadow:0 8px 28px rgba(60,70,100,.1);
+      color:var(--ink-1);opacity:0;transition:all .26s cubic-bezier(.32,.72,.24,1);pointer-events:none;white-space:nowrap;`;
+    $('.phone').appendChild(el);
+  }
+  el.textContent = msg;
+  requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translate(-50%,0)'; });
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translate(-50%,10px)'; }, 1900);
+}
+
+/* ─────────────── 状态持久化（localStorage + Supabase）─────────────── */
+const PERSIST_KEY = 'epoch-state';
+const STATE_KEY    = 'state.full';   // user_settings.state 全量 JSON
+
+function readEnv() {
+  // 由 scripts/inject.mjs 在构建时替换；fallback 用于本地调试
+  const u = document.querySelector('meta[name="x-supabase-url"]')?.content;
+  const k = document.querySelector('meta[name="x-supabase-anon"]')?.content;
+  if (!u || !k || u.startsWith('__') || k.startsWith('__')) return null;
+  return { url: u, key: k };
+}
+
+let supabase    = null;
+let currentUser = null;
+let saveTimer   = null;
+
+function _localSave() {
+  try { localStorage.setItem(PERSIST_KEY, JSON.stringify(state)); } catch (_) {}
+}
+function _localLoad() {
+  try {
+    const raw = localStorage.getItem(PERSIST_KEY);
+    if (!raw) return false;
+    const saved = JSON.parse(raw);
+    ['tasks','secondary','habits','inbox','week','upcoming','unscheduled','goals','routines','health',
+     'direction','domains','wake','sleep','work','obCompleted'].forEach(k => {
+      if (saved[k] !== undefined) state[k] = saved[k];
+    });
+    return true;
+  } catch (_) { return false; }
+}
+function save() {
+  _localSave();
+  if (!supabase || !currentUser) return;
+  // 防抖：800ms 内多次变更合并为一次网络写
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(_cloudSave, 800);
+}
+async function _cloudSave() {
+  if (!supabase || !currentUser) return;
+  try {
+    const payload = JSON.stringify(state);
+    const { error } = await supabase.from('user_settings').upsert(
+      { user_id: currentUser.id, key: STATE_KEY, value: payload, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id,key' }
+    );
+    if (error) console.warn('[supabase] save failed:', error.message);
+  } catch (e) { console.warn('[supabase] save exception:', e); }
+}
+async function _cloudLoad() {
+  if (!supabase || !currentUser) return false;
+  try {
+    const { data, error } = await supabase
+      .from('user_settings')
+      .select('value,updated_at')
+      .eq('user_id', currentUser.id)
+      .eq('key', STATE_KEY)
+      .maybeSingle();
+    if (error) { console.warn('[supabase] load failed:', error.message); return false; }
+    if (!data || !data.value) return false;
+    const remote = JSON.parse(data.value);
+    ['tasks','secondary','habits','inbox','week','upcoming','unscheduled','goals','routines','health',
+     'direction','domains','wake','sleep','work','obCompleted'].forEach(k => {
+      if (remote[k] !== undefined) state[k] = remote[k];
+    });
+    return true;
+  } catch (e) { console.warn('[supabase] load exception:', e); return false; }
+}
+
+function resetState() {
+  try { localStorage.removeItem(PERSIST_KEY); } catch (_) {}
+  if (supabase && currentUser) {
+    // 异步清空云端 state.full；其余表保留行结构以备恢复
+    supabase.from('user_settings').delete()
+      .eq('user_id', currentUser.id)
+      .eq('key', STATE_KEY)
+      .then(()=>{}).catch(()=>{});
+  }
+  location.hash = '#today';
+  location.reload();
+}
+function resetDemo() { resetState(); }
+
+async function load() {
+  if (supabase && currentUser) {
+    const ok = await _cloudLoad();
+    if (ok) { _localSave(); return; }
+    // 远程为空：把本地状态首次上传
+    _localSave();
+    _cloudSave();
+    return;
+  }
+  _localLoad();
+}
+
+/* ─────────────── 屏幕目录 ─────────────── */
+const GALLERY = [
+  { g:'主导航', items:[
+    { n:'Today',    s:'时间轴 · Main · Habits · 负载提醒', act:() => { goTab('today'); } },
+    { n:'Plan',     s:'Inbox / Week / Adaptive / Plan My Day', act:() => { goTab('plan'); } },
+    { n:'Progress', s:'周 / 月 · 节奏 · Insight · Reflection', act:() => { goTab('progress'); } },
+    { n:'Me',       s:'Direction · Goals · Routines', act:() => { goTab('me'); } },
+  ]},
+  { g:'次级页面', items:[
+    { n:'Direction',     s:'Where are you going',      act:() => pushPanel('direction') },
+    { n:'Goal Detail',   s:'3Y→Week 层级 · 只展开当前',  act:() => { loadGoal('g1'); pushPanel('goal'); } },
+    { n:'Routine Detail',s:'Items · Skip/Reschedule',   act:() => pushPanel('routine') },
+    { n:'Habit Detail',  s:'Consistency · Calendar',    act:() => pushPanel('habit') },
+    { n:'Learning',      s:'在学主题 · 时长',            act:() => pushPanel('learning') },
+    { n:'Journal',       s:'每周回顾留下的痕迹',          act:() => pushPanel('journal') },
+    { n:'Health',        s:'今日身体摘要 · 能量建议',      act:() => pushPanel('health') },
+    { n:'Health & Devices', s:'数据源管理 · 隐私说明',    act:() => pushPanel('health-connect') },
+    { n:'Weekly Review', s:'三个问题 · 一件改进',        act:() => pushPanel('weekly') },
+    { n:'Preferences',   s:'外观 · 日程 · 通知',         act:() => pushPanel('settings') },
+  ]},
+  { g:'弹层与专注', items:[
+    { n:'Task Detail',  s:'Complete > Reschedule > Skip > Delete', act:() => openTaskDetail(state.tasks[4] || state.tasks[0]) },
+    { n:'Quick Add',    s:'Capture first, plan later',   act:() => { openSheet('sheet-qa'); setTimeout(()=>$('#qa-input').focus(),400); } },
+    { n:'Plan My Day',  s:'Suggested Day · Accept',      act:() => { renderMyDay(); openSheet('sheet-myday'); } },
+    { n:'Reschedule',   s:'推荐空档，不惩罚',             act:() => { const t = state.inbox[0] || { id:'x', title:'示例任务' }; state.rsTarget = t; openReschedule(t.title); } },
+    { n:'Focus',        s:'安静的全屏计时',               act:() => { const t = state.tasks.find(x=>x.tier==='main') || state.tasks[0]; $('#focus-task').textContent = t ? t.title : 'Focus'; resetFocus(); $('#focus').classList.add('on'); } },
+    { n:'通知预览',      s:'只允许 3 类，拒绝焦虑式文案',    act:() => openSheet('sheet-notif') },
+  ]},
+  { g:'首次引导', items:[
+    { n:'Onboarding', s:'7 步 · 从空白到可用的 Today', act:() => startOnboarding() },
+  ]},
+  { g:'状态（Today）', items:[
+    { n:'空状态',   s:'Your day is clear.',   act:() => { goTab('today'); state.todayState='empty';    renderToday(); } },
+    { n:'加载中',   s:'Skeleton，不跳动',      act:() => { goTab('today'); state.todayState='loading';  renderToday(); } },
+    { n:'错误',     s:'说明数据没丢',          act:() => { goTab('today'); state.todayState='error';    renderToday(); } },
+    { n:'全完成',   s:'Everything is done.',  act:() => { goTab('today'); state.todayState='completed'; renderToday(); } },
+  ]},
+];
+function renderGallery() {
+  $('#gal-body').innerHTML = GALLERY.map(grp => `
+    <div class="gal-group">
+      <span class="eyebrow">${grp.g}</span>
+      <div class="gal-grid">${grp.items.map((it, i) => `
+        <div class="gal-cell" data-gal="${grp.g}|${i}"><div class="n">${it.n}</div><div class="s">${it.s}</div></div>`).join('')}
+      </div>
+    </div>`).join('');
+  $('#gal-body').querySelectorAll('[data-gal]').forEach(el => {
+    el.onclick = () => {
+      const [g, i] = el.dataset.gal.split('|');
+      const grp = GALLERY.find(x => x.g === g);
+      closeOverlay();
+      setTimeout(() => grp.items[+i].act(), 260);
+    };
+  });
+}
+
+/* ─────────────── 首次引导 ─────────────── */
+const OB = {
+  step: 0,
+  data: { schedule:'', wake:'06:50', sleep:'23:20', work:'08:00 – 18:30', routines:[], direction:'', domains:[], connectHealth:null },
+};
+const OB_STEPS = ['welcome','schedule','routines','health','direction','goals','generating','done'];
+
+function startOnboarding() {
+  OB.step = 0;
+  openOverlay('onboarding');
+  renderOb();
+}
+function renderOb() {
+  const step = OB_STEPS[OB.step];
+  const root = $('#ob-root');
+  const dots = OB_STEPS.map((_, i) => `<i class="${i === OB.step ? 'on' : ''}"></i>`).join('');
+  const isGen = step === 'generating';
+  const isDone = step === 'done';
+
+  let body = '';
+  if (step === 'welcome') {
+    body = `
+      <div class="ob-q">Shape your time.<br/>Shape yourself.</div>
+      <div class="ob-d">Epoch 不是待办清单，也不是习惯打卡。<br/>它只帮你回答两个问题：<b style="color:var(--ink-1);font-weight:600">今天该做什么</b>，以及 <b style="color:var(--ink-1);font-weight:600">为什么</b>。</div>
+      <div class="ob-opts">
+        <button class="ob-opt sel" data-ob-sched="balanced">
+          <span class="box">${CHECK}</span>
+          <span><span class="t">从一套默认作息开始</span><span class="d">推荐 · 之后可以改。大约 40 秒就能得到今天。</span></span>
+        </button>
+        <button class="ob-opt" data-ob-sched="custom">
+          <span class="box">${CHECK}</span>
+          <span><span class="t">我自己设置</span><span class="d">工作时间、起床与睡觉时间都手动填。</span></span>
+        </button>
+      </div>`;
+  } else if (step === 'schedule') {
+    body = `
+      <div class="ob-q">你的一天大概怎么过？</div>
+      <div class="ob-d">只需要三个时间点。之后系统会围绕它们安排，不会往里塞东西。</div>
+      <div class="time-pick"><span class="u">${OB.data.wake}</span><span class="sep">–</span><span class="u">${OB.data.sleep}</span></div>
+      <div class="t-cap" style="text-align:center;margin-top:12px">起床 / 睡觉</div>
+      <div class="ob-opts" style="margin-top:26px">
+        <button class="ob-opt sel" data-ob-work="08:00 – 18:30"><span class="box">${CHECK}</span><span><span class="t">08:00 – 18:30</span><span class="d">标准班</span></span></button>
+        <button class="ob-opt" data-ob-work="09:00 – 19:00"><span class="box">${CHECK}</span><span><span class="t">09:00 – 19:00</span><span class="d">弹性班</span></span></button>
+        <button class="ob-opt" data-ob-work="shift"><span class="box">${CHECK}</span><span><span class="t">轮班 / 不固定</span><span class="d">系统只安排工作之外的空档</span></span></button>
+      </div>`;
+  } else if (step === 'routines') {
+    const opts = [
+      { k:'run',    t:'每周 3 次跑步',      d:'Mon / Wed / Fri · 30 min' },
+      { k:'learn',  t:'每周 2 次学习',      d:'Tue / Thu · 晚上 60 min' },
+      { k:'posture',t:'每日体态',          d:'5 min · 早上' },
+      { k:'read',   t:'每日阅读',          d:'20 min · 睡前' },
+      { k:'skincare',t:'早晚护肤',         d:'Daily' },
+    ];
+    body = `
+      <div class="ob-q">先挑几个想开始的。</div>
+      <div class="ob-d">可以全都不选。Routine 是把「想做的事」变成「固定发生的事」的方式，但一次别挑太多。</div>
+      <div class="ob-opts">
+        ${opts.map(o => `<button class="ob-opt ${OB.data.routines.includes(o.k)?'sel':''}" data-ob-routine="${o.k}">
+          <span class="box">${CHECK}</span><span><span class="t">${o.t}</span><span class="d">${o.d}</span></span></button>`).join('')}
+      </div>`;
+  } else if (step === 'health') {
+    body = `
+      <div class="ob-q">连接健康数据吗？</div>
+      <div class="ob-d">可选。连接后，睡眠、心率、运动会影响每天的建议——比如睡得少时，系统会主动把 Run 改成 Walk。数据留在设备上，只读，不上传。</div>
+      <div class="ob-opts">
+        <button class="ob-opt ${OB.data.connectHealth ? 'sel' : ''}" data-ob-health="1">
+          <span class="box">${CHECK}</span>
+          <span><span class="t">连接 Apple 健康</span><span class="d">iPhone / Apple Watch · 之后可在 Health & Devices 管理</span></span>
+        </button>
+        <button class="ob-opt ${OB.data.connectHealth === false ? 'sel' : ''}" data-ob-health="0">
+          <span class="box">${CHECK}</span>
+          <span><span class="t">稍后再说</span><span class="d">Today 依然可用，随时可以在 Me 里连接</span></span>
+        </button>
+      </div>`;
+  } else if (step === 'direction') {
+    body = `
+      <div class="ob-q">Where are you going?</div>
+      <div class="ob-d">一句话就够。它会在你想放弃一项任务时，帮你判断这件事是否还值得做。</div>
+      <input class="ob-in" id="ob-dir" placeholder="例如：我想要更大的自由和更多的选择权。" value="${OB.data.direction}" />
+      <div class="eyebrow" style="margin-top:26px;display:block">主要涉及哪些方面</div>
+      <div class="chips">
+        ${['Career','Income','Health','English','Travel','Knowledge'].map(d =>
+          `<button class="chip ${OB.data.domains.includes(d)?'sel':''}" data-ob-domain="${d}">${d}</button>`).join('')}
+      </div>`;
+  } else if (step === 'goals') {
+    body = `
+      <div class="ob-q">这个季度，一件想推进的事。</div>
+      <div class="ob-d">只写一件。系统之后会帮你拆到月、周，再到今天。</div>
+      <input class="ob-in" id="ob-goal" placeholder="例如：学会 APQP 流程" />
+      <div class="chips">
+        ${['Career','Health','English','Income','Knowledge'].map(d =>
+          `<button class="chip ${d==='Career'?'sel':''}" data-ob-gdomain="${d}">${d}</button>`).join('')}
+      </div>
+      <div class="note" style="margin-top:24px">
+        <span>写不出来也没关系。可以先跳过，Today 依然可用。</span>
+      </div>`;
+  } else if (step === 'generating') {
+    body = `
+      <div class="ob-gen">
+        <div class="spinner"></div>
+        <div class="lbl">正在生成第一周…</div>
+        <div class="sub">根据你的作息与 Routines 排入今天和本周的空档。<br/>之后每天 20:30 会再排一次。</div>
+      </div>`;
+  } else if (step === 'done') {
+    body = `
+      <div class="ob-gen">
+        <div class="t-page" style="text-align:center">好了。</div>
+        <div class="ob-d" style="text-align:center;margin-top:12px">今天有 3 个 Main Task。先做完第一个，剩下的明天再说。</div>
+        <div style="margin-top:28px;width:100%">
+          <button class="btn btn-p" id="ob-enter">进入 Today</button>
+        </div>
+      </div>`;
+  }
+
+  root.innerHTML = `
+    <div class="ob-top">
+      <div class="ob-dots">${dots}</div>
+      ${isGen || isDone ? '' : '<button class="ob-skip" id="ob-skip">跳过</button>'}
+    </div>
+    <div class="ob-body">${body}</div>
+    ${isGen || isDone ? '' : `
+      <div class="ob-foot">
+        ${OB.step > 0 ? '<button class="btn btn-g" id="ob-back">上一步</button>' : ''}
+        <button class="btn btn-p" id="ob-next">${OB.step === 0 ? '开始' : '继续'}</button>
+      </div>`}
+  `;
+
+  // 绑定
+  root.querySelectorAll('[data-ob-sched]').forEach(b => b.onclick = () => {
+    root.querySelectorAll('[data-ob-sched]').forEach(x => x.classList.remove('sel'));
+    b.classList.add('sel'); OB.data.schedule = b.dataset.obSched;
+  });
+  root.querySelectorAll('[data-ob-work]').forEach(b => b.onclick = () => {
+    root.querySelectorAll('[data-ob-work]').forEach(x => x.classList.remove('sel'));
+    b.classList.add('sel'); OB.data.work = b.dataset.obWork;
+  });
+  root.querySelectorAll('[data-ob-routine]').forEach(b => b.onclick = () => {
+    const k = b.dataset.obRoutine;
+    const i = OB.data.routines.indexOf(k);
+    if (i >= 0) OB.data.routines.splice(i, 1); else OB.data.routines.push(k);
+    b.classList.toggle('sel');
+  });
+  root.querySelectorAll('[data-ob-health]').forEach(b => b.onclick = () => {
+    root.querySelectorAll('[data-ob-health]').forEach(x => x.classList.remove('sel'));
+    b.classList.add('sel');
+    OB.data.connectHealth = b.dataset.obHealth === '1';
+  });
+  root.querySelectorAll('[data-ob-domain]').forEach(b => b.onclick = () => {
+    const d = b.dataset.obDomain;
+    const i = OB.data.domains.indexOf(d);
+    if (i >= 0) OB.data.domains.splice(i, 1); else OB.data.domains.push(d);
+    b.classList.toggle('sel');
+  });
+  root.querySelectorAll('[data-ob-gdomain]').forEach(b => b.onclick = () => {
+    root.querySelectorAll('[data-ob-gdomain]').forEach(x => x.classList.remove('sel'));
+    b.classList.add('sel');
+  });
+  const dirIn = $('#ob-dir');
+  if (dirIn) dirIn.oninput = () => OB.data.direction = dirIn.value;
+
+  const skip = $('#ob-skip');   if (skip)   skip.onclick  = () => { closeOverlay(); goTab('today'); };
+  const back = $('#ob-back');   if (back)   back.onclick  = () => { OB.step = Math.max(0, OB.step - 1); renderOb(); };
+  const next = $('#ob-next');
+  if (next) next.onclick = () => {
+    OB.step += 1; renderOb();
+    if (OB_STEPS[OB.step] === 'generating') {
+      setTimeout(() => { OB.step += 1; renderOb(); }, 2000);
+    }
+  };
+  const enter = $('#ob-enter');
+  if (enter) enter.onclick = () => {
+    applyOnboarding();
+    closeOverlay(); goTab('today');
+    toast('第一周已生成');
+  };
+}
+
+/* Onboarding 的选择真正写入应用状态 */
+function applyOnboarding() {
+  if (OB.data.direction) state.direction = OB.data.direction;
+  if (OB.data.domains && OB.data.domains.length) state.domains = [...OB.data.domains];
+  state.wake = OB.data.wake; state.sleep = OB.data.sleep; state.work = OB.data.work;
+  const map = {
+    run:      { name:'Run',      sub:'30 min' },
+    learn:    { name:'Learning', sub:'60 min' },
+    posture:  { name:'Posture',  sub:'5 min' },
+    read:     { name:'Reading',  sub:'20 min' },
+    skincare: { name:'Skincare', sub:'早晚' },
+  };
+  OB.data.routines.forEach(k => {
+    const m = map[k]; if (!m) return;
+    if (!state.habits.find(h => h.name === m.name)) {
+      state.habits.push({ id:'h'+k, name:m.name, sub:m.sub, done:false });
+    }
+  });
+  state.obCompleted = true;
+  // Onboarding 选择连接健康数据 → 直接接入（真实版会在这里弹系统授权）
+  if (OB.data.connectHealth) {
+    state.health.connected = true;
+    state.health.source = 'apple-health';
+    state.health.sourceName = 'Apple 健康';
+    state.health.lastSyncAt = '刚刚';
+  }
+  renderMe(); renderToday(); renderMyDay(); renderProgress(); save();
+}
+
+/* ─────────────── Overlay 通用 ─────────────── */
+function openOverlay(id) { $('#overlay-' + id).classList.add('on'); setRoute(id); }
+function closeOverlay()  {
+  const wasOpen = !!$('.overlay.on');
+  $$('.overlay').forEach(o => o.classList.remove('on'));
+  if (wasOpen) setRoute(router.panel || router.tab, true);
+}
+
+/* ─────────────── Focus ─────────────── */
+let focusSec = 40 * 60, focusTimer = null;
+const fmtT = (s) => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+function resetFocus() {
+  clearInterval(focusTimer); focusTimer = null;
+  focusSec = 40 * 60;
+  $('#focus-time').textContent = fmtT(focusSec);
+  $('#focus-time').classList.remove('done-c');
+  $('#focus-start').textContent = 'Start';
+}
+
+/* ══════════════════ 绑定 ══════════════════ */
+function _showAuthScreen(errMsg) {
+  if (errMsg) {
+    const e = $('#auth-err');
+    if (e) e.textContent = errMsg;
+  }
+  goTab('auth');
+  $$('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === 'auth'));
+  $('#auth-signin').onclick = async () => {
+    const email = $('#auth-email').value.trim();
+    const pwd   = $('#auth-pwd').value;
+    if (!email || !pwd) { $('#auth-err').textContent = '请输入邮箱和密码'; return; }
+    $('#auth-err').textContent = '登录中…';
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password: pwd });
+    if (error) { $('#auth-err').textContent = error.message; return; }
+    currentUser = data.user;
+    await load();
+    boot();
+  };
+  $('#auth-signup').onclick = async () => {
+    const email = $('#auth-email').value.trim();
+    const pwd   = $('#auth-pwd').value;
+    if (!email || !pwd) { $('#auth-err').textContent = '请输入邮箱和密码'; return; }
+    if (pwd.length < 8)  { $('#auth-err').textContent = '密码至少 8 位'; return; }
+    $('#auth-err').textContent = '创建账号中…';
+    const { data, error } = await supabase.auth.signUp({ email, password: pwd });
+    if (error) { $('#auth-err').textContent = error.message; return; }
+    if (data.session) { currentUser = data.user; await load(); boot(); }
+    else $('#auth-err').textContent = '已发送验证邮件，请查收并点击链接激活。';
+  };
+  $('#auth-apple').onclick = async () => {
+    $('#auth-err').textContent = 'Apple 登录跳转中…';
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: { redirectTo: location.origin + location.pathname },
+    });
+    if (error) $('#auth-err').textContent = error.message;
+  };
+  $('#auth-forgot').onclick = async (ev) => {
+    ev.preventDefault();
+    const email = $('#auth-email').value.trim();
+    if (!email) { $('#auth-err').textContent = '请先填邮箱，再点忘记密码'; return; }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: location.origin + location.pathname,
+    });
+    $('#auth-err').textContent = error ? error.message : '重置链接已发送到你的邮箱。';
+  };
+}
+
+async function boot() {
+  // 1) 初始化 Supabase（构建时 inject.mjs 替换占位符；本地开发可能是 null）
+  const env = readEnv();
+  if (env && window.supabase && window.supabase.createClient) {
+    supabase = window.supabase.createClient(env.url, env.key, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+    });
+  } else {
+    console.info('[epoch] supabase env not configured; running offline-only');
+  }
+
+  // 2) 读取已有会话
+  if (supabase) {
+    try {
+      const { data } = await supabase.auth.getSession();
+      currentUser = data?.session?.user || null;
+      supabase.auth.onAuthStateChange((_ev, session) => {
+        const newUser = session?.user || null;
+        if (newUser && !currentUser) { currentUser = newUser; boot(); }
+      });
+    } catch (e) { console.warn('[supabase] session check failed:', e); }
+  }
+
+  // 3) 未登录 → 登录屏
+  if (supabase && !currentUser) {
+    _showAuthScreen();
+    // 占位渲染：登录状态下只显示登录屏，主 tab 隐藏
+    return;
+  }
+
+  await load();   // 恢复上次状态
+
+  // 时钟
+  $('#sb-clock').textContent = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  $('#greet').textContent = greetOf(now.getHours());
+  $('#date-line').innerHTML = `<b>${now.getMonth()+1}.${now.getDate()} · ${WD_EN[now.getDay()]}</b>`;
+
+  renderToday(); renderPlan(); renderProgress(); renderMe(); renderMyDay(); renderGallery();
+
+  // Tab
+  $$('.tab').forEach(b => b.onclick = () => goTab(b.dataset.tab));
+
+  // Push / back
+  $$('[data-push]').forEach(el => el.onclick = () => pushPanel(el.dataset.push));
+  $$('[data-back]').forEach(el => el.onclick = () => popPanel());
+
+  // Overlay
+  $$('[data-overlay-open]').forEach(el => el.onclick = () => {
+    if (el.dataset.overlayOpen === 'onboarding') startOnboarding();
+  });
+  $$('[data-overlay-close]').forEach(el => el.onclick = () => closeOverlay());
+  $('#btn-gallery').onclick = () => { renderGallery(); openOverlay('gallery'); };
+
+  // Scrim / 关闭弹层
+  $('#scrim').onclick = () => closeSheets();
+  $$('[data-close-sheet]').forEach(el => el.onclick = () => closeSheets());
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if ($('.overlay.on')) closeOverlay();
+    else if (router.sheet) closeSheets();
+    else if (router.panel) popPanel();
+  });
+
+  // Quick Add
+  $('#fab').onclick = () => { openSheet('sheet-qa'); setTimeout(() => $('#qa-input').focus(), 400); };
+  $('#qa-save').onclick = () => {
+    const v = $('#qa-input').value.trim();
+    if (!v) { closeSheets(); return; }
+    state.inbox.unshift({ id: 'i' + Date.now(), title: v, hint: '刚捕获' });
+    $('#qa-input').value = '';
+    $('#qa-sug').style.display = 'flex';
+    renderPlan();
+    toast('已存入 Inbox');
+  };
+  $('#qa-accept').onclick = () => {
+    const it = state.inbox[0];
+    if (it) { state.inbox.shift(); state.week.push({ id: it.id, title: it.title, hint: '周四 · 22:00' }); }
+    $('#qa-sug').style.display = 'none';
+    closeSheets(); renderPlan(); toast('已安排到周四 22:00');
+  };
+
+  // Plan My Day
+  $$('[data-open]').forEach(el => el.onclick = () => { renderMyDay(); openSheet(el.dataset.open); });
+  $('#md-accept').onclick = () => {
+    // 把建议日程真正写进今天
+    const meta = {
+      '起床 · 洗漱':   { dur:30,  tier:'block', goal:null,     routine:'固定作息', notes:'' },
+      '早餐':          { dur:20,  tier:'block', goal:null,     routine:'Routine',  notes:'' },
+      '工作':          { dur:640, tier:'block', goal:'Career', routine:'固定工作时间', notes:'' },
+      '晚饭':          { dur:40,  tier:'block', goal:null,     routine:'Routine',  notes:'' },
+      'Run · 30 min':  { dur:30,  tier:'main',  goal:'Health', routine:'Run · Mon/Wed/Fri', notes:'慢跑 · 跑后拉伸 5 分钟' },
+      'Walk · 20 min': { dur:20,  tier:'main',  goal:'Health', routine:'Run · Mon/Wed/Fri', notes:'今天能量偏低，走路也算完成。' },
+      '洗澡 · 缓冲':   { dur:50,  tier:'block', goal:null,     routine:'空档',     notes:'' },
+      'Learning':      { dur:60,  tier:'main',  goal:'Career', routine:'Tuesday Learning', notes:'一页输出' },
+      'Learning · 25 min': { dur:25, tier:'main', goal:'Career', routine:'Tuesday Learning', notes:'今晚减半，保持连续性就好。' },
+      '睡觉':          { dur:null, tier:'block', goal:null,    routine:'Routine',  notes:'' },
+    };
+    state.tasks = buildSuggested().map((s, i) => ({ id:'t'+(i+1), time:s.time, title:s.title, done:false, ...(meta[s.title] || { tier:'block', routine:s.src, notes:'' }) }));
+    state.todayState = 'default';
+    closeSheets(); renderToday(); renderPlan(); save();
+    goTab('today');                       // 接受后直接进入每日计划表
+    toast('今天的时间轴已更新');
+  };
+  $('#md-adjust').onclick = () => { closeSheets(); toast('可以在 Plan 里逐项调整'); };
+
+  // Adaptive
+  $('#adapt-accept').onclick = () => {
+    $('#adapt-card').style.transition = 'opacity .3s, transform .3s';
+    $('#adapt-card').style.opacity = '0';
+    $('#adapt-card').style.transform = 'translateY(-8px)';
+    setTimeout(() => { $('#adapt-card').style.display = 'none'; }, 300);
+    state.week.push({ id:'w-en', title:'Learn English', hint:'周六 · 15:30' });
+    state.inbox = state.inbox.filter(x => x.id !== 'i2');
+    renderPlan(); toast('已移到周六 15:30');
+  };
+  $('#adapt-change').onclick = () => { state.rsTarget = { id:'i2', title:'Learn English' }; openReschedule('Learn English'); };
+
+  // Plan 分段
+  $$('#plan-seg button').forEach(b => b.onclick = () => {
+    $$('#plan-seg button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on'); renderPlan();
+  });
+  $$('#prog-seg button').forEach(b => b.onclick = () => {
+    $$('#prog-seg button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on'); renderProgress();
+  });
+
+  // Task Detail 操作
+  $('#td-complete').onclick = function () {
+    const t = state.activeTask; if (!t) return;
+    t.done = !t.done;
+    this.textContent = t.done ? '已完成 · 撤销' : 'Complete';
+    this.classList.toggle('acc', t.done);
+    renderToday(); renderPlan();
+    setTimeout(closeSheets, 260);
+  };
+  $('#td-focus').onclick = () => {
+    $('#focus-task').textContent = state.activeTask ? state.activeTask.title : 'Focus';
+    resetFocus(); closeSheets(); $('#focus').classList.add('on');
+  };
+  $('#td-resched').onclick = () => {
+    const t = state.activeTask; if (!t) return;
+    state.rsTarget = t; openReschedule(t.title);
+  };
+  $('#td-skip').onclick = () => {
+    const t = state.activeTask; if (!t) return;
+    t.done = true; renderToday(); closeSheets(); toast('今天跳过');
+  };
+  $('#td-delete').onclick = () => {
+    const t = state.activeTask; if (!t) return;
+    state.tasks = state.tasks.filter(x => x.id !== t.id);
+    renderToday(); renderPlan(); closeSheets(); toast('已删除');
+  };
+
+  // 健康授权流程（模拟）
+  $('#auth-allow').onclick = () => {
+    closeSheets();
+    openSheet('sheet-syncing');
+    setTimeout(() => {
+      state.health.connected = true;
+      state.health.source = 'apple-health';
+      state.health.sourceName = 'Apple 健康';
+      state.health.lastSyncAt = '刚刚';
+      state.health.energyDismissed = false;
+      save(); renderMe(); renderToday(); renderProgress();
+      closeSheets();
+      toast('已连接 · 基线需要约 2 周数据');
+      if (router.panel === 'health-connect') renderHealthConnect();
+    }, 1600);
+  };
+  $('#auth-deny').onclick = () => { closeSheets(); toast('未授权，健康功能保持关闭'); };
+
+  // Focus
+  $('#focus-start').onclick = function () {
+    if (focusTimer) { clearInterval(focusTimer); focusTimer = null; this.textContent = 'Resume'; return; }
+    this.textContent = 'Pause';
+    focusTimer = setInterval(() => {
+      focusSec--;
+      $('#focus-time').textContent = fmtT(focusSec);
+      if (focusSec <= 0) {
+        clearInterval(focusTimer); focusTimer = null;
+        $('#focus-time').textContent = 'Done';
+        $('#focus-time').classList.add('done-c');
+        this.textContent = 'Done';
+      }
+    }, 1000);
+  };
+  $('#focus-quit').onclick = () => { resetFocus(); $('#focus').classList.remove('on'); };
+
+  // 主题 — 只在「系统设置」里切换：白天 / 黑夜 / 随系统
+  const applyMode = (m) => {
+    const phone = $('.phone');
+    // 注意：dataset 必须小写，CSS 选择器是 [data-mode="dark"]
+    const resolved = m === 'System'
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : m.toLowerCase();
+    phone.dataset.mode = resolved;
+    $$('#theme-seg button').forEach(b => b.classList.toggle('on', b.textContent === m));
+  };
+  $$('#theme-seg button').forEach(b => b.onclick = () => applyMode(b.textContent));
+  applyMode('Light');
+
+  // 深链 / 浏览器前进后退
+  window.addEventListener('popstate', () => applyRoute(location.hash));
+  applyRoute(location.hash);
+}
+
+// 登出按钮（绑定一次即可；重复绑定有 last-wins 行为）
+async function signOut() {
+  if (supabase) await supabase.auth.signOut();
+  try { localStorage.removeItem(PERSIST_KEY); } catch (_) {}
+  currentUser = null;
+  location.reload();
+}
+window.signOut = signOut;
+
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>

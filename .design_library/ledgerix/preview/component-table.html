@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+/* Page scaffold — NOT extracted */
+body { margin: 0; padding: 12px; background: var(--background); font-family: var(--font-body); color: var(--foreground); font-size: var(--font-size-body); }
+.row { display: flex; gap: var(--space-2); align-items: center; margin-bottom: var(--space-2); flex-wrap: wrap; }
+.label { font-size: var(--font-size-caption); font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: .06em; min-width: 92px; white-space: nowrap; }
+.divider { border: none; border-top: 1px solid var(--border); margin: var(--space-3) 0; }
+/* @component-css-start */
+.table { width: 100%; background: var(--card); backdrop-filter: var(--blur-glass); -webkit-backdrop-filter: var(--blur-glass); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.table table { width: 100%; border-collapse: collapse; }
+.table th { font-size: var(--font-size-caption); font-weight: 600; color: var(--muted-foreground); text-align: left; padding: var(--space-3) var(--space-4); white-space: nowrap; }
+.table td { padding: var(--space-3) var(--space-4); border-top: 1px solid var(--border); }
+.table tbody tr { transition: background .15s; }
+.table tbody tr:hover { background: rgba(255,255,255,0.03); }
+.table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.table.compact th, .table.compact td { padding: var(--space-1) var(--space-3); font-size: 14px; }
+.table .amt { font-weight: 600; }
+.badge { display: inline-flex; align-items: center; gap: var(--space-1); padding: 2px var(--space-2); border-radius: var(--radius-full); font-size: var(--font-size-caption); font-weight: 600; white-space: nowrap; backdrop-filter: var(--blur-glass); -webkit-backdrop-filter: var(--blur-glass); }
+.badge::before { content: ""; width: 6px; height: 6px; border-radius: var(--radius-full); flex-shrink: 0; }
+.badge.paid { background: var(--green-accent-soft); color: #86efac; }
+.badge.paid::before { background: var(--green-accent-dot); }
+.badge.pending { background: rgba(245,158,11,0.12); color: #fcd34d; }
+.badge.pending::before { background: #fbbf24; }
+.badge.overdue { background: var(--red-accent-soft); color: #fca5a5; }
+.badge.overdue::before { background: var(--red-accent-dot); }
+/* @component-css-end */
+</style>
+</head>
+<body>
+<div class="row"><span class="label">Default</span></div>
+<div class="row">
+  <div class="table" data-evidence-sample="Default">
+    <table>
+      <thead><tr><th>Date</th><th>Description</th><th>Category</th><th class="num">Amount</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Mar 12, 2026</td><td>Monthly subscription</td><td>Software</td><td class="num">$240.00</td><td>Paid</td></tr>
+        <tr><td>Mar 09, 2026</td><td>Client invoice #1042</td><td>Services</td><td class="num">$1,280.00</td><td>Pending</td></tr>
+        <tr><td>Mar 05, 2026</td><td>Office supplies</td><td>Operations</td><td class="num">$86.50</td><td>Paid</td></tr>
+        <tr><td>Mar 01, 2026</td><td>Vendor payment</td><td>Inventory</td><td class="num">$4,350.00</td><td>Overdue</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<hr class="divider">
+<div class="row"><span class="label">Compact</span></div>
+<div class="row">
+  <div class="table compact" data-evidence-sample="Compact">
+    <table>
+      <thead><tr><th>Date</th><th>Description</th><th>Category</th><th class="num">Amount</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Mar 12, 2026</td><td>Monthly subscription</td><td>Software</td><td class="num amt">$240.00</td><td><span class="badge paid">Paid</span></td></tr>
+        <tr><td>Mar 09, 2026</td><td>Client invoice #1042</td><td>Services</td><td class="num amt">$1,280.00</td><td><span class="badge pending">Pending</span></td></tr>
+        <tr><td>Mar 01, 2026</td><td>Vendor payment</td><td>Inventory</td><td class="num amt">$4,350.00</td><td><span class="badge overdue">Overdue</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>

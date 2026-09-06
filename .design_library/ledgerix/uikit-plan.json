@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "headBoilerplate": "<link rel=\"stylesheet\" href=\"../../colors_and_type.css\">",
+  "corePreviewComponents": [
+    {
+      "slug": "button",
+      "reason": "fixed slot \"button\"; semantic=button:0.9; policy=fixed-slots-first",
+      "evidenceFile": "components/button.json",
+      "priority": 1,
+      "slot": "button"
+    },
+    {
+      "slug": "navigation",
+      "reason": "fixed slot \"navigation\"; semantic=navigation:0.8; policy=fixed-slots-first",
+      "evidenceFile": "components/navigation.json",
+      "priority": 2,
+      "slot": "navigation"
+    },
+    {
+      "slug": "card",
+      "reason": "fixed slot \"card\"; semantic=card:0.85; policy=fixed-slots-first",
+      "evidenceFile": "components/card.json",
+      "priority": 3,
+      "slot": "card"
+    },
+    {
+      "slug": "table",
+      "reason": "fixed slot \"table\"; semantic=table:0.85; policy=fixed-slots-first",
+      "evidenceFile": "components/table.json",
+      "priority": 4,
+      "slot": "table"
+    },
+    {
+      "slug": "chart",
+      "reason": "fallback after fixed slots; semantic=chart:0.85; policy=fixed-slots-first",
+      "evidenceFile": "components/chart.json",
+      "priority": 5
+    },
+    {
+      "slug": "sidebar",
+      "reason": "fallback after fixed slots; semantic=navigation:0.75; policy=fixed-slots-first",
+      "evidenceFile": "components/sidebar.json",
+      "priority": 6
+    }
+  ],
+  "supportEvidenceComponents": [],
+  "allowedComponents": [
+    "button",
+    "navigation",
+    "card",
+    "table",
+    "chart",
+    "sidebar"
+  ],
+  "screenBlueprints": [
+    {
+      "name": "Revenue Overview",
+      "componentSlugs": [],
+      "role": "primary"
+    },
+    {
+      "name": "AI Assistant",
+      "componentSlugs": [],
+      "role": "secondary"
+    },
+    {
+      "name": "Sales Forecast",
+      "componentSlugs": [],
+      "role": "secondary"
+    }
+  ],
+  "productContext": {
+    "kitType": "dashboard",
+    "productType": "SaaS Dashboard",
+    "dominantCopy": [
+      "Revenue Overview",
+      "AI Assistant",
+      "Sales Forecast",
+      "Cash Flow",
+      "Export Report"
+    ],
+    "pageNames": [
+      "Revenue Overview",
+      "AI Assistant",
+      "Sales Forecast",
+      "Cash Flow",
+      "Transactions"
+    ],
+    "selectedFrameNames": []
+  },
+  "selectionPolicy": "fixed-slots-first",
+  "slotAssignments": [
+    {
+      "slot": "button",
+      "slug": "button",
+      "reason": "semantic"
+    },
+    {
+      "slot": "navigation",
+      "slug": "navigation",
+      "reason": "semantic"
+    },
+    {
+      "slot": "card",
+      "slug": "card",
+      "reason": "semantic"
+    },
+    {
+      "slot": "table",
+      "slug": "table",
+      "reason": "semantic"
+    }
+  ],
+  "missingFixedSlots": [
+    "menu",
+    "tag"
+  ],
+  "fallbackComponents": [
+    "chart",
+    "sidebar"
+  ],
+  "needsNarrative": false,
+  "forbiddenInventedComponents": [],
+  "lowConfidence": false,
+  "warnings": [
+    "missing-fixed-slot:menu",
+    "missing-fixed-slot:tag"
+  ]
+}

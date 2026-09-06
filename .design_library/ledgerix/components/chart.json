@@ -1,0 +1,50 @@
+{
+  "slug": "chart",
+  "schemaVersion": 2,
+  "name": "Chart",
+  "category": "data-display",
+  "sourceKind": "from-scratch",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    { "type": "chart", "confidence": 0.85, "evidence": ["real-time revenue visualization on dark dashboard", "monochrome with green accent for actual/current data"] }
+  ],
+  "sourceSignals": {
+    "uiCopySamples": ["Revenue", "Projected", "Actual", "This Month", "Last Month"]
+  },
+  "variantDimensions": {
+    "variant": ["line", "area", "bar"]
+  },
+  "representativeVariants": [
+    {
+      "name": "Revenue Line",
+      "whySelected": "Core monthly income trend visualization on dark glass",
+      "traits": { "line": "white #f5f5f5 for primary series", "grid": "rgba(255,255,255,0.05) hairline", "background": "transparent over glass card" },
+      "childrenDigest": "Single smooth white line with subtle gradient fill under curve, month labels on x-axis in gray"
+    },
+    {
+      "name": "Sales Forecast Area",
+      "whySelected": "Forecast product signature: projected vs actual comparison",
+      "traits": { "actual": "green accent line #34d399 — this is the ONLY green usage in charts", "projected": "white/gray dashed line" },
+      "childrenDigest": "Two series with legend chips, green = actual/confirmed, gray = projected"
+    },
+    {
+      "name": "Bar",
+      "whySelected": "Category comparison for expenses and income mix",
+      "traits": { "bars": "white/light gray bars with green accent only on the highlighted/current bar", "radius": "small 8px top rounding" },
+      "childrenDigest": "Grouped bars with axis labels"
+    }
+  ],
+  "anatomy": {
+    "container": "div.chart inside glass card",
+    "plot": "svg or canvas region",
+    "legend": "optional chips row"
+  },
+  "structurePatterns": ["Monochrome white/gray primary data, green accent ONLY for actual/current/highlighted series", "Minimal gridlines, no chart junk"],
+  "usageHints": {
+    "priorityHint": "high",
+    "bestFor": ["Income trends", "Forecast comparison", "Expense breakdown"]
+  },
+  "doNotInvent": ["3D effects", "Green-filled chart areas (except actual series accent)", "Multiple decorative palettes"],
+  "unknowns": ["Chart library used in source"],
+  "keyInsightSeed": "Monochrome white/gray charts with green accent only for actual/current data series"
+}

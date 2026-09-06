@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chart — Ledgerix</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+/* Page scaffold — NOT extracted */
+body { margin: 0; padding: 12px; background: var(--background); font-family: var(--font-body); color: var(--foreground); }
+.row { display: flex; gap: var(--space-4); align-items: center; margin-bottom: var(--space-2); flex-wrap: wrap; }
+.label { font-size: var(--font-size-caption); color: var(--muted-foreground); text-transform: uppercase; letter-spacing: .05em; min-width: 92px; flex-shrink: 0; }
+.divider { border: none; border-top: 1px solid var(--border); margin: var(--space-4) 0; }
+
+/* @component-css-start */
+.chart { width: 100%; min-width: 0; }
+.card { background: var(--card); backdrop-filter: var(--blur-glass); -webkit-backdrop-filter: var(--blur-glass); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-4); }
+.ctitle { margin: 0; font-size: var(--font-size-body); font-weight: var(--font-weight-h4); color: var(--muted-foreground); }
+.cvalue { margin: var(--space-1) 0 0; font-size: var(--font-size-h4); font-weight: var(--font-weight-h2); }
+.legend { display: flex; gap: var(--space-4); margin-top: var(--space-2); }
+.chip { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--font-size-caption); color: var(--muted-foreground); white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: var(--radius-full); flex-shrink: 0; }
+.dot-actual { background: var(--foreground); }
+.dot-projected { background: var(--ledgerix-neutral-400); }
+.tick { font-family: var(--font-body); font-size: 9px; fill: var(--muted-foreground); }
+.axis { stroke: var(--rule); stroke-width: 1; }
+.line-actual { fill: none; stroke: var(--foreground); stroke-width: 2; }
+.line-projected { fill: none; stroke: var(--ledgerix-neutral-500); stroke-width: 2; stroke-dasharray: 4 3; }
+.area { fill: url(#areaFill); }
+.bar-income { fill: var(--foreground); }
+.bar-expense { fill: var(--ledgerix-neutral-500); }
+.marker { fill: var(--foreground); stroke: var(--background); stroke-width: 1.5; }
+/* @component-css-end */
+</style>
+</head>
+<body>
+<div class="row"><span class="label">Revenue</span></div>
+<div class="row"><div class="card chart" data-evidence-sample="Revenue Line">
+<p class="ctitle">Revenue · This Month</p>
+<p class="cvalue">$48,210</p>
+<svg viewBox="0 0 340 130" width="100%" role="img" aria-label="Monthly revenue line chart">
+<defs><linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:#f5f5f5" stop-opacity="0.1"/><stop offset="1" style="stop-color:#f5f5f5" stop-opacity="0"/></linearGradient></defs>
+<line class="axis" x1="16" y1="18" x2="332" y2="18"/><line class="axis" x1="16" y1="50" x2="332" y2="50"/><line class="axis" x1="16" y1="82" x2="332" y2="82"/><line class="axis" x1="16" y1="114" x2="332" y2="114"/>
+<path class="area" d="M16,104 C62,96 84,64 134,66 C184,68 206,38 256,40 C296,42 316,28 332,24 L332,114 L16,114 Z"/>
+<path class="line-actual" d="M16,104 C62,96 84,64 134,66 C184,68 206,38 256,40 C296,42 316,28 332,24"/>
+<text class="tick" x="16" y="128">Jan</text><text class="tick" x="79" y="128">Feb</text><text class="tick" x="142" y="128">Mar</text><text class="tick" x="205" y="128">Apr</text><text class="tick" x="268" y="128">May</text><text class="tick" x="324" y="128">Jun</text>
+</svg>
+</div></div>
+<div class="row"><span class="label">Forecast</span></div>
+<div class="row"><div class="card chart" data-evidence-sample="Sales Forecast Area">
+<p class="ctitle">Sales Forecast · Projected vs Actual</p>
+<svg viewBox="0 0 340 130" width="100%" role="img" aria-label="Sales forecast projected versus actual chart">
+<line class="axis" x1="16" y1="18" x2="332" y2="18"/><line class="axis" x1="16" y1="50" x2="332" y2="50"/><line class="axis" x1="16" y1="82" x2="332" y2="82"/><line class="axis" x1="16" y1="114" x2="332" y2="114"/>
+<path class="line-projected" d="M16,100 C62,92 84,58 134,60 C184,62 206,44 256,46 C296,48 316,28 332,24"/>
+<path class="line-actual" d="M16,100 C62,92 84,58 134,60 C184,62 206,44 256,46 C296,50 316,42 332,40"/>
+<circle class="marker" cx="256" cy="46" r="3.5"/>
+<text class="tick" x="16" y="128">Jan</text><text class="tick" x="79" y="128">Feb</text><text class="tick" x="142" y="128">Mar</text><text class="tick" x="205" y="128">Apr</text><text class="tick" x="268" y="128">May</text><text class="tick" x="324" y="128">Jun</text>
+</svg>
+<div class="legend"><span class="chip"><span class="dot dot-actual"></span>Actual</span><span class="chip"><span class="dot dot-projected"></span>Projected</span></div>
+</div></div>
+<hr class="divider">
+<div class="row"><span class="label">Expenses</span></div>
+<div class="row"><div class="card chart" data-evidence-sample="Bar">
+<p class="ctitle">Income vs Expenses · Last Month</p>
+<svg viewBox="0 0 340 130" width="100%" role="img" aria-label="Income and expenses grouped bar chart">
+<line class="axis" x1="16" y1="114" x2="332" y2="114"/>
+<rect class="bar-income" x="44" y="88" width="22" height="26" rx="2"/><rect class="bar-expense" x="72" y="100" width="22" height="14" rx="2"/>
+<rect class="bar-income" x="156" y="58" width="22" height="56" rx="2"/><rect class="bar-expense" x="184" y="76" width="22" height="38" rx="2"/>
+<rect class="bar-income" x="268" y="70" width="22" height="44" rx="2"/><rect class="bar-expense" x="296" y="92" width="22" height="22" rx="2"/>
+<text class="tick" x="52" y="128">Jan</text><text class="tick" x="164" y="128">Feb</text><text class="tick" x="276" y="128">Mar</text>
+</svg>
+<div class="legend"><span class="chip"><span class="dot dot-actual"></span>Income</span><span class="chip"><span class="dot dot-projected"></span>Expenses</span></div>
+</div></div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+{
+  "slug": "sidebar",
+  "schemaVersion": 2,
+  "name": "Sidebar",
+  "category": "navigation",
+  "sourceKind": "from-scratch",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    { "type": "navigation", "confidence": 0.75, "evidence": ["desktop app shell for dark finance workspace", "glassmorphic sidebar with monochrome items"] }
+  ],
+  "sourceSignals": {
+    "uiCopySamples": ["Dashboard", "Revenue", "Expenses", "Forecast", "Settings"]
+  },
+  "variantDimensions": {
+    "variant": ["full", "rail", "collapsed"]
+  },
+  "representativeVariants": [
+    {
+      "name": "Full",
+      "whySelected": "Desktop app shell with labeled navigation items on dark surface",
+      "traits": { "surface": "near-black #0d0d0d or rgba(10,10,10,0.9) glass", "border": "right hairline rgba(255,255,255,0.06)", "width": "240-260px", "active": "white text with subtle glass highlight bg, tiny green dot left indicator", "inactive": "gray #737373 text" },
+      "childrenDigest": "Brand mark top in white, grouped nav items with icons + labels in gray, active item highlighted white with glass bg, user footer"
+    },
+    {
+      "name": "Rail",
+      "whySelected": "Space-efficient icon-only mode for tablet widths",
+      "traits": { "width": "64-72px", "items": "icon only, active white with glass bg", "inactive": "gray icons" },
+      "childrenDigest": "Icons stacked vertically, active has subtle glass highlight"
+    },
+    {
+      "name": "Collapsed",
+      "whySelected": "Fully collapsed state hiding navigation until expanded",
+      "traits": { "width": "0 or minimal", "toggle": "chevron affordance" },
+      "childrenDigest": "Only expand toggle remains"
+    }
+  ],
+  "anatomy": {
+    "container": "aside element",
+    "brand": "logo block",
+    "items": "nav list",
+    "footer": "optional user or settings block"
+  },
+  "structurePatterns": ["Dark/near-black fixed app-shell column", "Active item: white text + glass bg + tiny green dot left border accent"],
+  "usageHints": {
+    "priorityHint": "high",
+    "bestFor": ["Desktop dashboard layout", "Tablet responsive rail"]
+  },
+  "doNotInvent": ["Floating action buttons", "Green-filled active items", "Collapsible groups with nested disclosure"],
+  "unknowns": ["Exact grouping and section headers"],
+  "keyInsightSeed": "Dark glassmorphic sidebar, monochrome items, active state uses glass highlight with tiny green dot accent"
+}
