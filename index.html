@@ -14,7 +14,7 @@
 <meta name="x-supabase-url" content="__SUPABASE_URL__" />
 <meta name="x-supabase-anon" content="__SUPABASE_ANON_KEY__" />
 <!-- supabase-js -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/sb.min.js"></script>
+<!-- supabase-js UMD loaded dynamically in boot() with retry -->
 <style>
 /* ══════════════════════════════════════════════════════════════════
    Epoch — A personal system for becoming.
@@ -2958,13 +2958,28 @@ function _showAuthScreen(errMsg) {
 async function boot() {
   // 1) 初始化 Supabase（构建时 inject.mjs 替换占位符；本地开发可能是 null）
   const env = readEnv();
-  if (env && window.supabase && window.supabase.createClient) {
-    sb = window.supabase.createClient(env.url, env.key, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-    });
-  } else {
-    console.info('[epoch] sb env not configured; running offline-only');
+  if (env) {
+    // SDK 未就绪时动态加载（最多 2 次尝试），避免单次加载失败导致永远离线
+    if (!(window.supabase && window.supabase.createClient)) {
+      for (let i = 0; i < 2 && !(window.supabase && window.supabase.createClient); i++) {
+        try {
+          await new Promise((res, rej) => {
+            const sc = document.createElement('script');
+            sc.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+            sc.onload = res; sc.onerror = () => { sc.remove(); rej(new Error('load fail')); };
+            document.head.appendChild(sc);
+            setTimeout(() => rej(new Error('timeout')), 9000);
+          });
+        } catch (_) { /* retry */ }
+      }
+    }
+    if (window.supabase && window.supabase.createClient) {
+      sb = window.supabase.createClient(env.url, env.key, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+      });
+    }
   }
+  if (!sb) console.info('[epoch] sb env not configured; running offline-only');
 
   // 2) 读取已有会话
   if (sb) {
