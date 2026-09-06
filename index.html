@@ -9,7 +9,9 @@
 <meta name="apple-mobile-web-app-title" content="Epoch" />
 <meta name="description" content="A personal system for becoming. Shape your time. Shape yourself." />
 <meta name="robots" content="noindex, nofollow" />
-<title>Epoch · 时</title>
+<title>Epoch</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23DCE8FF'/%3E%3Cstop offset='1' stop-color='%23E6E0FF'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='88' height='88' rx='24' fill='url(%23g)'/%3E%3Cg fill='%2316181D'%3E%3Cellipse cx='48' cy='33' rx='8' ry='12.5'/%3E%3Cellipse cx='48' cy='63' rx='8' ry='12.5'/%3E%3Cellipse cx='33' cy='48' rx='12.5' ry='8'/%3E%3Cellipse cx='63' cy='48' rx='12.5' ry='8'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23DCE8FF'/%3E%3Cstop offset='1' stop-color='%23E6E0FF'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='88' height='88' rx='24' fill='url(%23g)'/%3E%3Cg fill='%2316181D'%3E%3Cellipse cx='48' cy='33' rx='8' ry='12.5'/%3E%3Cellipse cx='48' cy='63' rx='8' ry='12.5'/%3E%3Cellipse cx='33' cy='48' rx='12.5' ry='8'/%3E%3Cellipse cx='63' cy='48' rx='12.5' ry='8'/%3E%3C/g%3E%3C/svg%3E" />
 <!-- Environment placeholders; replaced at build time by scripts/inject.mjs -->
 <meta name="x-supabase-url" content="__SUPABASE_URL__" />
 <meta name="x-supabase-anon" content="__SUPABASE_ANON_KEY__" />
@@ -493,14 +495,21 @@ body {
 .fab svg { width: 19px; height: 19px; stroke: var(--ink-1); stroke-width: 2.1; fill: none; stroke-linecap: round; }
 
 /* ═══════════ 登录屏 — 参考排版 ═══════════ */
-.auth-screen { padding: 0 34px; display: flex; flex-direction: column; min-height: 100%; }
-.auth-mark { display: flex; justify-content: center; margin: 64px 0 0; }
-.auth-mark svg { width: 46px; height: 46px; }
-.phone[data-mode="dark"] .auth-mark svg { fill: #F2F4F8; }
-.auth-head { text-align: center; margin-top: 40px; }
+.auth-screen { padding: 0; }
+.auth-view { min-height: 100%; display: flex; flex-direction: column; padding: 0 34px; }
+.auth-view[hidden] { display: none; }
+.auth-topbar { display: flex; align-items: center; margin: 16px -10px 0; }
+.auth-back { display: flex; align-items: center; gap: 5px; background: none; border: none; cursor: pointer; font-family: inherit; font-size: 14.5px; color: var(--ink-2); padding: 8px 10px; }
+.auth-back svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.auth-icon { display: flex; justify-content: center; margin-top: 52px; }
+.auth-icon svg { width: 68px; height: 68px; border-radius: 22px; box-shadow: 0 10px 34px rgba(60,70,100,.12); }
+.auth-brand { text-align: center; font-size: 17px; font-weight: 700; letter-spacing: .02em; color: var(--ink-1); margin-top: 14px; }
+.auth-head { text-align: center; margin-top: 36px; }
+.auth-head.left { text-align: left; margin-top: 30px; }
 .auth-title { font-size: 32px; font-weight: 700; letter-spacing: -.022em; color: var(--ink-1); line-height: 1.15; }
+.auth-title.sm { font-size: 26px; }
 .auth-sub { font-size: 14px; color: var(--ink-3); margin-top: 10px; letter-spacing: .01em; }
-.auth-form { margin-top: 44px; }
+.auth-form { margin-top: 40px; }
 .auth-label { display: block; font-size: 14.5px; font-weight: 500; color: var(--ink-1); letter-spacing: -.005em; }
 .auth-underline { position: relative; margin-top: 4px; }
 .auth-input {
@@ -530,23 +539,27 @@ body {
 }
 .auth-btn-dark:active { transform: scale(.97); }
 .auth-btn-dark:disabled { opacity: .55; cursor: default; }
-.auth-btn-light {
-  width: 100%; height: 54px; margin-top: 12px; cursor: pointer;
-  border-radius: 27px; border: none;
-  background: rgba(255,255,255,.58); color: var(--ink-1);
+.auth-div { display: flex; align-items: center; gap: 12px; margin: 26px 0 18px; color: var(--ink-4); font-size: 12px; letter-spacing: .02em; }
+.auth-div::before, .auth-div::after { content: ''; flex: 1; height: 1px; background: var(--brd); }
+.auth-soc-row { display: flex; justify-content: center; gap: 18px; }
+.auth-soc {
+  width: 54px; height: 54px; border-radius: 50%; cursor: pointer; padding: 0;
+  border: 1px solid var(--brd); background: rgba(255,255,255,.58); color: #16181D;
   backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
   box-shadow: 0 8px 32px rgba(60,70,100,.055);
-  font-family: inherit; font-size: 15.5px; font-weight: 600; letter-spacing: -.005em;
-  display: flex; align-items: center; justify-content: center; gap: 9px;
+  display: flex; align-items: center; justify-content: center;
   transition: transform .18s var(--ease);
 }
-.auth-btn-light:active { transform: scale(.97); }
+.auth-soc:active { transform: scale(.92); }
+.auth-soc svg { width: 22px; height: 22px; }
 .phone[data-mode="dark"] .auth-btn-dark { background: #F2F4F8; color: #0D0F13; }
-.phone[data-mode="dark"] .auth-btn-light { background: rgba(255,255,255,.075); border: 1px solid rgba(255,255,255,.1); }
+.phone[data-mode="dark"] .auth-soc { background: rgba(255,255,255,.075); color: #F2F4F8; }
 .auth-err { font-size: 12.5px; color: var(--danger); min-height: 18px; text-align: center; margin-top: 12px; }
+.auth-legal { text-align: center; font-size: 11.5px; color: var(--ink-4); line-height: 1.55; margin-top: 14px; }
 .auth-foot { margin-top: auto; text-align: center; font-size: 13px; color: var(--ink-3); padding: 26px 0 10px; }
 .auth-foot a { color: var(--ink-1); font-weight: 600; cursor: pointer; text-decoration: none; }
-.auth-legal { text-align: center; font-size: 11.5px; color: var(--ink-4); line-height: 1.55; margin-top: 14px; }
+.auth-fp-done { text-align: center; margin-top: 48px; font-size: 14px; color: var(--ink-2); line-height: 1.7; }
+.auth-fp-done b { color: var(--ink-1); }
 
 /* 次级页面返回条 */
 .panel-bar {
@@ -783,50 +796,132 @@ body {
 
     <!-- ══════════════════════ AUTH ══════════════════════ -->
     <section class="screen auth-screen" data-screen="auth" aria-label="登录">
-      <div class="auth-mark" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="#16181D">
-          <ellipse cx="24" cy="13.5" rx="6.2" ry="9.5"/><ellipse cx="24" cy="34.5" rx="6.2" ry="9.5"/>
-          <ellipse cx="13.5" cy="24" rx="9.5" ry="6.2"/><ellipse cx="34.5" cy="24" rx="9.5" ry="6.2"/>
-        </svg>
-      </div>
 
-      <div class="auth-head">
-        <div class="auth-title" id="auth-title">Welcome back!</div>
-        <div class="auth-sub" id="auth-sub">Please enter your details</div>
-      </div>
+      <!-- ── 视图：登录 ── -->
+      <div class="auth-view" data-auth-view="login">
+        <div class="auth-icon" aria-hidden="true">
+          <svg viewBox="0 0 96 96">
+            <defs><linearGradient id="auth-ic-g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#DCE8FF"/><stop offset="1" stop-color="#E6E0FF"/>
+            </linearGradient></defs>
+            <rect x="4" y="4" width="88" height="88" rx="24" fill="url(#auth-ic-g)"/>
+            <g fill="#16181D">
+              <ellipse cx="48" cy="33" rx="8" ry="12.5"/><ellipse cx="48" cy="63" rx="8" ry="12.5"/>
+              <ellipse cx="33" cy="48" rx="12.5" ry="8"/><ellipse cx="63" cy="48" rx="12.5" ry="8"/>
+            </g>
+          </svg>
+        </div>
+        <div class="auth-brand">Epoch</div>
 
-      <div class="auth-form">
-        <label class="auth-label" for="auth-email">Email</label>
-        <div class="auth-underline">
-          <input class="auth-input" id="auth-email" type="email" autocomplete="email" placeholder="you@example.com" />
+        <div class="auth-head">
+          <div class="auth-title">Welcome back</div>
+          <div class="auth-sub">Log in to continue</div>
         </div>
 
-        <label class="auth-label" for="auth-pwd" style="margin-top:26px">Password</label>
-        <div class="auth-underline has-eye">
-          <input class="auth-input" id="auth-pwd" type="password" autocomplete="current-password" placeholder="••••••••" />
-          <button type="button" class="auth-eye" id="auth-eye" aria-label="显示或隐藏密码">
-            <svg viewBox="0 0 24 24"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        <div class="auth-form">
+          <label class="auth-label" for="auth-account">Account</label>
+          <div class="auth-underline">
+            <input class="auth-input" id="auth-account" type="text" inputmode="email" autocomplete="username" placeholder="用户名或邮箱" />
+          </div>
+
+          <label class="auth-label" for="auth-pwd" style="margin-top:26px">Password</label>
+          <div class="auth-underline has-eye">
+            <input class="auth-input" id="auth-pwd" type="password" autocomplete="current-password" placeholder="••••••••" />
+            <button type="button" class="auth-eye" id="auth-eye" aria-label="显示或隐藏密码">
+              <svg viewBox="0 0 24 24"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+
+          <div class="auth-row">
+            <label class="auth-check"><input type="checkbox" id="auth-remember" checked /> 记住 30 天</label>
+            <a class="auth-forgot" id="auth-forgot">忘记密码？</a>
+          </div>
+
+          <button class="auth-btn-dark" id="auth-signin">Log In</button>
+
+          <div class="auth-div">or continue with</div>
+          <div class="auth-soc-row">
+            <button type="button" class="auth-soc" id="auth-apple" aria-label="Continue with Apple">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.46 2.21-1.21 3.01-.79.85-2.07 1.51-3.21 1.43-.13-1.13.43-2.31 1.16-3.07.81-.87 2.18-1.55 3.26-1.37zM20.5 17.4c-.55 1.27-.81 1.83-1.51 2.95-.99 1.59-2.39 3.57-4.13 3.59-1.55.02-1.95-1.01-4.05-.99-2.1.02-2.54 1.01-4.09.99-1.74-.02-3.07-1.81-4.07-3.4C.07 16.71-.27 11.34 1.4 8.16 2.6 5.86 4.71 4.46 6.72 4.46c2.05 0 3.34 1.13 5.03 1.13 1.64 0 2.64-1.13 5.01-1.13 1.79 0 3.69.97 5.04 2.65-4.43 2.43-3.71 8.74-1.3 10.29z"/></svg>
+            </button>
+            <button type="button" class="auth-soc" id="auth-google" aria-label="Continue with Google">
+              <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.45a5.52 5.52 0 0 1-2.39 3.62v3h3.86c2.26-2.09 3.58-5.17 3.58-8.81z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.86-3c-1.08.72-2.45 1.16-4.08 1.16-3.14 0-5.8-2.12-6.75-4.97H1.29v3.1A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.25 14.28A7.2 7.2 0 0 1 4.87 12c0-.79.14-1.56.38-2.28v-3.1H1.29a12 12 0 0 0 0 10.76l3.96-3.1z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42A11.98 11.98 0 0 0 12 0 12 12 0 0 0 1.29 6.62l3.96 3.1C6.2 6.87 8.86 4.75 12 4.75z"/></svg>
+            </button>
+          </div>
+
+          <div class="auth-err" id="auth-err"></div>
+        </div>
+
+        <div class="auth-foot">
+          还没有账号？<a id="auth-to-register">Sign Up</a>
+        </div>
+      </div>
+
+      <!-- ── 视图：注册 ── -->
+      <div class="auth-view" data-auth-view="register" hidden>
+        <div class="auth-topbar">
+          <button type="button" class="auth-back" id="auth-to-login">
+            <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Back
           </button>
         </div>
 
-        <div class="auth-row">
-          <label class="auth-check"><input type="checkbox" id="auth-remember" checked /> 记住 30 天</label>
-          <a class="auth-forgot" id="auth-forgot">忘记密码？</a>
+        <div class="auth-head left">
+          <div class="auth-title sm">Create your account</div>
+          <div class="auth-sub">One line for your name, one for your mail</div>
         </div>
 
-        <button class="auth-btn-dark" id="auth-signin">Log In</button>
-        <button class="auth-btn-light" id="auth-apple">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16.365 1.43c0 1.14-.46 2.21-1.21 3.01-.79.85-2.07 1.51-3.21 1.43-.13-1.13.43-2.31 1.16-3.07.81-.87 2.18-1.55 3.26-1.37zM20.5 17.4c-.55 1.27-.81 1.83-1.51 2.95-.99 1.59-2.39 3.57-4.13 3.59-1.55.02-1.95-1.01-4.05-.99-2.1.02-2.54 1.01-4.09.99-1.74-.02-3.07-1.81-4.07-3.4C.07 16.71-.27 11.34 1.4 8.16 2.6 5.86 4.71 4.46 6.72 4.46c2.05 0 3.34 1.13 5.03 1.13 1.64 0 2.64-1.13 5.01-1.13 1.79 0 3.69.97 5.04 2.65-4.43 2.43-3.71 8.74-1.3 10.29z"/></svg>
-          <span>Continue with Apple</span>
-        </button>
+        <div class="auth-form">
+          <label class="auth-label" for="auth-reg-email">Email</label>
+          <div class="auth-underline">
+            <input class="auth-input" id="auth-reg-email" type="email" autocomplete="email" placeholder="you@example.com" />
+          </div>
 
-        <div class="auth-err" id="auth-err"></div>
-        <div class="auth-legal">数据同步到云端，加密传输，仅你本人可见。</div>
+          <label class="auth-label" for="auth-reg-username" style="margin-top:26px">Username</label>
+          <div class="auth-underline">
+            <input class="auth-input" id="auth-reg-username" type="text" autocomplete="username" placeholder="仅字母、数字、下划线" />
+          </div>
+
+          <label class="auth-label" for="auth-reg-pwd" style="margin-top:26px">Password</label>
+          <div class="auth-underline">
+            <input class="auth-input" id="auth-reg-pwd" type="password" autocomplete="new-password" placeholder="至少 8 位" />
+          </div>
+
+          <button class="auth-btn-dark" id="auth-signup">Sign Up</button>
+          <div class="auth-err" id="auth-reg-err"></div>
+        </div>
+
+        <div class="auth-foot">
+          已有账号？<a id="auth-back-login">Log In</a>
+        </div>
       </div>
 
-      <div class="auth-foot">
-        <span id="auth-foot-txt">还没有账号？</span> <a id="auth-signup">Sign Up</a>
+      <!-- ── 视图：忘记密码 ── -->
+      <div class="auth-view" data-auth-view="forgot" hidden>
+        <div class="auth-topbar">
+          <button type="button" class="auth-back" id="auth-back-forgot">
+            <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Back
+          </button>
+        </div>
+
+        <div class="auth-head left">
+          <div class="auth-title sm">Reset password</div>
+          <div class="auth-sub">We'll email you a reset link</div>
+        </div>
+
+        <div class="auth-form" id="auth-fp-form">
+          <label class="auth-label" for="auth-fp-email">Email</label>
+          <div class="auth-underline">
+            <input class="auth-input" id="auth-fp-email" type="email" autocomplete="email" placeholder="you@example.com" />
+          </div>
+          <button class="auth-btn-dark" id="auth-fp-send">Send reset link</button>
+          <div class="auth-err" id="auth-fp-err"></div>
+        </div>
+
+        <div class="auth-fp-done" id="auth-fp-done" hidden>
+          <b>已发送。</b><br/>重置链接已发到你的邮箱，<br/>查收后点击链接即可设置新密码。
+        </div>
       </div>
+
     </section>
 
     <!-- ══════════════════════ TODAY ══════════════════════ -->
@@ -1382,7 +1477,7 @@ body {
   <div class="overlay" id="overlay-gallery" data-page-node-id="Du3SqfVPmyA1diNHcA2mom">
     <div class="gal-head" data-page-node-id="XexOPohAHCiOYTDLA61bbu">
       <div data-page-node-id="gLV5kHYC6NpwBpwX2QL6E7">
-        <div class="eyebrow">Epoch · 时</div>
+        <div class="eyebrow">Epoch</div>
         <div class="t-card" style="margin-top:4px" data-page-node-id="YUdl4L3rJ0axdd9OiZRI5e">屏幕目录</div>
       </div>
       <button class="icon-btn" data-overlay-close="gallery" data-page-node-id="gCtWCaCViHYcXGhrCbCNnU">
@@ -2989,86 +3084,128 @@ function resetFocus() {
 
 /* ══════════════════ 绑定 ══════════════════ */
 const REMEMBER_KEY = 'epoch.remember_email';
+const getSb = () => (typeof sb !== 'undefined' && sb) || window.sb || null;
+const isEmail = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+
 function _showAuthScreen(errMsg) {
   // 登录屏隐藏底部导航 / 加号 / 右上角图标
   goTab('auth');
   const phone = $('.phone'); if (phone) phone.dataset.nav = 'auth';
 
-  let mode = 'login';
-  const setMode = (m) => {
-    mode = m;
-    $('#auth-title').textContent = m === 'login' ? 'Welcome back!' : 'Create your account';
-    $('#auth-sub').textContent   = m === 'login' ? 'Please enter your details' : 'Just a few details';
-    $('#auth-signin').textContent = m === 'login' ? 'Log In' : 'Sign Up';
-    $('#auth-foot-txt').textContent = m === 'login' ? '还没有账号？' : '已经有账号？';
-    $('#auth-signup').textContent = m === 'login' ? 'Sign Up' : 'Log In';
-    $('#auth-err').textContent = '';
+  const err = (sel, msg) => { const e = $(sel); if (e) e.textContent = msg || ''; };
+  const authView = (name) => {
+    $$('.auth-view').forEach(v => { v.hidden = v.dataset.authView !== name; });
+    err('#auth-err', errMsg && name === 'login' ? errMsg : '');
+    err('#auth-reg-err'); err('#auth-fp-err');
+    const fpDone = $('#auth-fp-done'), fpForm = $('#auth-fp-form');
+    if (fpDone) fpDone.hidden = true;
+    if (fpForm) fpForm.hidden = false;
   };
+  authView('login');
 
-  // 记住 30 天：预填邮箱
+  // 记住 30 天：预填账号
   try {
     const rem = JSON.parse(localStorage.getItem(REMEMBER_KEY) || 'null');
-    if (rem && rem.email && rem.exp > Date.now()) $('#auth-email').value = rem.email;
+    if (rem && rem.email && rem.exp > Date.now()) $('#auth-account').value = rem.email;
     else localStorage.removeItem(REMEMBER_KEY);
   } catch (_) {}
 
-  const busy = (on) => { $('#auth-signin').disabled = !!on; };
-
+  /* ── 登录 ── */
   $('#auth-signin').onclick = async () => {
-    const email = $('#auth-email').value.trim();
-    const pwd   = $('#auth-pwd').value;
-    if (!email || !pwd) { $('#auth-err').textContent = '请输入邮箱和密码'; return; }
-    busy(true);
+    const s = getSb();
+    if (!s) { err('#auth-err', '云同步未配置，暂不能登录'); return; }
+    const id = $('#auth-account').value.trim();
+    const pwd = $('#auth-pwd').value;
+    if (!id || !pwd) { err('#auth-err', '请输入账号和密码'); return; }
+    $('#auth-signin').disabled = true;
     try {
-      if (mode === 'login') {
-        $('#auth-err').textContent = '登录中…';
-        const { data, error } = await sb.auth.signInWithPassword({ email, password: pwd });
-        if (error) { $('#auth-err').textContent = error.message; return; }
-        try {
-          if ($('#auth-remember').checked) localStorage.setItem(REMEMBER_KEY, JSON.stringify({ email, exp: Date.now() + 30 * 864e5 }));
-          else localStorage.removeItem(REMEMBER_KEY);
-        } catch (_) {}
-        currentUser = data.user;
-        await load();
-        boot();
-      } else {
-        if (pwd.length < 8) { $('#auth-err').textContent = '密码至少 8 位'; return; }
-        $('#auth-err').textContent = '创建账号中…';
-        const { data, error } = await sb.auth.signUp({ email, password: pwd });
-        if (error) { $('#auth-err').textContent = error.message; return; }
-        if (data.session) {
-          currentUser = data.user;
-          await load();
-          boot();
-        } else $('#auth-err').textContent = '已发送验证邮件，请查收并点击链接激活。';
+      let email = id;
+      if (!isEmail(id)) {
+        // 用户名 → 查 profiles 解析邮箱
+        $('#auth-err').textContent = '查找账号…';
+        const { data: prof, error: perr } = await s.from('profiles').select('email').eq('username', id).single();
+        if (perr || !prof || !prof.email) { err('#auth-err', '用户名不存在'); return; }
+        email = prof.email;
       }
-    } finally { busy(false); }
+      $('#auth-err').textContent = '登录中…';
+      const { data, error } = await s.auth.signInWithPassword({ email, password: pwd });
+      if (error) { err('#auth-err', error.message); return; }
+      try {
+        if ($('#auth-remember').checked) localStorage.setItem(REMEMBER_KEY, JSON.stringify({ email: id, exp: Date.now() + 30 * 864e5 }));
+        else localStorage.removeItem(REMEMBER_KEY);
+      } catch (_) {}
+      currentUser = data.user;
+      await load();
+      boot();
+    } finally { $('#auth-signin').disabled = false; }
   };
-  $('#auth-signup').onclick = (ev) => { ev.preventDefault(); setMode(mode === 'login' ? 'signup' : 'login'); };
 
+  /* ── 社交登录（内嵌图标按钮） ── */
+  const oauth = (provider) => async () => {
+    const s = getSb();
+    if (!s) { err('#auth-err', '云同步未配置，暂不能登录'); return; }
+    err('#auth-err', '跳转中…');
+    const { error } = await s.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: location.origin + location.pathname },
+    });
+    if (error) err('#auth-err', error.message);
+  };
+  $('#auth-apple').onclick = oauth('apple');
+  $('#auth-google').onclick = oauth('google');
+
+  /* ── 视图切换 ── */
+  $('#auth-to-register').onclick = () => authView('register');
+  $('#auth-back-login').onclick = () => authView('login');
+  const toLoginBtn = $('#auth-to-login'); if (toLoginBtn) toLoginBtn.onclick = () => authView('login');
+  $('#auth-forgot').onclick = (ev) => { ev.preventDefault(); authView('forgot'); };
+  $('#auth-back-forgot').onclick = () => authView('login');
+
+  /* ── 注册 ── */
+  $('#auth-signup').onclick = async () => {
+    const s = getSb();
+    if (!s) { err('#auth-reg-err', '云同步未配置，暂不能注册'); return; }
+    const email = $('#auth-reg-email').value.trim();
+    const username = $('#auth-reg-username').value.trim();
+    const pwd = $('#auth-reg-pwd').value;
+    if (!isEmail(email)) { err('#auth-reg-err', '请输入有效邮箱'); return; }
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) { err('#auth-reg-err', '用户名需 3-20 位字母、数字或下划线'); return; }
+    if (pwd.length < 8) { err('#auth-reg-err', '密码至少 8 位'); return; }
+    $('#auth-signup').disabled = true;
+    try {
+      err('#auth-reg-err', '创建账号中…');
+      const { data, error } = await s.auth.signUp({
+        email, password: pwd,
+        options: { data: { username } },
+      });
+      if (error) { err('#auth-reg-err', error.message); return; }
+      if (data.session) { currentUser = data.user; await load(); boot(); }
+      else err('#auth-reg-err', '已发送验证邮件，请查收并点击链接激活。');
+    } finally { $('#auth-signup').disabled = false; }
+  };
+
+  /* ── 忘记密码 ── */
+  $('#auth-fp-send').onclick = async () => {
+    const s = getSb();
+    if (!s) { err('#auth-fp-err', '云同步未配置'); return; }
+    const email = $('#auth-fp-email').value.trim();
+    if (!isEmail(email)) { err('#auth-fp-err', '请先填写邮箱'); return; }
+    $('#auth-fp-send').disabled = true;
+    try {
+      const { error } = await s.auth.resetPasswordForEmail(email, {
+        redirectTo: location.origin + location.pathname,
+      });
+      if (error) { err('#auth-fp-err', error.message); return; }
+      $('#auth-fp-form').hidden = true;
+      $('#auth-fp-done').hidden = false;
+    } finally { $('#auth-fp-send').disabled = false; }
+  };
+
+  /* ── 眼睛切换 ── */
   $('#auth-eye').onclick = () => {
     const p = $('#auth-pwd');
     p.type = p.type === 'password' ? 'text' : 'password';
   };
-
-  $('#auth-apple').onclick = async () => {
-    $('#auth-err').textContent = 'Apple 登录跳转中…';
-    const { error } = await sb.auth.signInWithOAuth({
-      provider: 'apple',
-      options: { redirectTo: location.origin + location.pathname },
-    });
-    if (error) $('#auth-err').textContent = error.message;
-  };
-  $('#auth-forgot').onclick = async (ev) => {
-    ev.preventDefault();
-    const email = $('#auth-email').value.trim();
-    if (!email) { $('#auth-err').textContent = '请先填邮箱，再点忘记密码'; return; }
-    const { error } = await sb.auth.resetPasswordForEmail(email, {
-      redirectTo: location.origin + location.pathname,
-    });
-    $('#auth-err').textContent = error ? error.message : '重置链接已发送到你的邮箱。';
-  };
-  if (errMsg) $('#auth-err').textContent = errMsg;
 }
 
 async function boot() {
