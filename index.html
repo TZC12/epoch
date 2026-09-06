@@ -1951,8 +1951,9 @@ function applyLang() {
 }
 
 /* ─────────────── 工具 ─────────────── */
-const now = new Date();
-const minsNow = now.getHours() * 60 + now.getMinutes();
+let now = new Date();
+let minsNow = now.getHours() * 60 + now.getMinutes();
+function refreshNow() { now = new Date(); minsNow = now.getHours() * 60 + now.getMinutes(); return now; }
 const toMin = (t) => { const [h,m] = t.split(':').map(Number); return h*60+m; };
 
 function fmtDateCN(d) { return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 · 星期${'日一二三四五六'[d.getDay()]}`; }
@@ -2072,6 +2073,7 @@ function loadGoal(id) {
 window.__epoch = { get state() { return state; } };
 window.renderToday = renderToday;
 window.openTaskDetail = openTaskDetail;
+window.checkDayRollover = checkDayRollover;
 /* ══════════ 上下文建议卡：状态驱动 — 出现/行动/消失，无状态时零卡片 ══════════ */
 const dismissedCards = new Set();
 function buildSuggestions() {
@@ -2311,6 +2313,7 @@ function bindRowSwipe(row) {
 }
 
 function renderToday() {
+  refreshNow();
   const body = $('#today-body');
   const s = state.todayState;
 
@@ -2881,27 +2884,26 @@ function _localLoad() {
     if (!raw) return false;
     const saved = JSON.parse(raw);
     ['tasks','secondary','habits','inbox','week','upcoming','unscheduled','goals','routines','health',
-     'direction','domains','wake','sleep','work','obCompleted','history'].forEach(k => {
+     'direction','domains','wake','sleep','work','obCompleted','history','lastDay'].forEach(k => {
       if (saved[k] !== undefined) state[k] = saved[k];
     });
     return true;
   } catch (_) { return false; }
 }
-/* 每次保存时记录当日真实快照 → 供 Me 页 Calendar 四色使用 */
-function snapshotToday() {
+/* 把某一天的最终状态定格进 history（供 Me 页 Calendar 四色使用） */
+function snapshotFor(k) {
   try {
-    const act = todayTasks().filter(x => x.title !== '睡觉');
+    const act = state.tasks.filter(x => x.title !== '睡觉' && (!x.date || x.date === k));
     const done = act.filter(x => x.done).length + state.secondary.filter(x => x.done).length;
     const total = act.length + state.secondary.length;
     const urgent = act.some(x => x.urgent) || state.secondary.some(x => x.urgent);
     state.history = state.history || {};
-    const k = dateKey(new Date());
     const prev = state.history[k] || {};
     state.history[k] = { done, total, urgent: urgent || !!prev.urgent };
   } catch (_) {}
 }
 function save() {
-  snapshotToday();
+  snapshotFor(dateKey(new Date()));
   _localSave();
   if (!sb || !currentUser) return;
   // 防抖：800ms 内多次变更合并为一次网络写
@@ -2932,7 +2934,7 @@ async function _cloudLoad() {
     if (!data || !data.value) return false;
     const remote = JSON.parse(data.value);
     ['tasks','secondary','habits','inbox','week','upcoming','unscheduled','goals','routines','health',
-     'direction','domains','wake','sleep','work','obCompleted','history'].forEach(k => {
+     'direction','domains','wake','sleep','work','obCompleted','history','lastDay'].forEach(k => {
       if (remote[k] !== undefined) state[k] = remote[k];
     });
     return true;
@@ -2963,6 +2965,32 @@ async function load() {
     return;
   }
   _localLoad();
+}
+
+/* ─────────────── 跨日重置：0 点后，今天确认过的事件全部回到未完成 ─────────────── */
+function checkDayRollover() {
+  refreshNow();
+  const k = dateKey(now);
+  if (!state.lastDay) { state.lastDay = k; return false; }   // 首次使用：只登记日期，不重置
+  if (state.lastDay === k) return false;
+  // 1) 上一天的最终状态定格进 history（用旧的 done + 旧日期 key）
+  snapshotFor(state.lastDay);
+  // 2) 当日状态重置：时间轴 / 次要 / 习惯全部回到未完成（过去日期的任务是记录，保留 done）
+  state.tasks.forEach(x => { if (!x.date || x.date >= k) x.done = false; });
+  state.secondary.forEach(x => { x.done = false; });
+  state.habits.forEach(x => { x.done = false; });
+  if (state.todayState === 'completed') state.todayState = 'default';
+  dismissedCards.clear();       // 上下文建议卡：新的一天重新有资格出现
+  state.lastDay = k;
+  save();                       // save() 会写下今天从 0 开始的新快照
+  return true;
+}
+function rerenderCurrent() {
+  refreshNow();
+  $('#date-line').textContent = fmtDateCN(now);
+  renderToday(); renderPlan();
+  if (router.tab === 'progress') renderProgress();
+  if (router.tab === 'me') renderMe();
 }
 
 /* ─────────────── 首次引导 ─────────────── */
@@ -3349,10 +3377,22 @@ async function boot() {
 
   await load();   // 恢复上次状态
 
+  // 跨天检测：昨晚 0 点后首次打开 → 时间轴重置为全部未完成
+  checkDayRollover();
+
   // 时钟
   $('#date-line').textContent = fmtDateCN(now);
 
   renderToday(); renderPlan(); renderProgress(); renderMe(); renderMyDay();
+
+  // 0 点跨日监听：定时器（页面停留）+ 回到可见时立即检测
+  setInterval(() => { if (checkDayRollover()) { toast('新的一天，时间轴已重置'); rerenderCurrent(); } }, 30000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    if (checkDayRollover()) { toast('新的一天，时间轴已重置'); }
+    else { refreshNow(); $('#date-line').textContent = fmtDateCN(now); }
+    rerenderCurrent();
+  });
 
   // Tab
   $$('.tab').forEach(b => b.onclick = () => goTab(b.dataset.tab));
