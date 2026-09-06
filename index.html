@@ -117,27 +117,6 @@ body {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
 
-/* ═══════════ 状态栏（安静的 chrome）═══════════ */
-.statusbar {
-  position: relative; z-index: 20;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 22px 0;
-  height: 46px;
-  flex-shrink: 0;
-}
-.statusbar .clock { font-size: 14px; font-weight: 600; color: var(--ink-1); font-variant-numeric: tabular-nums; letter-spacing: .01em; }
-.statusbar .right { display: flex; align-items: center; gap: 6px; }
-.icon-btn {
-  width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer;
-  background: transparent; color: var(--ink-3);
-  display: flex; align-items: center; justify-content: center;
-  transition: color .15s var(--ease), background .15s var(--ease);
-}
-.icon-btn:hover { background: rgba(255,255,255,.5); color: var(--ink-1); }
-.icon-btn:active { transform: scale(.92); }
-.icon-btn svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.7; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.phone[data-mode="dark"] .icon-btn:hover { background: rgba(255,255,255,.07); }
-
 /* ═══════════ 屏幕容器 ═══════════ */
 .stage { position: relative; z-index: 1; flex: 1; overflow: hidden; }
 
@@ -327,7 +306,6 @@ body {
 .seg button.on { background: rgba(255,255,255,.92); color: var(--ink-1); font-weight: 600; box-shadow: 0 1px 6px rgba(60,70,100,.08); }
 
 /* ═══════════ 周条 ═══════════ */
-.week-strip { display: flex; gap: 6px; margin-top: 18px; }
 .wd {
   flex: 1; text-align: center; padding: 9px 0 8px; border-radius: var(--r-sm);
   background: var(--glass-thin); border: 1px solid var(--brd-soft); cursor: pointer;
@@ -363,14 +341,6 @@ body {
   radial-gradient(circle 1.4px at 3px 8px, var(--ink-3) 99%, transparent); }
 
 /* Adaptive：修复计划，不惩罚 */
-.adapt { margin-top: 20px; padding: 18px 20px; border-radius: var(--r-xl); background: var(--glass-2);
-  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid var(--brd); }
-.adapt .q { font-size: 15.5px; font-weight: 600; color: var(--ink-1); line-height: 1.45; letter-spacing: -.008em; }
-.adapt .d { font-size: 12.5px; color: var(--ink-3); margin-top: 5px; line-height: 1.5; }
-.adapt .why { font-size: 12px; color: var(--ink-4); margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--hair); line-height: 1.5; }
-.adapt .btn-row { margin-top: 14px; }
-.adapt .btn-g { flex: 1; height: 44px; border-radius: var(--r-sm); }
-.adapt .btn-p { flex: 1.5; height: 44px; font-size: 14px; border-radius: var(--r-sm); }
 
 /* Plan My Day 入口 */
 .myday { margin-top: 20px; padding: 20px; border-radius: var(--r-xl); cursor: pointer;
@@ -465,10 +435,9 @@ body {
 }
 .phone[data-nav="panel"] .tabbar { transform: translateY(110%); opacity: 0; pointer-events: none; }
 .phone[data-nav="panel"] .fab { transform: scale(0); opacity: 0; pointer-events: none; }
-/* 登录屏：隐藏底部导航 / 加号 / 右上角图标 */
+/* 登录屏：隐藏底部导航 / 加号 */
 .phone[data-nav="auth"] .tabbar { transform: translateY(110%); opacity: 0; pointer-events: none; }
 .phone[data-nav="auth"] .fab { transform: scale(0); opacity: 0; pointer-events: none; }
-.phone[data-nav="auth"] .statusbar .right { opacity: 0; pointer-events: none; }
 .tab {
   flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
   background: none; border: none; cursor: pointer; font-family: inherit;
@@ -639,17 +608,6 @@ body {
 .overlay.on { opacity: 1; pointer-events: auto; transform: none; }
 
 /* 屏幕目录 */
-.gal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px 10px; flex-shrink: 0; }
-.gal-body { flex: 1; overflow-y: auto; padding: 0 22px 40px; }
-.gal-group { margin-top: 18px; }
-.gal-group > .eyebrow { margin-bottom: 9px; display: block; }
-.gal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-.gal-cell { padding: 13px 14px; border-radius: var(--r-md); border: 1px solid var(--brd);
-  background: var(--glass); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-  cursor: pointer; text-align: left; transition: transform .14s var(--ease); }
-.gal-cell:active { transform: scale(.97); }
-.gal-cell .n { font-size: 13.5px; font-weight: 600; color: var(--ink-1); letter-spacing: -.008em; }
-.gal-cell .s { font-size: 11px; color: var(--ink-4); margin-top: 3px; line-height: 1.4; }
 
 /* ═══════════ 引导流程 ═══════════ */
 .ob { flex: 1; display: flex; flex-direction: column; padding: 0 26px 34px; overflow-y: auto; }
@@ -766,16 +724,6 @@ body {
   <div class="aurora" data-page-node-id="MhlR3N9coYt8aQ3Lkj1G2Z">
     <div class="blob blob-1" data-page-node-id="Dh9AAvRb1pkmpj23CGFXJT"></div><div class="blob blob-2" data-page-node-id="XQqvFAodCDgUtwqCEWCy30"></div>
     <div class="blob blob-3" data-page-node-id="EUtefbm3kODBYNuCs4AJF1"></div><div class="blob blob-4" data-page-node-id="4n0zI9MZDIB64oFahBs9gF"></div>
-  </div>
-
-  <!-- 状态栏 -->
-  <div class="statusbar" data-page-node-id="H4ypDqaFIIzltoSn3wJaoA">
-    <span class="clock" id="sb-clock" data-page-node-id="pzexxhvXmjArssdco5cDoQ">10:32</span>
-    <div class="right" data-page-node-id="5eK06qyAjFvwxCY55LbAlZ">
-      <button class="icon-btn" id="btn-gallery" aria-label="屏幕目录" data-page-node-id="DqO8eFwYsKYkw6XH9qgANC">
-        <svg viewBox="0 0 24 24" data-page-node-id="UfvwbdVRpqmvdDh4nQ56mF"><rect x="3.5" y="3.5" width="7" height="7" rx="2" data-page-node-id="lDhAoHxJGwpG38xN9RcCmg"/><rect x="13.5" y="3.5" width="7" height="7" rx="2" data-page-node-id="8HMTJjk3gDNnlLpfPwemFQ"/><rect x="3.5" y="13.5" width="7" height="7" rx="2" data-page-node-id="M7Zo3GHhwi9QvVhm5A3l27"/><rect x="13.5" y="13.5" width="7" height="7" rx="2" data-page-node-id="dmM9XrZUyLDXtyhz8SVEnK"/></svg>
-      </button>
-    </div>
   </div>
 
   <div class="stage" data-page-node-id="ZYmvJWBiTVZ9uIXTo2aoaV">
@@ -927,18 +875,6 @@ body {
         <button class="on" data-page-node-id="dbqw21wT2VBurTHrsE77TK">Inbox</button><button data-page-node-id="FgkcGyjiYIm5YC4RxCofxL">Today</button><button data-page-node-id="7YJ3keB5fqGrTo61qW1N8S">This Week</button><button data-page-node-id="FcIvD2eBSFs7Bswnv5PzDO">Upcoming</button><button data-page-node-id="iSCiFd473aR36yhTBmrVDD">Unscheduled</button>
       </div>
 
-      <div class="week-strip" id="plan-week" data-page-node-id="rUy8ISXfUF3E83HC61Eg3S"></div>
-
-      <div class="adapt" id="adapt-card" data-page-node-id="AmUXY27V3IYKReAgqWhn6Z">
-        <div class="q" data-page-node-id="98McOB43X7ZJlBEQg3JqNt">英语没有完成。</div>
-        <div class="d" data-page-node-id="rrIO9MxQVjIOMml6FfIgOP">Move English to Saturday 15:30?</div>
-        <div class="why" data-page-node-id="FCec4I0nvtW4r9YOv9xf9o">判断依据：优先级中 · 周六 15:30 有 60 分钟空档 · 与「阅读」不冲突</div>
-        <div class="btn-row" data-page-node-id="xqAdmAxXZHrJXUbgSjEIQx">
-          <button class="btn btn-p" id="adapt-accept" data-page-node-id="3lDmHrNrQfv4SvyXHCwsEz">Accept</button>
-          <button class="btn btn-g" id="adapt-change" data-page-node-id="hN156uU78VYvidMqz5drP8">Change</button>
-        </div>
-      </div>
-
       <div class="myday" data-open="sheet-myday" data-page-node-id="wFD1H3R7r5reu4Wi09DcVs">
         <div class="eyebrow" data-page-node-id="lehQx8rCyQpHLZ3RyKmBuo">Plan My Day</div>
         <div class="q" data-page-node-id="B290G7iRn1fWEDlXVidUDw">生成建议日程</div>
@@ -958,11 +894,7 @@ body {
         <div class="sub-note" data-page-node-id="EZFr7Wb8b1AeT3iCMPMMkD">不做鸡血。只展示真正影响下一步判断的数据。</div>
       </div>
 
-      <div class="seg" id="prog-seg" data-page-node-id="yXFeWQtd8872PpuOAIaY88">
-        <button class="on" data-page-node-id="lzECH3Dsb4Edz3hqaF6Cyw">This Week</button><button data-page-node-id="9rmqIWCWjg1oHK3CbswPrM">This Month</button>
-      </div>
-
-      <div id="prog-body" data-page-node-id="pWU4vBQeA43YsnSnn6RGac"></div>
+      <div id="prog-body" data-page-node-id="pWU4vBQeA43Ysn3nn6RGac"></div>
     </section>
 
     <!-- ══════════════════════ ME ══════════════════════ -->
@@ -1003,7 +935,7 @@ body {
         <div class="row" data-push="journal" data-page-node-id="u5taY8EHC9BHoVsxpnjP26"><span class="t" data-page-node-id="vgxJsSkovC8vC6Uz5Yq2ZN">Journal</span><span class="d" data-page-node-id="9pXL78SZITVgIn3cq4fmQy">回顾 · 2 条</span><span class="chev" data-page-node-id="nnJPfTCPMU6GyNlysgPqgI"></span></div>
         <div class="row" data-push="health-connect" data-page-node-id="1z8KYcP1jT5Zwg7uX2gcAu"><span class="t" data-page-node-id="juvzsGmFJrf1WdWa8pygFC">Health &amp; Devices</span><span class="d" id="me-hd-sub" data-page-node-id="p9eB8D1ivR9q2dl6MHmJa1">连接数据源</span><span class="chev" data-page-node-id="PFSyusbXtVWFzbCHcv8rIg"></span></div>
         <div class="row" data-push="settings" data-page-node-id="btMl2lgnXNICs5Kb71EIfG"><span class="t" data-page-node-id="3CwFD9rKsfAAtPYpFTxcgM">Preferences</span><span class="d" data-page-node-id="80w5j4Tc8trLIr0lpPCjF9">外观 · 通知 · 日程</span><span class="chev" data-page-node-id="hoqlLQMpWgksSmNeqDESOL"></span></div>
-        <div class="row" data-overlay-open="onboarding" data-page-node-id="1WWQrptZUx6Bbvsv4g9C6a"><span class="t" data-page-node-id="QYze1gc1RsBbN2SEyRA5Wh">查看首次引导</span><span class="d" data-page-node-id="86niVLp4otOQqe7oZHNmRA">8 步 · 约 50 秒</span><span class="chev" data-page-node-id="NqR4wPoI8DxZ1kuQ55vbDE"></span></div>
+        
       </div>
 
       <div style="height:8px" data-page-node-id="MDQ9cK6ObYV8y4DP7BdDTM"></div>
@@ -1356,8 +1288,8 @@ body {
     <div class="t-cap" style="margin-top:12px" data-page-node-id="61DapHx7yNc3zLuBoiYXh9">不填日期、不填优先级。先进 Inbox，之后再安排。</div>
     <button class="btn btn-p" style="margin-top:20px" id="qa-save" data-page-node-id="YvqPo8zhmmrYFw7n3qBK2f">保存到 Inbox</button>
     <div class="qa-sug" id="qa-sug" style="display:none" data-page-node-id="Gp4Q3F3ValP10EKIx2vZwJ">
-      <span data-page-node-id="UdHQGDiDbSZw7VMBLNUQos">建议</span>
-      <button class="btn btn-q" id="qa-accept" data-page-node-id="27uVq5XYXfLk1wdtUreafb">Add to Thursday 22:00?</button>
+      <span data-page-node-id="UdHQGDiDbSZw7VMBLNUQos">已进 Inbox ·</span>
+      <button class="btn btn-q" id="qa-schedule" data-page-node-id="27uVq5XYXfLk1wdtUreafb">现在安排时间？</button>
     </div>
   </div>
 
@@ -1385,31 +1317,6 @@ body {
     <div class="btn-row" style="margin-top:20px" data-page-node-id="I4uMDNEEozRMl7ziBAc8it">
       <button class="btn btn-g" style="flex:1" data-close-sheet data-page-node-id="cdWn20it4fGkIhE2RQeDVY">取消</button>
     </div>
-  </div>
-
-  <!-- 通知预览（说明产品不会用焦虑式文案） -->
-  <div class="sheet" id="sheet-notif" data-page-node-id="pAQuKUjHLlHj4Fcy7EUFFP">
-    <div class="grab" data-page-node-id="bjyTjhKfwjj8IGA05dWzFW"></div>
-    <div class="eyebrow" data-page-node-id="I9Q7I9FkGS9KpU2XjkvSQD">Notifications</div>
-    <div class="t-panel" style="margin-top:6px" data-page-node-id="V5sCOMLVA69hb5rLaccun3">允许的 3 类通知</div>
-    <div class="t-sub" style="margin-top:5px" data-page-node-id="596rCPi1BC4jAo5b255Pp0">每小时提醒、焦虑式文案、连续天数警告 —— 都不会出现。</div>
-
-    <div class="glass" style="padding:18px 20px;margin-top:22px" data-page-node-id="9JANzsxzUM2QAWA86NEWdD">
-      <div class="t-cap" data-page-node-id="d0NFSVy6gzChRXvaFyUfPs">20:15 · Routine 提醒</div>
-      <div class="t-body" style="margin-top:6px" data-page-node-id="wZP0FBHYEHPorODq13NmeY">Run · 30 min 要开始了。</div>
-      <div class="t-cap" style="margin-top:8px" data-page-node-id="7GXfLJ6F0eSOnxugBnZFfV">Snooze · 5 min</div>
-    </div>
-    <div class="glass" style="padding:18px 20px;margin-top:10px" data-page-node-id="uCYuu556BwA7UXdl1UrLRb">
-      <div class="t-cap" data-page-node-id="oYwN0dJVakmd2F7qQcGBr8">22:00 · Important task</div>
-      <div class="t-body" style="margin-top:6px" data-page-node-id="TjrikIxvFBNuzGFACvkiJn">Learn · Product Design</div>
-      <div class="t-cap" style="margin-top:8px" data-page-node-id="Uo5vFZHuao5GHcmGuFgW81">完成 · Reschedule</div>
-    </div>
-    <div class="glass" style="padding:18px 20px;margin-top:10px" data-page-node-id="4ChLt0iJYONLSudfXwwxxO">
-      <div class="t-cap" data-page-node-id="JAUM04blyQQiVMezAHsNW8">20:30 · Planning suggestion</div>
-      <div class="t-body" style="margin-top:6px" data-page-node-id="zKrzepYV5svqncSvjnAZu4">建议明天的安排。看一下？</div>
-      <div class="t-cap" style="margin-top:8px" data-page-node-id="3qKTbMjyNwuNIXyX9nhY84">查看 · 忽略</div>
-    </div>
-    <div class="t-cap" style="margin-top:14px" data-page-node-id="C9QZkEmodFRjEwiHhGJhoi">每天最多 3 条，由你而不是 App 决定时间。</div>
   </div>
 
   <!-- 健康授权（模拟系统弹窗） -->
@@ -1449,18 +1356,6 @@ body {
     <button class="focus-quit" id="focus-quit" data-page-node-id="AeqUvjLTLBAS6I099L0aWp">退出专注</button>
   </div>
 
-  <!-- ══════════ 屏幕目录 ══════════ -->
-  <div class="overlay" id="overlay-gallery" data-page-node-id="Du3SqfVPmyA1diNHcA2mom">
-    <div class="gal-head" data-page-node-id="XexOPohAHCiOYTDLA61bbu">
-      <div data-page-node-id="gLV5kHYC6NpwBpwX2QL6E7">
-        <div class="eyebrow">Epoch</div>
-        <div class="t-card" style="margin-top:4px" data-page-node-id="YUdl4L3rJ0axdd9OiZRI5e">屏幕目录</div>
-      </div>
-      <button class="icon-btn" data-overlay-close="gallery" data-page-node-id="gCtWCaCViHYcXGhrCbCNnU">
-        <svg viewBox="0 0 24 24" data-page-node-id="AmSOXvx98moDiE64DA4Rac"><path d="M6 6l12 12M18 6L6 18" data-page-node-id="d8mET7hciGx72JmEtr1bts"/></svg>
-      </button>
-    </div>
-    <div class="gal-body" id="gal-body" data-page-node-id="ynLHHQHvFdWGpbA8C8eUHR"></div>
   </div>
 
   <!-- ══════════ 首次引导 ══════════ -->
@@ -1625,7 +1520,6 @@ const I18N = {
     'empty.today.1':'今天是空的。','empty.today.2':'今天还没有安排。',
     'empty.upcoming.1':'还没有安排。','empty.upcoming.2':'更远的未来还是空的。',
     'empty.week.1':'还没有安排。','empty.week.2':'本周还没有安排。',
-    'adapt.q':'英语没有完成。','adapt.d':'把英语移到周六 15:30？',
     'adapt.why':'判断依据：优先级中 · 周六 15:30 有 60 分钟空档 · 与「阅读」不冲突',
     'adapt.accept':'接受','adapt.change':'调整',
     'myday.q':'生成建议日程','myday.d':'根据固定工作时间、Routines、运动与学习安排，以及你今天的空档，自动生成一版时间轴。',
@@ -1650,7 +1544,6 @@ const I18N = {
     'me.focus':'当前焦点：','me.language':'语言',
     'me.weekly.sub':'本周待写','me.learning.sub':'在学 · 4h 20m / 周','me.journal.sub':'回顾 · 2 条',
     'me.hd.connect':'连接数据源','me.prefs.sub':'外观 · 通知 · 日程',
-    'me.ob':'查看首次引导','me.ob.sub':'8 步 · 约 50 秒',
     'me.h.invite.t':'让身体状态影响今天的安排',
     'me.h.invite.d':'连接 Apple 健康 / Health Connect 后，睡眠、心率、运动会自动参与每天的建议。数据留在设备上。',
     'me.h.connect':'连接数据源','me.h.connected':'已连接','me.h.disconnected':'未连接',
@@ -1988,7 +1881,6 @@ function applyRoute(hash) {
   if (PANELS.includes(kind)) { if (kind === 'goal') loadGoal(arg || 'g1'); return pushPanel(kind); }
   if (kind === 'sheet')      return openSheet('sheet-' + arg);
   if (kind === 'onboarding') return startOnboarding();
-  if (kind === 'gallery')    { renderGallery(); return openOverlay('gallery'); }
   if (kind === 'focus') {
     const t = state.tasks.find(x => x.id === arg) || state.tasks.find(x => x.tier === 'main') || state.tasks[0];
     $('#focus-task').textContent = t ? t.title : 'Focus';
@@ -2147,7 +2039,7 @@ function renderToday() {
   const mains = tasks.filter(t => t.tier === 'main');
   const mainHtml = mains.map(t => `
     <div class="task ${t.done ? 'done' : ''}" data-task="${t.id}">
-      <span class="dot">${CHECK}</span><span class="t">${t.title}</span><span class="g">${t.goal || ''}</span>
+      <span class="dot">${CHECK}</span><span class="t">${t.title}</span><span class="g" ${t.goal ? `data-goal="${t.goal}" style="cursor:pointer"` : ''}>${t.goal || ''}</span>
     </div>`).join('');
 
   // Secondary
@@ -2222,6 +2114,13 @@ function bindToday(root) {
         else if (s) { s.done = !s.done; renderToday(); }
         return;
       }
+      // 联动：目标标签 → Goal 详情面板（按标题或 kicker 匹配）
+      const gEl = e.target.closest('.g[data-goal]');
+      if (gEl && gEl.dataset.goal) {
+        const tag = gEl.dataset.goal.toLowerCase();
+        const g = state.goals.find(x => x.title === gEl.dataset.goal || x.kicker.toLowerCase() === tag);
+        if (g) { loadGoal(g.id); pushPanel('goal'); return; }
+      }
       const t = state.tasks.find(x => x.id === id);
       if (t) openTaskDetail(t);
     });
@@ -2293,20 +2192,6 @@ function openTaskDetail(t) {
 
 /* ─────────────── PLAN 渲染 ─────────────── */
 function renderPlan() {
-  // 周条
-  const WD = state.lang === 'zh' ? WD_CN : ['S','M','T','W','T','F','S'];
-  const todayWd = now.getDay();
-  const start = new Date(now); start.setDate(now.getDate() - ((todayWd + 6) % 7));
-  $('#plan-week').innerHTML = [1,2,3,4,5,6,0].map((wd, i) => {
-    const d = new Date(start); d.setDate(start.getDate() + i);
-    const isToday = d.toDateString() === now.toDateString();
-    const marks = i % 7 === 3 ? [1] : (i % 2 ? [1,1] : [1,1,1]);
-    return `<div class="wd ${isToday ? 'today' : ''}">
-      <div class="l">${WD[wd]}</div><div class="n">${d.getDate()}</div>
-      <div class="mk">${marks.map((m,j) => `<i class="${j===2 && i%3===0 ? 'm' : ''}"></i>`).join('')}</div>
-    </div>`;
-  }).join('');
-
   const active = $('#plan-seg .on')?.dataset.seg || 'inbox';
   $('#plan-label').textContent = t('seg.' + active);
   const list = $('#plan-list');
@@ -2365,75 +2250,62 @@ function openReschedule(title) {
   openSheet('sheet-rs');
 }
 
-/* ─────────────── PROGRESS 渲染 ─────────────── */
+/* ─────────────── PROGRESS 渲染（全部真实数据，不做假统计） ─────────────── */
 function renderProgress() {
-  const monthly = $('#prog-seg .on')?.textContent === 'This Month';
-  $('#prog-title').textContent = monthly ? '本月' : '本周';
+  $('#prog-title').textContent = '真实进度';
   const body = $('#prog-body');
 
-  if (monthly) {
-    body.innerHTML = `
-      <div class="sec tight"><h2>Consistency</h2><span class="n">近 30 天</span></div>
-      <div class="big">81<small>%</small></div>
-      <div class="t-sub" style="margin-top:8px">30 天中有 24 天完成了当天的 Main Tasks。</div>
-      <div class="grid-dots" id="month-dots" style="margin-top:18px"></div>
-      <div class="t-cap" style="margin-top:10px">每一格是一天。颜色深浅代表完成比例，不做连续天数。</div>
+  // 今天（来自 state.tasks / state.habits，非硬编码）
+  const actionable = state.tasks.filter(x => x.title !== '睡觉');
+  const doneT = actionable.filter(x => x.done).length;
+  const totalT = actionable.length;
+  const pct = totalT ? Math.round(doneT / totalT * 100) : 0;
+  const mainDone = state.tasks.filter(x => x.tier === 'main' && x.done).length;
+  const mainTotal = state.tasks.filter(x => x.tier === 'main').length;
+  const habitsDone = state.habits.filter(h => h.done).length;
 
-      <div class="sec"><h2>This Month</h2></div>
-      <div class="glass" style="padding:2px 18px">
-        <div class="metric"><span class="m">Learning</span><span class="v"><b>18h 40m</b></span></div>
-        <div class="metric"><span class="m">Exercise</span><span class="v"><b>13h 20m</b></span></div>
-        <div class="metric"><span class="m">Habits</span><span class="v"><b>79%</b></span></div>
-        <div class="metric"><span class="m">Sleep</span><span class="v"><b>7h 04m</b> · 平均${state.health.connected ? ` · <span class="conn-dot"></span>${state.health.sourceName}` : ''}</span></div>
-      </div>
-
-      <div class="insight">
-        <div class="q">睡眠比上月少了 22 分钟，主要丢在周五和周六。</div>
-        <div class="d">这两天的完成率也是全月最低。问题可能不是自律，而是日程本身排得太满。</div>
-      </div>
-      <div style="height:20px"></div>`;
-    const dots = $('#month-dots');
-    const pattern = [1,1,1,0,1,1,2,1,1,1,1,2,1,0,1,1,1,1,2,1,1,1,0,1,1,1,1,1,2,1];
-    dots.innerHTML = pattern.map(v => `<i class="${v===1?'on':v===2?'mid':''}"></i>`).join('');
-    return;
-  }
+  const goalsHtml = state.goals.map(g => `
+    <div class="metric" data-goal-jump="${g.id}" style="cursor:pointer">
+      <span class="m">${g.title}</span><span class="v"><b>${g.pct}%</b></span>
+    </div>`).join('');
 
   body.innerHTML = `
-    <div class="sec tight"><h2>Completion</h2><span class="n">本周</span></div>
-    <div class="big">78<small>%</small></div>
-    <div class="t-sub" style="margin-top:8px">31 项计划中完成了 24 项。</div>
+    <div class="sec tight"><h2>Today</h2><span class="n">真实完成</span></div>
+    <div class="big">${pct}<small>%</small></div>
+    <div class="t-sub" style="margin-top:8px">${totalT} 项计划中完成了 ${doneT} 项 · Main ${mainDone}/${mainTotal}。</div>
 
-    <div class="sec"><h2>This Week</h2></div>
+    <div class="sec"><h2>Habits</h2><span class="n">今天</span></div>
     <div class="glass" style="padding:2px 18px">
-      <div class="metric"><span class="m">Learning</span><span class="v"><b>4h 20m</b></span></div>
-      <div class="metric"><span class="m">Exercise</span><span class="v"><b>3h 10m</b></span></div>
-      <div class="metric"><span class="m">Habits</span><span class="v"><b>84%</b></span></div>
-      <div class="metric"><span class="m">Sleep</span><span class="v"><b>7h 12m</b> · 平均${state.health.connected ? ` · <span class="conn-dot"></span>${state.health.sourceName}` : ''}</span></div>
-      ${state.health.connected ? `<div class="metric"><span class="m">HRV</span><span class="v"><b>${state.health.today.hrv} ms</b> · 连续 ${state.health.today.hrvDownDays} 天下降</span></div>` : ''}
+      <div class="metric"><span class="m">Habits</span><span class="v"><b>${habitsDone}/${state.habits.length}</b></span></div>
     </div>
 
-    <div class="sec"><h2>7-day rhythm</h2><span class="n">每日完成节奏</span></div>
-    <div class="rhythm">
-      ${[[86,'一'],[72,'二'],[91,'三'],[64,'四'],[88,'五'],[42,'六'],[55,'日']]
-        .map(([v,l]) => `<div class="col"><div class="bar ${v<60?'low':''}"><i style="height:${v}%"></i></div><span class="l">${l}</span></div>`).join('')}
-    </div>
+    <div class="sec"><h2>Goals</h2><span class="n">点击看详情</span></div>
+    <div class="glass" style="padding:2px 18px" id="prog-goals">${goalsHtml}</div>
 
-    <div class="insight">
-      <div class="q">周四和周六明显低于其他日子。</div>
-      <div class="d">这两天都排了 4 项 Main Task。把上限调回 3 项，先试一周。</div>
-      <div class="btn-row" style="margin-top:14px">
-        <button class="btn btn-g btn-sm acc-t" style="flex:1.3">调整上限</button>
-        <button class="btn btn-g btn-sm" style="flex:1">保持现状</button>
-      </div>
-    </div>
-
-    <div class="sec"><h2>Reflection</h2><span class="n">本周</span></div>
+    <div class="sec"><h2>Reflection</h2><span class="n">每周一件</span></div>
     <div class="glass" style="padding:19px">
-      <div class="q t-body">One thing to improve next week.</div>
+      <div class="q t-body">下周想改进的一件事。</div>
       <input class="field" id="ref-one" placeholder="只写一件事…" />
-      <div class="t-cap" style="margin-top:10px">写完之后，它会变成下周 Today 里的一条轻量提醒。</div>
+      <div class="btn-row" style="margin-top:12px"><button class="btn btn-p" id="ref-save" style="flex:1">存入 Inbox</button></div>
+      <div class="t-cap" style="margin-top:10px">保存后它会出现在 Plan 的 Inbox 里，等你安排。</div>
     </div>
     <div style="height:20px"></div>`;
+
+  // 联动：Goals 行 → Goal 详情面板
+  body.querySelectorAll('[data-goal-jump]').forEach(el => {
+    el.onclick = () => { loadGoal(el.dataset.goalJump); pushPanel('goal'); };
+  });
+
+  // 联动：反思 → Plan Inbox（真实写回，不再是空头承诺）
+  const saveBtn = $('#ref-save');
+  if (saveBtn) saveBtn.onclick = () => {
+    const v = ($('#ref-one').value || '').trim();
+    if (!v) { toast('先写一句话'); return; }
+    state.inbox.unshift({ id: 'r' + Date.now(), title: v, hint: '来自本周反思' });
+    $('#ref-one').value = '';
+    renderPlan();
+    toast('已存入 Inbox');
+  };
 }
 
 /* ─────────────── ME 渲染 ─────────────── */
@@ -2775,62 +2647,6 @@ async function load() {
     return;
   }
   _localLoad();
-}
-
-/* ─────────────── 屏幕目录 ─────────────── */
-const GALLERY = [
-  { g:'主导航', items:[
-    { n:'Today',    s:'时间轴 · Main · Habits · 负载提醒', act:() => { goTab('today'); } },
-    { n:'Plan',     s:'Inbox / Week / Adaptive / Plan My Day', act:() => { goTab('plan'); } },
-    { n:'Progress', s:'周 / 月 · 节奏 · Insight · Reflection', act:() => { goTab('progress'); } },
-    { n:'Me',       s:'Direction · Goals · Routines', act:() => { goTab('me'); } },
-  ]},
-  { g:'次级页面', items:[
-    { n:'Direction',     s:'Where are you going',      act:() => pushPanel('direction') },
-    { n:'Goal Detail',   s:'3Y→Week 层级 · 只展开当前',  act:() => { loadGoal('g1'); pushPanel('goal'); } },
-    { n:'Routine Detail',s:'Items · Skip/Reschedule',   act:() => pushPanel('routine') },
-    { n:'Habit Detail',  s:'Consistency · Calendar',    act:() => pushPanel('habit') },
-    { n:'Learning',      s:'在学主题 · 时长',            act:() => pushPanel('learning') },
-    { n:'Journal',       s:'每周回顾留下的痕迹',          act:() => pushPanel('journal') },
-    { n:'Health',        s:'今日身体摘要 · 能量建议',      act:() => pushPanel('health') },
-    { n:'Health & Devices', s:'数据源管理 · 隐私说明',    act:() => pushPanel('health-connect') },
-    { n:'Weekly Review', s:'三个问题 · 一件改进',        act:() => pushPanel('weekly') },
-    { n:'Preferences',   s:'外观 · 日程 · 通知',         act:() => pushPanel('settings') },
-  ]},
-  { g:'弹层与专注', items:[
-    { n:'Task Detail',  s:'Complete > Reschedule > Skip > Delete', act:() => openTaskDetail(state.tasks[4] || state.tasks[0]) },
-    { n:'Quick Add',    s:'Capture first, plan later',   act:() => { openSheet('sheet-qa'); setTimeout(()=>$('#qa-input').focus(),400); } },
-    { n:'Plan My Day',  s:'Suggested Day · Accept',      act:() => { renderMyDay(); openSheet('sheet-myday'); } },
-    { n:'Reschedule',   s:'推荐空档，不惩罚',             act:() => { const t = state.inbox[0] || { id:'x', title:'示例任务' }; state.rsTarget = t; openReschedule(t.title); } },
-    { n:'Focus',        s:'安静的全屏计时',               act:() => { const t = state.tasks.find(x=>x.tier==='main') || state.tasks[0]; $('#focus-task').textContent = t ? t.title : 'Focus'; resetFocus(); $('#focus').classList.add('on'); } },
-    { n:'通知预览',      s:'只允许 3 类，拒绝焦虑式文案',    act:() => openSheet('sheet-notif') },
-  ]},
-  { g:'首次引导', items:[
-    { n:'Onboarding', s:'7 步 · 从空白到可用的 Today', act:() => startOnboarding() },
-  ]},
-  { g:'状态（Today）', items:[
-    { n:'空状态',   s:'Your day is clear.',   act:() => { goTab('today'); state.todayState='empty';    renderToday(); } },
-    { n:'加载中',   s:'Skeleton，不跳动',      act:() => { goTab('today'); state.todayState='loading';  renderToday(); } },
-    { n:'错误',     s:'说明数据没丢',          act:() => { goTab('today'); state.todayState='error';    renderToday(); } },
-    { n:'全完成',   s:'Everything is done.',  act:() => { goTab('today'); state.todayState='completed'; renderToday(); } },
-  ]},
-];
-function renderGallery() {
-  $('#gal-body').innerHTML = GALLERY.map(grp => `
-    <div class="gal-group">
-      <span class="eyebrow">${grp.g}</span>
-      <div class="gal-grid">${grp.items.map((it, i) => `
-        <div class="gal-cell" data-gal="${grp.g}|${i}"><div class="n">${it.n}</div><div class="s">${it.s}</div></div>`).join('')}
-      </div>
-    </div>`).join('');
-  $('#gal-body').querySelectorAll('[data-gal]').forEach(el => {
-    el.onclick = () => {
-      const [g, i] = el.dataset.gal.split('|');
-      const grp = GALLERY.find(x => x.g === g);
-      closeOverlay();
-      setTimeout(() => grp.items[+i].act(), 260);
-    };
-  });
 }
 
 /* ─────────────── 首次引导 ─────────────── */
@@ -3218,11 +3034,10 @@ async function boot() {
   await load();   // 恢复上次状态
 
   // 时钟
-  $('#sb-clock').textContent = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
   $('#greet').textContent = greetOf(now.getHours());
   $('#date-line').innerHTML = `<b>${now.getMonth()+1}.${now.getDate()} · ${WD_EN[now.getDay()]}</b>`;
 
-  renderToday(); renderPlan(); renderProgress(); renderMe(); renderMyDay(); renderGallery();
+  renderToday(); renderPlan(); renderProgress(); renderMe(); renderMyDay();
 
   // Tab
   $$('.tab').forEach(b => b.onclick = () => goTab(b.dataset.tab));
@@ -3236,7 +3051,6 @@ async function boot() {
     if (el.dataset.overlayOpen === 'onboarding') startOnboarding();
   });
   $$('[data-overlay-close]').forEach(el => el.onclick = () => closeOverlay());
-  $('#btn-gallery').onclick = () => { renderGallery(); openOverlay('gallery'); };
 
   // Scrim / 关闭弹层
   $('#scrim').onclick = () => closeSheets();
@@ -3255,15 +3069,18 @@ async function boot() {
     if (!v) { closeSheets(); return; }
     state.inbox.unshift({ id: 'i' + Date.now(), title: v, hint: '刚捕获' });
     $('#qa-input').value = '';
+    $('#qa-schedule').dataset.qaTitle = v;   // 联动：记录刚捕获的标题
     $('#qa-sug').style.display = 'flex';
     renderPlan();
     toast('已存入 Inbox');
   };
-  $('#qa-accept').onclick = () => {
-    const it = state.inbox[0];
-    if (it) { state.inbox.shift(); state.week.push({ id: it.id, title: it.title, hint: '周四 · 22:00' }); }
+  // 联动：保存后直接进入真实的 Reschedule 流程（不再硬编码"周四 22:00"）
+  $('#qa-schedule').onclick = function () {
+    const title = this.dataset.qaTitle || '';
+    const it = state.inbox.find(x => x.title === title);
     $('#qa-sug').style.display = 'none';
-    closeSheets(); renderPlan(); toast('已安排到周四 22:00');
+    if (it) { state.rsTarget = it; openReschedule(it.title); }
+    else closeSheets();
   };
 
   // Plan My Day
@@ -3290,26 +3107,10 @@ async function boot() {
   };
   $('#md-adjust').onclick = () => { closeSheets(); toast('可以在 Plan 里逐项调整'); };
 
-  // Adaptive
-  $('#adapt-accept').onclick = () => {
-    $('#adapt-card').style.transition = 'opacity .3s, transform .3s';
-    $('#adapt-card').style.opacity = '0';
-    $('#adapt-card').style.transform = 'translateY(-8px)';
-    setTimeout(() => { $('#adapt-card').style.display = 'none'; }, 300);
-    state.week.push({ id:'w-en', title:'Learn English', hint:'周六 · 15:30' });
-    state.inbox = state.inbox.filter(x => x.id !== 'i2');
-    renderPlan(); toast('已移到周六 15:30');
-  };
-  $('#adapt-change').onclick = () => { state.rsTarget = { id:'i2', title:'Learn English' }; openReschedule('Learn English'); };
-
   // Plan 分段
   $$('#plan-seg button').forEach(b => b.onclick = () => {
     $$('#plan-seg button').forEach(x => x.classList.remove('on'));
     b.classList.add('on'); renderPlan();
-  });
-  $$('#prog-seg button').forEach(b => b.onclick = () => {
-    $$('#prog-seg button').forEach(x => x.classList.remove('on'));
-    b.classList.add('on'); renderProgress();
   });
 
   // Task Detail 操作
