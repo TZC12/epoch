@@ -28,6 +28,8 @@ t('无假"英语没完成"卡', !d.querySelector('#adapt-card') && !d.body.inner
 t('无假圆点周条', !d.querySelector('#plan-week'));
 t('无 This Week/Month 假切换', !d.querySelector('#prog-seg'));
 t('Me 页无"查看首次引导"入口', !d.body.innerHTML.includes('查看首次引导'));
+t('无右下角 FAB', !d.querySelector('#fab'));
+t('无 Quick Add 弹层', !d.querySelector('#sheet-qa'));
 
 console.log('— Progress 真实化 —');
 w.renderProgress(); await sleep(50);
@@ -44,27 +46,30 @@ d.querySelector('#ref-save').click(); await sleep(80);
 w.goTab('plan'); await sleep(50);
 t('反思出现在 Plan 的 Inbox 列表', d.querySelector('#plan-list')?.textContent.includes('每周只安排三次高强度运动'));
 
-console.log('— 联动 2：快速添加 → 真实 Reschedule —');
-w.openSheet('sheet-qa');
-d.querySelector('#qa-input').value = '给车做保养';
-d.querySelector('#qa-save').click(); await sleep(80);
-const sug = d.querySelector('#qa-schedule');
-t('保存后出现"安排时间"建议按钮', !!sug);
-sug?.click(); await sleep(80);
-t('打开了真实的 Reschedule 弹层', d.querySelector('#sheet-rs')?.classList.contains('on'));
-t('Reschedule 标题是刚添加的条目', d.querySelector('#rs-title')?.textContent.includes('给车做保养'));
+console.log('— 联动 2：时间轴右上角 + → 新建事件 —');
+const cnt0 = w.__epoch.state.tasks.length;
+d.querySelector('#tl-add')?.click(); await sleep(80);
+t('+ 打开新建弹框', d.querySelector('#sheet-task')?.classList.contains('on'));
+d.querySelector('#td-title-in').value = '给车做保养';
+d.querySelector('#td-save').click(); await sleep(80);
+t('保存后任务数 +1', w.__epoch.state.tasks.length === cnt0 + 1);
+t('新任务出现在时间轴', d.querySelector('#today-body').textContent.includes('给车做保养'));
 
-console.log('— 联动 3：Today 目标标签 → Goal 详情 —');
-w.closeSheets(); w.goTab('today'); w.renderToday(); await sleep(50);
-const goalTag = d.querySelector('#today-body .task .g');
-t('主任务显示目标标签', !!goalTag);
-goalTag?.click(); await sleep(80);
+console.log('— 联动 3：Progress Goals 行 → Goal 详情 —');
+w.goTab('progress'); w.renderProgress(); await sleep(50);
+const gRow = d.querySelector('#prog-goals [data-goal-jump]');
+t('Progress 显示可点击的 Goal 行', !!gRow);
+gRow?.click(); await sleep(80);
 t('跳转到 Goal 详情面板', d.querySelector('[data-panel="goal"]')?.classList.contains('on'));
 t('面板标题对应目标', (d.querySelector('#gd-title')?.textContent || '').length > 0);
 
 console.log('— 核心功能未破坏 —');
 t('Today 时间轴仍渲染', d.querySelectorAll('#today-body .tl-row').length > 0);
-t('仍可勾选任务', (() => { const row = d.querySelector('#today-body .task:not(.done)'); row?.click(); return true; })());
+const row2 = [...d.querySelectorAll('#today-body .tl-row:not(.done)')][0];
+const id2 = row2?.dataset.task;
+row2?.querySelector('.tl-check').click(); await sleep(60);
+const allT = [...w.__epoch.state.tasks, ...w.__epoch.state.secondary];
+t('仍可勾选任务', !!id2 && allT.find(x => x.id === id2)?.done === true);
 
 console.log(`\n结果：${pass} 通过，${fail} 失败`);
 process.exit(fail ? 1 : 0);

@@ -172,15 +172,8 @@ body {
 .glass-2 { background: var(--glass-2); }
 
 /* ═══════════ TODAY ═══════════ */
-.greet { font-size: 22px; font-weight: 600; color: var(--ink-1); letter-spacing: -.015em; }
 .date-line { font-size: 14px; color: var(--ink-3); margin-top: 3px; }
 .date-line b { color: var(--ink-2); font-weight: 600; }
-
-.prog { display: flex; align-items: baseline; gap: 9px; margin-top: 16px; }
-.prog .n1 { font-size: 22px; font-weight: 600; color: var(--ink-1); }
-.prog .n2 { font-size: 14px; color: var(--ink-3); }
-.prog .bar { flex: 1; height: 3px; border-radius: 99px; background: rgba(34,37,42,.075); position: relative; top: -3px; }
-.prog .bar i { position: absolute; inset: 0 auto 0 0; border-radius: 99px; background: var(--accent); transition: width .45s var(--ease); }
 
 /* Timeline — 时间是结构线索，不是卡片 */
 .tl-row {
@@ -290,6 +283,93 @@ body {
 .sug-dots { display: flex; justify-content: center; gap: 5px; margin-top: 10px; }
 .sug-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ink-4); opacity: .4; transition: opacity .2s var(--ease), background .2s var(--ease); }
 .sug-dot.on { opacity: 1; background: var(--ink-2); }
+/* ═══════════ Today 仪表盘 ═══════════ */
+.date-row { display: flex; align-items: center; justify-content: space-between; }
+.date-line.big { font-size: 19px; font-weight: 700; color: var(--ink-1); letter-spacing: -.015em; }
+.tl-add {
+  width: 34px; height: 34px; border: none; background: transparent; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; border-radius: 50%;
+  color: var(--ink-2); transition: background .15s var(--ease), transform .14s var(--ease);
+}
+.tl-add:hover { background: rgba(255,255,255,.5); color: var(--ink-1); }
+.tl-add:active { transform: scale(.88); }
+.tl-add svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; }
+.phone[data-mode="dark"] .tl-add:hover { background: rgba(255,255,255,.07); }
+
+.dash { margin-top: 14px; }
+.dash-top { display: flex; align-items: center; gap: 18px; }
+.dash-gauge { position: relative; width: 168px; flex-shrink: 0; }
+.dash-gauge svg { width: 100%; display: block; }
+.dash-gauge .g-bg { fill: none; stroke: rgba(120,130,150,.14); stroke-width: 13; stroke-linecap: round; }
+.dash-gauge .g-fg {
+  fill: none; stroke: var(--accent); stroke-width: 13; stroke-linecap: round;
+  stroke-dasharray: 0 264;   /* 弧长 π*84 ≈ 263.9 */
+  transition: stroke-dasharray .5s var(--ease);
+}
+.g-center { position: absolute; left: 0; right: 0; bottom: 2px; text-align: center; }
+.g-center b { font-size: 30px; font-weight: 700; color: var(--ink-1); letter-spacing: -.02em; }
+.g-center span { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.dash-side { flex: 1; min-width: 0; }
+.ds-label { font-size: 13px; color: var(--ink-3); }
+.ds-nums { display: flex; gap: 22px; margin-top: 10px; }
+.ds-n b { display: block; font-size: 22px; font-weight: 700; color: var(--ink-1); letter-spacing: -.02em; }
+.ds-n span { display: block; font-size: 11.5px; color: var(--ink-4); margin-top: 2px; }
+.dash-bar { height: 8px; border-radius: 4px; background: rgba(120,130,150,.14); overflow: hidden; margin-top: 16px; }
+.dash-bar i { display: block; height: 100%; width: 0; border-radius: 4px; background: linear-gradient(90deg, #2E4A3A, var(--accent)); transition: width .5s var(--ease); }
+.dash-range { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--ink-4); font-variant-numeric: tabular-nums; }
+
+/* ═══════════ 时间轴：紧急紫 / 左滑删除 ═══════════ */
+:root { --urgent: #7C5CFF; }
+.tl-title.urgent, .task .t.urgent { color: var(--urgent); }
+.tl-row { position: relative; }
+.tl-del {
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%) translateX(100%);
+  width: 64px; height: 72%; border: none; border-radius: var(--r-md); cursor: pointer;
+  background: #E0655A; color: #fff; font-family: inherit; font-size: 13px; font-weight: 600;
+  opacity: 0; pointer-events: none; transition: opacity .2s var(--ease);
+}
+.tl-row.reveal .tl-del { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
+.tl-row.reveal .tl-check { opacity: 0; }
+
+/* ═══════════ 事件编辑器 ═══════════ */
+.td-title-in {
+  width: 100%; box-sizing: border-box; border: none; outline: none; background: transparent;
+  border-bottom: 1.5px solid var(--ink-2); padding: 6px 2px 10px;
+  font-family: inherit; font-size: 19px; font-weight: 600; color: var(--ink-1); letter-spacing: -.015em;
+}
+.td-title-in:focus { border-bottom-color: var(--ink-1); }
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  height: 32px; padding: 0 14px; border-radius: 16px; border: 1px solid var(--brd); cursor: pointer;
+  background: var(--glass-thin); color: var(--ink-2); font-family: inherit; font-size: 12.5px;
+  transition: all .15s var(--ease);
+}
+.chip.on { background: var(--ink-1); color: var(--bg); border-color: var(--ink-1); font-weight: 600; }
+.chip.chip-urgent.on { background: var(--urgent); border-color: var(--urgent); color: #fff; }
+.td-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; margin-top: 4px; }
+.td-f label { display: block; font-size: 11.5px; color: var(--ink-4); margin-bottom: 5px; }
+.td-f input, .td-f select {
+  width: 100%; box-sizing: border-box; border: none; outline: none;
+  border-bottom: 1.5px solid var(--brd); padding: 6px 2px;
+  font-family: inherit; font-size: 14.5px; color: var(--ink-1); background: transparent;
+}
+.td-f input:focus, .td-f select:focus { border-bottom-color: var(--ink-1); }
+.td-notes-in {
+  width: 100%; box-sizing: border-box; border: 1px solid var(--brd-soft); border-radius: var(--r-md);
+  background: var(--glass-thin); padding: 10px 12px; min-height: 56px; resize: none;
+  font-family: inherit; font-size: 13.5px; color: var(--ink-1); outline: none;
+}
+.td-notes-in:focus { border-color: var(--brd); }
+.td-when2 { font-size: 12.5px; color: var(--ink-4); margin-top: 2px; }
+
+/* ═══════════ Calendar 四色语义 ═══════════ */
+.grid-dots i.full { background: var(--accent); opacity: 1; }
+.grid-dots i.part { background: #E8A13D; opacity: 1; }
+.grid-dots i.miss { background: #E0655A; opacity: .85; }
+.grid-dots i.u { background: var(--urgent); opacity: 1; }
+.cal-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 11px; color: var(--ink-4); }
+.cal-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+
 /* 分段控件：长按滑动模式 */
 .seg.sliding { transform: scale(1.02); box-shadow: 0 6px 22px rgba(60,70,100,.10); }
 .seg.sliding button { transition: none; }
@@ -735,9 +815,7 @@ body {
 .phone[data-mode="dark"] .tl-row.done .tl-title { text-decoration-color: rgba(241,243,246,.42); }
 .phone[data-mode="dark"] .task.done .t { text-decoration-color: rgba(241,243,246,.42); }
 .phone[data-mode="dark"] .rhythm .bar { background: rgba(255,255,255,.09); }
-.phone[data-mode="dark"] .prog .bar { background: rgba(255,255,255,.12); }
 .phone[data-mode="dark"] .grid-dots i { background: rgba(255,255,255,.08); }
-.phone[data-mode="dark"] .qa-input { border-bottom-color: rgba(255,255,255,.1); }
 .phone[data-mode="dark"] .ob-in { border-bottom-color: rgba(255,255,255,.12); }
 .phone[data-mode="dark"] .grab { background: rgba(255,255,255,.18); }
 .phone[data-mode="dark"] .panel-bar { background: linear-gradient(to bottom, rgba(13,15,19,.96) 60%, rgba(13,15,19,0)); }
@@ -880,12 +958,31 @@ body {
     <!-- ══════════════════════ TODAY ══════════════════════ -->
     <section class="screen on" data-screen="today" data-page-node-id="BuJbzpD95BFLy6ItPqUJyk">
       <div class="head" data-page-node-id="L4W7wMedqfIDJv1Vv8bFOi">
-        <div class="greet" id="greet" data-page-node-id="SwOv4XNO0C3Td4m62RuGza">Good morning.</div>
-        <div class="date-line" id="date-line" data-page-node-id="XjLgmCYxgzoZk7AQaCWDSk"></div>
-        <div class="prog" data-page-node-id="f26fXtZT6NEdZZRYqcFIWj">
-          <span class="n1 num" id="prog-a" data-page-node-id="UlKZGmbU6hHVaeGhgqO7UP">3</span>
-          <span class="n2" id="prog-b" data-page-node-id="ZqfHNeztbyhJNXClQRlD74">/ 6 · completed</span>
-          <div class="bar" data-page-node-id="l7jHPH13JlWioc3ulnDObl"><i id="prog-bar" style="width:50%" data-page-node-id="4u9R4tkVFKfZmg7qIJuHlq"></i></div>
+        <div class="date-row">
+          <div class="date-line big" id="date-line"></div>
+          <button class="tl-add" id="tl-add" aria-label="新建事件">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+        <div class="dash">
+          <div class="dash-top">
+            <div class="dash-gauge">
+              <svg viewBox="0 0 200 112">
+                <path class="g-bg" d="M20 104 A 84 84 0 0 1 180 104"/>
+                <path class="g-fg" id="dash-arc" d="M20 104 A 84 84 0 0 1 180 104"/>
+              </svg>
+              <div class="g-center"><b id="dash-pct">0%</b><span id="dash-frac">0/0 项</span></div>
+            </div>
+            <div class="dash-side">
+              <div class="ds-label">今日进度</div>
+              <div class="ds-nums">
+                <div class="ds-n"><b id="dash-done">0</b><span>已完成</span></div>
+                <div class="ds-n"><b id="dash-todo">0</b><span>待完成</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="dash-bar"><i id="dash-bar"></i></div>
+          <div class="dash-range"><span id="dash-span">—</span><span id="dash-left"></span></div>
         </div>
       </div>
 
@@ -954,7 +1051,7 @@ body {
       <div class="sec" data-page-node-id="dXZLQz0G7AiDbVGygf0Kym"><h2 data-page-node-id="KtPI4LUUCZ3C3WJUb8ewpv">Routines &amp; Habits</h2><span class="n" data-page-node-id="FhGxaeNLVAoEmcDmZmms0i">5</span></div>
       <div id="me-routines" data-page-node-id="zP9D3jn6GAbasQLhk68dcE"></div>
 
-      <div class="sec" data-page-node-id="VkgUsZHujBALtVH1AN1H5S"><h2 data-page-node-id="43F7rilqyVDK1LRyO0DsG0">Health</h2><span class="n" id="me-health-label" data-page-node-id="ORWzxVnK2Y8sedtBK0FcSW">未连接</span></div>
+      <div class="sec" id="me-health-sec" data-page-node-id="VkgUsZHujBALtVH1AN1H5S"><h2 data-page-node-id="43F7rilqyVDK1LRyO0DsG0">Health</h2><span class="n" id="me-health-label" data-page-node-id="ORWzxVnK2Y8sedtBK0FcSW">未连接</span></div>
       <div id="me-health" data-page-node-id="CDwJxNFbMiJhMN7WLmhyN2"></div>
 
       <div class="sec" data-page-node-id="jWHkEG6Tt0UMF4UvEY8aCC"><h2 data-page-node-id="lBUGRNLEMhD6dnEJ2zI5pH">System</h2></div>
@@ -1095,7 +1192,7 @@ body {
 
       <div class="sec" data-page-node-id="NYDr32RCrTdoU2wCW0Ayo2"><h2 data-page-node-id="NOH0yeXyQ3WtBqOlBTRvgE">Calendar</h2><span class="n" data-page-node-id="U8JaCNaqTMsKBogLWBctJx">近 10 周</span></div>
       <div class="grid-dots" id="habit-dots" data-page-node-id="Comb1QmTFdO8LoLIAH51vm"></div>
-      <div class="t-cap" style="margin-top:10px" data-page-node-id="F5j6W1IAgq4ySoMtXqdkLa">不统计连续天数，不做排行榜。只看节奏是否稳定。</div>
+      <div class="cal-legend"><span><i style="background:var(--accent)"></i>全部完成</span><span><i style="background:#E8A13D"></i>部分完成</span><span><i style="background:#E0655A"></i>缺席</span><span><i style="background:var(--urgent)"></i>有紧急计划</span></div>
 
       <div class="insight" style="margin-top:22px" data-page-node-id="1FIMGJVJBYtTAWZkGPJcjc">
         <div class="q" data-page-node-id="rSyzRRPZ1gbNK6CtTxrTZJ">周三的执行率明显低于周一和周五。</div>
@@ -1270,55 +1367,31 @@ body {
 
   </div><!-- /stage -->
 
-  <!-- Quick Add -->
-  <div class="fab" id="fab" aria-label="快速添加" data-page-node-id="d0Xg1gAfr1Y0vXpDEkh2E7">
-    <svg viewBox="0 0 24 24" data-page-node-id="dPRwSylH4TWPol1sPpUKwn"><path d="M12 5v14M5 12h14" data-page-node-id="HLZ1yNJdlrYgg2an90Kqy4"/></svg>
-  </div>
+  <div class="scrim" id="scrim"></div>
 
-  <!-- 底部导航 -->
-  <nav class="tabbar" data-page-node-id="AqeTIDrNXyfe0CqftSahwi">
-    <button class="tab on" data-tab="today" data-page-node-id="9y0o0PlZrcth7wA7PrEpAF">
-      <svg viewBox="0 0 24 24" data-page-node-id="6H4TB2aO6e2xcnAnwUErTc"><circle cx="12" cy="12" r="8.5" data-page-node-id="8oc9ScjAYTyv5oUNkByvAC"/><path d="M12 7.5V12l3 2" data-page-node-id="OsXbvIXlvVq6dT2xottS82"/></svg><span data-page-node-id="junRidPcGhjj7FDsuFRNwp">Today</span></button>
-    <button class="tab" data-tab="plan" data-page-node-id="gNJZPU8IGyGDdKVad0DfVV">
-      <svg viewBox="0 0 24 24" data-page-node-id="mav1tzJFS4mNM26gcgCqEs"><rect x="4" y="4.5" width="16" height="16" rx="4" data-page-node-id="6QvMbpGHUU9s92SbHmcXPG"/><path d="M8 10h8M8 14h5" data-page-node-id="NQ2HyMhLwJrAMbHaoaghJr"/></svg><span data-page-node-id="mWmgieBw2cp5kCPPpgLGGn">Plan</span></button>
-    <button class="tab" data-tab="progress" data-page-node-id="S04lYqZj82NaxYDyF5NywJ">
-      <svg viewBox="0 0 24 24" data-page-node-id="sOAlWlhHiI0yokMkRTCfqY"><path d="M5 19V11M12 19V5M19 19v-6" data-page-node-id="hPkCt2CzaZ0F8vkF3JUlEd"/></svg><span data-page-node-id="kKu0kXwItUyifgFyugvGGv">Progress</span></button>
-    <button class="tab" data-tab="me" data-page-node-id="RrQGf9s735rZSiWIFVY4Gt">
-      <svg viewBox="0 0 24 24" data-page-node-id="ipWEHBQ3CdtvHYfCbwKFxm"><circle cx="12" cy="8.5" r="3.5" data-page-node-id="744teRO9BGRCMNOfv0l906"/><path d="M5.5 19.5c1.2-3.2 3.6-5 6.5-5s5.3 1.8 6.5 5" data-page-node-id="Q3lRQZ0iuzoDAvZXXUVoLC"/></svg><span data-page-node-id="ctqzc6ZXNpbrlFDmrjc2Cl">Me</span></button>
-  </nav>
-
-  <div class="scrim" id="scrim" data-page-node-id="VwZw1DZC38zOYYUtY1yBbp"></div>
-
-  <!-- ══════════ Sheets ══════════ -->
-
-  <!-- Task Detail -->
-  <div class="sheet" id="sheet-task" data-page-node-id="Cl8BhWm8E8H5uSJHWShE8z">
-    <div class="grab" data-page-node-id="jekFsi2p0ZlBiD3NsRHDKT"></div>
-    <div class="t-panel" id="td-title" data-page-node-id="5xkOHxOZSdS9VGUm85IkBC">Run · 30 min</div>
-    <div class="t-sub" id="td-when" style="margin-top:5px" data-page-node-id="6x6EF84Bc2rzSvJ9DxRJri">Today · 20:15</div>
-    <div class="td-grid" id="td-grid" data-page-node-id="RxlRxekwxs403f9tiaQ4wt"></div>
-    <div class="td-notes" id="td-notes" data-page-node-id="SfrODj4uquttGCLMVlgGKD"></div>
-    <div class="td-acts" data-page-node-id="OzTBw4OFJXm9U6yR08V7f8">
-      <button class="btn btn-p" id="td-complete" data-page-node-id="JFA3FwO0E0YVUgFKd9dvqP">Complete</button>
-      <div class="btn-row" style="margin-top:10px" data-page-node-id="D03rab0UcLAYk8cR6I6Vkt">
-        <button class="btn btn-g acc-t" id="td-focus" data-page-node-id="rQrpvD9DzKnYpJ9vePaxyG">Focus</button>
-        <button class="btn btn-g" id="td-resched" data-page-node-id="AzJSoqTiJIVxOXjvB5xmNq">Reschedule</button>
-        <button class="btn btn-g" id="td-skip" data-page-node-id="0zCU4B7Mx36bdAtvpTtLAD">Skip</button>
-      </div>
-      <div style="text-align:center" data-page-node-id="R3UPNJoFvn5WeqasiYeH9T"><button class="btn btn-d" id="td-delete" data-page-node-id="hwJIJBbrDoItbRYD9FY0Nm">Delete Task</button></div>
+  <!-- 事件编辑 / 新建（sheet-task） -->
+  <div class="sheet" id="sheet-task">
+    <div class="grab"></div>
+    <div class="eyebrow" id="td-when2">事件</div>
+    <input class="td-title-in" id="td-title-in" placeholder="这件事是…" />
+    <div class="chip-row" id="td-types" style="margin-top:14px"></div>
+    <div class="td-form-grid" style="margin-top:18px">
+      <div class="td-f"><label>开始时间</label><input type="time" id="td-time-in" /></div>
+      <div class="td-f"><label>日期</label><input type="date" id="td-date-in" /></div>
+      <div class="td-f"><label>时长（分钟）</label><input type="number" id="td-dur-in" min="5" step="5" inputmode="numeric" placeholder="如 40" /></div>
+      <div class="td-f"><label>关联 Goal</label><select id="td-goal-in"></select></div>
+      <div class="td-f"><label>来自 Routine</label><select id="td-routine-in"></select></div>
     </div>
-  </div>
-
-  <!-- Quick Add -->
-  <div class="sheet" id="sheet-qa" data-page-node-id="htFts6RLgt3BCGzsNaGeSU">
-    <div class="grab" data-page-node-id="R9ADzXCDYqQDCaz6EkJvZy"></div>
-    <div class="eyebrow" data-page-node-id="QZrKyCncvHG9CiUaKh7E47">Capture</div>
-    <input class="qa-input" id="qa-input" placeholder="想做什么？先记下来…" data-page-node-id="iTu15n5XtKXmUW5kJHhhXt" />
-    <div class="t-cap" style="margin-top:12px" data-page-node-id="61DapHx7yNc3zLuBoiYXh9">不填日期、不填优先级。先进 Inbox，之后再安排。</div>
-    <button class="btn btn-p" style="margin-top:20px" id="qa-save" data-page-node-id="YvqPo8zhmmrYFw7n3qBK2f">保存到 Inbox</button>
-    <div class="qa-sug" id="qa-sug" style="display:none" data-page-node-id="Gp4Q3F3ValP10EKIx2vZwJ">
-      <span data-page-node-id="UdHQGDiDbSZw7VMBLNUQos">已进 Inbox ·</span>
-      <button class="btn btn-q" id="qa-schedule" data-page-node-id="27uVq5XYXfLk1wdtUreafb">现在安排时间？</button>
+    <textarea class="td-notes-in" id="td-notes-in" rows="2" placeholder="备注…（跑后拉伸、带伞、只写一页）" style="margin-top:16px"></textarea>
+    <div class="btn-row" style="margin-top:18px">
+      <button class="btn btn-p" style="flex:1.5" id="td-save">保存</button>
+      <button class="btn btn-g" style="flex:1" id="td-complete">Complete</button>
+    </div>
+    <div class="btn-row" id="td-actions" style="margin-top:10px">
+      <button class="btn btn-g btn-sm" style="flex:1" id="td-focus">Focus</button>
+      <button class="btn btn-g btn-sm" style="flex:1" id="td-resched">Move</button>
+      <button class="btn btn-g btn-sm" style="flex:1" id="td-skip">Skip</button>
+      <button class="btn btn-g btn-sm" style="flex:1;color:#C4453C" id="td-delete">删除</button>
     </div>
   </div>
 
@@ -1528,7 +1601,7 @@ function energyOf() {
 const I18N = {
   zh: {
     'tab.today':'今天','tab.plan':'规划','tab.progress':'进展','tab.me':'我的',
-    'greet.morning':'早上好。','greet.midday':'中午好。','greet.afternoon':'下午好。','greet.evening':'晚上好。','greet.night':'夜深了。',
+    'greet.morning':'早上好。','greet.midday':'中午好。','greet.afternoon':'下午好。',
     'today.completed':'已完成','today.loading':'正在读取今天','today.readfail':'读取失败',
     'today.err.1':'没能读取今天的安排。<br/>你的数据仍然在本地，没有丢失。','today.retry':'重试',
     'today.empty.1':'今天是空的。','today.empty.2':'今天还没有安排。<br/>不用现在就填满它。',
@@ -1689,7 +1762,7 @@ const I18N = {
   },
   en: {
     'tab.today':'Today','tab.plan':'Plan','tab.progress':'Progress','tab.me':'Me',
-    'greet.morning':'Good morning.','greet.midday':'Good midday.','greet.afternoon':'Good afternoon.','greet.evening':'Good evening.','greet.night':'Good night.',
+    'greet.morning':'Good morning.','greet.midday':'Good midday.','greet.afternoon':'Good afternoon.',
     'today.completed':'completed','today.loading':'Loading your day','today.readfail':'Load failed',
     'today.err.1':"Couldn't load today.<br/>Your data is still safe on this device.",'today.retry':'Retry',
     'today.empty.1':'Your day is clear.','today.empty.2':'Nothing planned yet.<br/>No need to fill it right now.',
@@ -1867,7 +1940,6 @@ function applyLang() {
   // 标签栏
   $$('.tab').forEach(b => { b.querySelector('span').textContent = t('tab.' + b.dataset.tab); });
   // 问候与日期
-  $('#greet').textContent = greetOf(now.getHours());
   const WD = state.lang === 'zh' ? WD_CN : WD_EN;
   $('#date-line').innerHTML = state.lang === 'zh'
     ? `<b>${now.getMonth()+1}月${now.getDate()}日 · 星期${WD_CN[now.getDay()]}</b>`
@@ -1883,9 +1955,22 @@ const now = new Date();
 const minsNow = now.getHours() * 60 + now.getMinutes();
 const toMin = (t) => { const [h,m] = t.split(':').map(Number); return h*60+m; };
 
-function greetOf(h) {
-  const k = h < 5 ? 'night' : h < 11 ? 'morning' : h < 14 ? 'midday' : h < 18 ? 'afternoon' : h < 22 ? 'evening' : 'night';
-  return t('greet.' + k);
+function fmtDateCN(d) { return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 · 星期${'日一二三四五六'[d.getDay()]}`; }
+function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function calendarDotClass(h) {
+  if (!h) return '';
+  if (h.urgent) return 'urgent';
+  if (!h.total) return '';
+  if (h.done >= h.total) return 'full';
+  if (h.done > 0) return 'part';
+  return 'miss';
+}
+window.dateKey = dateKey;
+window.calendarDotClass = calendarDotClass;
+/* 今天实际可见的任务（date 字段为空或等于今天） */
+function todayTasks() {
+  const k = dateKey(new Date());
+  return state.tasks.filter(x => !x.date || x.date === k);
 }
 
 /* ─────────────── 路由 ─────────────── */
@@ -1985,6 +2070,8 @@ function loadGoal(id) {
 /* ─────────────── TODAY 渲染 ─────────────── */
 /* 测试/interop 钩子：受控暴露只读引用 */
 window.__epoch = { get state() { return state; } };
+window.renderToday = renderToday;
+window.openTaskDetail = openTaskDetail;
 /* ══════════ 上下文建议卡：状态驱动 — 出现/行动/消失，无状态时零卡片 ══════════ */
 const dismissedCards = new Set();
 function buildSuggestions() {
@@ -2165,6 +2252,64 @@ function enableSegSlide(seg, onChange) {
   }, true);
 }
 
+/* ─────────────── 仪表盘：全部真实计算 ─────────────── */
+function updateDash() {
+  const act = todayTasks().filter(x => x.title !== '睡觉');
+  const done = act.filter(x => x.done).length + state.secondary.filter(x => x.done).length;
+  const total = act.length + state.secondary.length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const set = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+  set('#dash-pct', pct + '%');
+  set('#dash-frac', `${done}/${total} 项`);
+  set('#dash-done', String(done));
+  set('#dash-todo', String(total - done));
+  const arc = $('#dash-arc'); if (arc) arc.style.strokeDasharray = `${pct / 100 * 264} 264`;
+  const bar = $('#dash-bar'); if (bar) bar.style.width = pct + '%';
+  const times = todayTasks().filter(x => x.time).map(x => x.time).sort();
+  let span = '—', left = '';
+  if (times.length) {
+    span = `${times[0]} — ${times[times.length - 1]}`;
+    const diff = toMin(times[times.length - 1]) - minsNow;
+    if (total > 0 && done >= total) left = '今日已全部完成';
+    else if (diff <= 0) left = '今天的时间轴已结束';
+    else left = `还剩 ${Math.floor(diff / 60) ? Math.floor(diff / 60) + ' 小时 ' : ''}${diff % 60} 分`;
+  } else if (total === 0) left = '今天还没有安排';
+  set('#dash-span', span);
+  set('#dash-left', left);
+}
+
+/* 左滑删除手势：横向位移跟手，露出删除按钮 */
+function bindRowSwipe(row) {
+  let sx = 0, sy = 0, dx = 0, mode = null; // null | 'x' | 'y' | 'done'
+  row.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.tl-del')) return;
+    sx = e.clientX; sy = e.clientY; dx = 0; mode = null;
+  });
+  row.addEventListener('pointermove', (e) => {
+    if (mode === 'done') return;
+    const mx = e.clientX - sx, my = e.clientY - sy;
+    if (!mode) {
+      if (Math.abs(mx) < 8 && Math.abs(my) < 8) return;
+      mode = Math.abs(mx) > Math.abs(my) ? 'x' : 'y';
+      if (mode === 'y') { mode = 'done'; return; }
+    }
+    if (mode !== 'x') return;
+    dx = Math.min(0, mx);
+    row.style.transition = 'none';
+    row.style.transform = dx < -64 ? 'translateX(-64px)' : `translateX(${Math.max(-64, dx * 0.6)}px)`;
+    row.classList.toggle('reveal', dx < -56);
+  });
+  const end = () => {
+    if (mode !== 'x') { mode = null; return; }
+    mode = 'done';
+    row.style.transition = 'transform .25s var(--ease)';
+    if (dx < -56) { row.style.transform = 'translateX(-64px)'; row.classList.add('reveal'); }
+    else { row.style.transform = ''; row.classList.remove('reveal'); }
+  };
+  row.addEventListener('pointerup', end);
+  row.addEventListener('pointercancel', end);
+}
+
 function renderToday() {
   const body = $('#today-body');
   const s = state.todayState;
@@ -2178,9 +2323,7 @@ function renderToday() {
               <div class="skel" style="height:9px;width:32%;margin-top:7px"></div></div>
           <div class="skel" style="height:22px;width:22px;border-radius:50%;justify-self:end"></div>
         </div>`).join('');
-    $('#prog-a').textContent = '—';
-    $('#prog-b').textContent = t('today.loading');
-    $('#prog-bar').style.width = '0%';
+    updateDash();
     return;
   }
 
@@ -2191,9 +2334,7 @@ function renderToday() {
         <button class="btn btn-g" id="err-retry">${t('today.retry')}</button>
       </div>`;
     $('#err-retry').onclick = () => { state.todayState = 'default'; renderToday(); };
-    $('#prog-a').textContent = '—';
-    $('#prog-b').textContent = t('today.readfail');
-    $('#prog-bar').style.width = '0%';
+    updateDash();
     return;
   }
 
@@ -2205,58 +2346,43 @@ function renderToday() {
         <div class="ea"><button class="btn btn-q neutral" id="empty-plan" style="height:38px;padding:0 18px">Plan My Day</button></div>
       </div>`;
     $('#empty-plan').onclick = () => openSheet('sheet-myday');
-    $('#prog-a').textContent = '0';
-    $('#prog-b').textContent = `/ 0 · ${t('today.completed')}`;
-    $('#prog-bar').style.width = '0%';
+    updateDash();
     return;
   }
 
   // ── 正常 / 全完成 ──
-  const tasks = state.tasks.map(t => ({ ...t, done: s === 'completed' ? true : t.done }));
+  const tasks = todayTasks().map(t => ({ ...t, done: s === 'completed' ? true : t.done }));
   if (s === 'completed') state.secondary.forEach(x => x.done = true);
 
   const actionable = tasks.filter(t => t.title !== '睡觉');
   const done = actionable.filter(t => t.done).length;
   const total = actionable.length;
-  $('#prog-a').textContent = done;
-  $('#prog-b').textContent = `/ ${total} · ${t('today.completed')}`;
-  $('#prog-bar').style.width = (total ? (done/total*100) : 0) + '%';
+  updateDash();
 
-  // 当前 / 下一个
+  // 当前进行中：仅保留左侧竖条状态（.now），无文字标签
   let curIdx = -1;
   tasks.forEach((t, i) => { if (t.time && toMin(t.time) <= minsNow) curIdx = i; });
-  // 「下一个」只在 Main Task 中取，避免把晚饭/睡觉这种 block 标成 next
-  const nextMain = tasks.findIndex(t => t.tier === 'main' && !t.done);
-  const nextIdx = nextMain >= 0 ? nextMain : tasks.findIndex(t => !t.done);
 
-  // Timeline（注意：map 的任务参数名 t 遮蔽了 i18n 函数 t()，i18n 文案需先求值）
-  const tagNowTxt = t('tag.now');
-  const tagNextTxt = t('tag.next');
+  // Timeline（注意：map 的任务参数名 t 遮蔽了 i18n 函数 t()）
   const tl = tasks.map((t, i) => {
-    const tag = (i === curIdx && !t.done)
-      ? `<div class="tag-now"><i></i>${tagNowTxt}</div>`
-      : (i === nextIdx && !t.done ? `<div class="tag-next">${tagNextTxt}</div>` : '');
     const meta = (t.dur && t.dur >= 60) ? `${Math.round(t.dur/60)} h` : (t.dur ? `${t.dur} min` : '');
     const metaLine = (meta || t.routine) ? `<div class="tl-meta">${[meta, t.routine].filter(Boolean).join(' · ')}</div>` : '';
     return `
       <div class="tl-row ${t.done ? 'done' : ''} ${i === curIdx && !t.done ? 'now' : ''}" data-task="${t.id}">
         <span class="tl-time">${t.time}</span>
-        <div class="tl-main"><div class="tl-title">${t.title}</div>${metaLine}${tag}</div>
+        <div class="tl-main"><div class="tl-title ${t.urgent ? 'urgent' : ''}">${t.title}</div>${metaLine}</div>
         <span class="tl-check">${CHECK}</span>
+        <button class="tl-del" aria-label="删除">删除</button>
       </div>`;
   }).join('');
 
-  // Main
-  const mains = tasks.filter(t => t.tier === 'main');
-  const mainHtml = mains.map(t => `
-    <div class="task ${t.done ? 'done' : ''}" data-task="${t.id}">
-      <span class="dot">${CHECK}</span><span class="t">${t.title}</span><span class="g" ${t.goal ? `data-goal="${t.goal}" style="cursor:pointer"` : ''}>${t.goal || ''}</span>
-    </div>`).join('');
-
-  // Secondary
-  const secHtml = state.secondary.map(t => `
-    <div class="task mini ${t.done ? 'done' : ''}" data-task="${t.id}">
-      <span class="dot">${CHECK}</span><span class="t">${t.title}</span>
+  // 次要事项并入时间轴（无固定时间 → "随时"）
+  const secRows = state.secondary.map(s2 => `
+    <div class="tl-row ${s2.done ? 'done' : ''}" data-task="${s2.id}">
+      <span class="tl-time">随时</span>
+      <div class="tl-main"><div class="tl-title ${s2.urgent ? 'urgent' : ''}">${s2.title}</div></div>
+      <span class="tl-check">${CHECK}</span>
+      <button class="tl-del" aria-label="删除">删除</button>
     </div>`).join('');
 
   // Habits
@@ -2271,12 +2397,7 @@ function renderToday() {
 
   const allDone = remaining === 0;
   body.innerHTML = `
-    <div class="sec tight"><h2>${t('sec.timeline')}</h2><span class="n">${t('sec.timeline.note')}</span></div>
-    ${tasks.length ? tl : ''}
-    <div class="sec"><h2>${t('sec.main')}</h2><span class="n">${t('sec.main.note')}</span></div>
-    ${mainHtml}
-    <div class="sec"><h2>${t('sec.secondary')}</h2><span class="n">${tpl('sec.secondary.note', {n: state.secondary.filter(x=>!x.done).length})}</span></div>
-    ${secHtml}
+    ${(tasks.length || state.secondary.length) ? tl + secRows : ''}
     <div class="sec"><h2>${t('sec.habits')}</h2><span class="n">${t('sec.habits.note')}</span></div>
     <div class="habits">${habitHtml}</div>
     ${allDone ? `
@@ -2292,27 +2413,33 @@ function renderToday() {
 }
 
 function bindToday(root) {
-  root.querySelectorAll('[data-task]').forEach(row => {
+  root.querySelectorAll('.tl-row[data-task]').forEach(row => {
+    bindRowSwipe(row);
+    row.querySelector('.tl-del')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = row.dataset.task;
+      state.tasks = state.tasks.filter(x => x.id !== id);
+      state.secondary = state.secondary.filter(x => x.id !== id);
+      toast('已删除');
+      renderToday();
+    });
     row.addEventListener('click', (e) => {
       const id = row.dataset.task;
+      if (e.target.closest('.tl-del')) return;
+      // 左滑露出删除后，点击其他区域先收回
+      if (row.classList.contains('reveal')) { row.classList.remove('reveal'); row.style.transform = ''; return; }
       // 勾选区域
-      if (e.target.closest('.tl-check') || e.target.closest('.dot')) {
+      if (e.target.closest('.tl-check')) {
         const t = state.tasks.find(x => x.id === id);
-        const s = state.secondary.find(x => x.id === id);
-        if (t && t.tier !== 'block') { t.done = !t.done; renderToday(); }
-        else if (t && t.tier === 'block') { t.done = !t.done; renderToday(); }
-        else if (s) { s.done = !s.done; renderToday(); }
+        const sc = state.secondary.find(x => x.id === id);
+        if (t) { t.done = !t.done; renderToday(); }
+        else if (sc) { sc.done = !sc.done; renderToday(); }
         return;
       }
-      // 联动：目标标签 → Goal 详情面板（按标题或 kicker 匹配）
-      const gEl = e.target.closest('.g[data-goal]');
-      if (gEl && gEl.dataset.goal) {
-        const tag = gEl.dataset.goal.toLowerCase();
-        const g = state.goals.find(x => x.title === gEl.dataset.goal || x.kicker.toLowerCase() === tag);
-        if (g) { loadGoal(g.id); pushPanel('goal'); return; }
-      }
       const t = state.tasks.find(x => x.id === id);
-      if (t) openTaskDetail(t);
+      if (t) { openTaskDetail(t); return; }
+      const sc = state.secondary.find(x => x.id === id);
+      if (sc) openTaskDetail(sc);
     });
   });
   root.querySelectorAll('[data-habit]').forEach(c => {
@@ -2323,30 +2450,46 @@ function bindToday(root) {
   });
 }
 
-/* ─────────────── Task Detail ─────────────── */
-function taskDuration(t) {
-  if (!t.dur) return '—';
-  return t.dur >= 60 ? `${Math.round(t.dur/60)} h` : `${t.dur} min`;
-}
+/* ─────────────── Task Detail（可编辑表单 / 新建） ─────────────── */
+const TASK_TYPES = ['工作', '日常', '娱乐', '居家', '自定义'];
 function openTaskDetail(t) {
-  state.activeTask = t;
-  $('#td-title').textContent = t.title;
-  $('#td-when').textContent = t.time ? `Today · ${t.time}` : 'Today · 未定时';
-  $('#td-grid').innerHTML = `
-    <div class="td-row"><span class="k">Duration</span><span class="v">${taskDuration(t)}</span></div>
-    <div class="td-row"><span class="k">Goal</span><span class="v link" data-jump="goal">${t.goal || '未关联'}</span></div>
-    <div class="td-row"><span class="k">Routine</span><span class="v link" data-jump="routine">${t.routine || '无'}</span></div>
-    ${t.time ? `<div class="td-row"><span class="k">时间</span><span class="v">${t.time}</span></div>` : ''}
-  `;
-  $('#td-notes').textContent = t.notes || '还没有备注。';
-  const btn = $('#td-complete');
-  btn.textContent = t.done ? '已完成 · 撤销' : 'Complete';
-  btn.classList.toggle('acc', t.done);
-  $('#td-focus').textContent = `Focus · ${String(t.dur && t.dur < 90 ? t.dur : 40).padStart(2,'0')}:00`;
-  $('#sheet-task').querySelectorAll('[data-jump]').forEach(el => {
-    el.onclick = () => { closeSheets(); pushPanel(el.dataset.jump); };
+  state.activeTask = t || null;
+  const isNew = !t;
+  const cur = t || {};
+
+  $('#td-when2').textContent = isNew ? '新建事件' : (cur.time ? `Today · ${cur.time}` : 'Today · 未定时');
+  $('#td-title-in').value = isNew ? '' : (cur.title || '');
+
+  // 类型 chips + 紧急开关
+  $('#td-types').innerHTML =
+    TASK_TYPES.map(c => `<button type="button" class="chip ${cur.type === c ? 'on' : ''}" data-type="${c}">${c}</button>`).join('') +
+    `<button type="button" class="chip chip-urgent ${cur.urgent ? 'on' : ''}" id="td-urgent">紧急</button>`;
+  $('#td-types').querySelectorAll('.chip[data-type]').forEach(c => {
+    c.onclick = () => {
+      const wasOn = c.classList.contains('on');
+      $('#td-types').querySelectorAll('.chip[data-type]').forEach(x => x.classList.remove('on'));
+      if (!wasOn) c.classList.add('on');     // 再点一次取消选中
+    };
   });
+  const ug = $('#td-urgent');
+  ug.onclick = () => ug.classList.toggle('on');
+
+  $('#td-time-in').value = isNew ? '' : (cur.time || '');
+  $('#td-date-in').value = isNew ? '' : (cur.date || '');
+  $('#td-dur-in').value = isNew || !cur.dur ? '' : cur.dur;
+  $('#td-goal-in').innerHTML = '<option value="">不关联</option>' +
+    state.goals.map(g => `<option value="${g.title}" ${cur.goal === g.title ? 'selected' : ''}>${g.title}</option>`).join('');
+  $('#td-routine-in').innerHTML = '<option value="">无</option>' +
+    state.routines.map(r => `<option value="${r.name}" ${cur.routine === r.name ? 'selected' : ''}>${r.name}</option>`).join('');
+  $('#td-notes-in').value = isNew ? '' : (cur.notes || '');
+
+  const btn = $('#td-complete');
+  btn.textContent = (!isNew && cur.done) ? '已完成 · 撤销' : 'Complete';
+  btn.classList.toggle('acc', !isNew && !!cur.done);
+  $('#td-actions').style.display = isNew ? 'none' : 'flex';
+
   openSheet('sheet-task');
+  if (isNew) setTimeout(() => $('#td-title-in').focus(), 400);
 }
 
 /* ─────────────── PLAN 渲染 ─────────────── */
@@ -2505,57 +2648,57 @@ function renderMe() {
       <div class="row"><span class="t">${i.t}</span><span class="d">${i.s}</span><span class="chev"></span></div>`).join('');
   }
 
-  // Habit 日历点阵
-  const pat = [
-    1,0,1,1,1,0,1,  1,1,1,0,1,1,1,  1,0,1,1,1,1,0,  1,1,0,1,1,1,1,  0,1,1,1,1,0,1,
-    1,1,1,0,1,1,1,  1,0,1,1,0,1,1,  1,1,1,0,1,1,1,  1,1,0,1,1,1,1,  0,1,1,1,1,0,1,
-  ]; // 10 周 × 7 天 = 70
-  $('#habit-dots').innerHTML = pat.map(v => `<i class="${v ? 'on' : ''}"></i>`).join('');
+  // Habit 日历点阵：来自每日真实快照（近 10 周 = 70 天，今天在最后）
+  state.history = state.history || {};
+  const nowD = new Date();
+  const cells = [];
+  for (let i = 69; i >= 0; i--) {
+    const dd = new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate() - i);
+    const cls = calendarDotClass(state.history[dateKey(dd)]);
+    cells.push(`<i class="${cls === 'urgent' ? 'u' : cls}"></i>`);
+  }
+  $('#habit-dots').innerHTML = cells.join('');
 
   // Health 区块
   renderMeHealth();
   save();
 }
 
-/* Me 页的 Health 区块：未连接 → 安静邀请卡；已连接 → 今日摘要 */
+/* Me 页的 Health 区块：未连接 → 整个区块隐藏（System 里保留连接入口）；已连接 → 今日摘要 */
 function renderMeHealth() {
   const h = state.health;
   const wrap = $('#me-health');
   const label = $('#me-health-label');
   const hdSub = $('#me-hd-sub');
   if (!wrap) return;
+  const sec = $('#me-health-sec');
   if (!h.connected) {
-    if (label) label.textContent = '未连接';
-    if (hdSub) hdSub.textContent = '连接数据源';
-    wrap.innerHTML = `
-      <div class="goal" data-hc-open style="margin-top:0">
-        <div class="t">让身体状态影响今天的安排</div>
-        <div class="f" style="margin-top:6px">连接 Apple 健康 / Health Connect 后，睡眠、心率、运动会自动参与每天的建议。数据留在设备上。</div>
-        <div class="btn-row" style="margin-top:14px">
-          <button class="btn btn-g btn-sm acc-t" style="flex:1" data-hc-open>连接数据源</button>
-        </div>
-      </div>`;
-  } else {
-    const t = h.today;
-    const energy = energyOf();
-    const diff = t.sleepHours - t.usualSleep;
-    const diffTxt = (diff < 0 ? '−' : '+') + fmtH(Math.abs(diff));
-    if (label) label.textContent = '已连接';
-    if (hdSub) hdSub.textContent = h.sourceName + ' · 已连接';
-    wrap.innerHTML = `
-      <div class="glass" style="padding:2px 18px" data-hc-open>
-        <div class="row"><span class="t">睡眠</span><span class="d">${fmtH(t.sleepHours)} · 平时 ${fmtH(t.usualSleep)} · ${diffTxt}</span><span class="chev"></span></div>
-        <div class="row"><span class="t">静息心率</span><span class="d">${t.restingHR} bpm · 平时 ${t.usualRestingHR}</span><span class="chev"></span></div>
-        <div class="row"><span class="t">HRV</span><span class="d">${t.hrv} ms · 连续 ${t.hrvDownDays} 天下降</span><span class="chev"></span></div>
-        <div class="row"><span class="t">步数</span><span class="d">${t.steps.toLocaleString()} · ${t.syncedLabel}同步</span><span class="chev"></span></div>
-      </div>
-      ${energy && energy.level === 'low' ? `
-        <div class="note energy-note" style="margin-top:10px">
-          <span>${energy.reasons.join(' · ')}。</span>
-        </div>` : ''}`;
+    if (sec) sec.style.display = 'none';
+    wrap.style.display = 'none';
+    wrap.innerHTML = '';
+    return;
   }
+  if (sec) sec.style.display = '';
+  wrap.style.display = '';
+  const t = h.today;
+  const energy = energyOf();
+  const diff = t.sleepHours - t.usualSleep;
+  const diffTxt = (diff < 0 ? '−' : '+') + fmtH(Math.abs(diff));
+  if (label) label.textContent = '已连接';
+  if (hdSub) hdSub.textContent = h.sourceName + ' · 已连接';
+  wrap.innerHTML = `
+    <div class="glass" style="padding:2px 18px" data-hc-open>
+      <div class="row"><span class="t">睡眠</span><span class="d">${fmtH(t.sleepHours)} · 平时 ${fmtH(t.usualSleep)} · ${diffTxt}</span><span class="chev"></span></div>
+      <div class="row"><span class="t">静息心率</span><span class="d">${t.restingHR} bpm · 平时 ${t.usualRestingHR}</span><span class="chev"></span></div>
+      <div class="row"><span class="t">HRV</span><span class="d">${t.hrv} ms · 连续 ${t.hrvDownDays} 天下降</span><span class="chev"></span></div>
+      <div class="row"><span class="t">步数</span><span class="d">${t.steps.toLocaleString()} · ${t.syncedLabel}同步</span><span class="chev"></span></div>
+    </div>
+    ${energy && energy.level === 'low' ? `
+      <div class="note energy-note" style="margin-top:10px">
+        <span>${energy.reasons.join(' · ')}。</span>
+      </div>` : ''}`;
   wrap.querySelectorAll('[data-hc-open]').forEach(el => {
-    el.addEventListener('click', () => pushPanel(h.connected ? 'health' : 'health-connect'));
+    el.addEventListener('click', () => pushPanel('health'));
   });
 }
 
@@ -2738,13 +2881,27 @@ function _localLoad() {
     if (!raw) return false;
     const saved = JSON.parse(raw);
     ['tasks','secondary','habits','inbox','week','upcoming','unscheduled','goals','routines','health',
-     'direction','domains','wake','sleep','work','obCompleted'].forEach(k => {
+     'direction','domains','wake','sleep','work','obCompleted','history'].forEach(k => {
       if (saved[k] !== undefined) state[k] = saved[k];
     });
     return true;
   } catch (_) { return false; }
 }
+/* 每次保存时记录当日真实快照 → 供 Me 页 Calendar 四色使用 */
+function snapshotToday() {
+  try {
+    const act = todayTasks().filter(x => x.title !== '睡觉');
+    const done = act.filter(x => x.done).length + state.secondary.filter(x => x.done).length;
+    const total = act.length + state.secondary.length;
+    const urgent = act.some(x => x.urgent) || state.secondary.some(x => x.urgent);
+    state.history = state.history || {};
+    const k = dateKey(new Date());
+    const prev = state.history[k] || {};
+    state.history[k] = { done, total, urgent: urgent || !!prev.urgent };
+  } catch (_) {}
+}
 function save() {
+  snapshotToday();
   _localSave();
   if (!sb || !currentUser) return;
   // 防抖：800ms 内多次变更合并为一次网络写
@@ -2775,7 +2932,7 @@ async function _cloudLoad() {
     if (!data || !data.value) return false;
     const remote = JSON.parse(data.value);
     ['tasks','secondary','habits','inbox','week','upcoming','unscheduled','goals','routines','health',
-     'direction','domains','wake','sleep','work','obCompleted'].forEach(k => {
+     'direction','domains','wake','sleep','work','obCompleted','history'].forEach(k => {
       if (remote[k] !== undefined) state[k] = remote[k];
     });
     return true;
@@ -3193,8 +3350,7 @@ async function boot() {
   await load();   // 恢复上次状态
 
   // 时钟
-  $('#greet').textContent = greetOf(now.getHours());
-  $('#date-line').innerHTML = `<b>${now.getMonth()+1}.${now.getDate()} · ${WD_EN[now.getDay()]}</b>`;
+  $('#date-line').textContent = fmtDateCN(now);
 
   renderToday(); renderPlan(); renderProgress(); renderMe(); renderMyDay();
 
@@ -3221,26 +3377,8 @@ async function boot() {
     else if (router.panel) popPanel();
   });
 
-  // Quick Add
-  $('#fab').onclick = () => { openSheet('sheet-qa'); setTimeout(() => $('#qa-input').focus(), 400); };
-  $('#qa-save').onclick = () => {
-    const v = $('#qa-input').value.trim();
-    if (!v) { closeSheets(); return; }
-    state.inbox.unshift({ id: 'i' + Date.now(), title: v, hint: '刚捕获' });
-    $('#qa-input').value = '';
-    $('#qa-schedule').dataset.qaTitle = v;   // 联动：记录刚捕获的标题
-    $('#qa-sug').style.display = 'flex';
-    renderPlan();
-    toast('已存入 Inbox');
-  };
-  // 联动：保存后直接进入真实的 Reschedule 流程（不再硬编码"周四 22:00"）
-  $('#qa-schedule').onclick = function () {
-    const title = this.dataset.qaTitle || '';
-    const it = state.inbox.find(x => x.title === title);
-    $('#qa-sug').style.display = 'none';
-    if (it) { state.rsTarget = it; openReschedule(it.title); }
-    else closeSheets();
-  };
+  // 时间轴右上角 + ：新建事件
+  $('#tl-add').onclick = () => openTaskDetail(null);
 
   // Plan My Day
   $$('[data-open]').forEach(el => el.onclick = () => { renderMyDay(); openSheet(el.dataset.open); });
@@ -3274,6 +3412,25 @@ async function boot() {
   enableSegSlide($('#plan-seg'), () => renderPlan());   // 长按 300ms 进入滑动切换
 
   // Task Detail 操作
+  $('#td-save').onclick = () => {
+    const title = ($('#td-title-in').value || '').trim();
+    if (!title) { toast('先起个名字'); return; }
+    const patch = {
+      title,
+      time: $('#td-time-in').value || null,
+      date: $('#td-date-in').value || null,
+      dur: $('#td-dur-in').value ? +$('#td-dur-in').value : null,
+      type: $('#td-types .chip.on')?.dataset.type || null,
+      urgent: $('#td-urgent') ? $('#td-urgent').classList.contains('on') : false,
+      goal: $('#td-goal-in').value || null,
+      routine: $('#td-routine-in').value || null,
+      notes: ($('#td-notes-in').value || '').trim(),
+    };
+    if (state.activeTask) Object.assign(state.activeTask, patch);
+    else state.tasks.push({ id: 'n' + Date.now(), done: false, tier: 'main', ...patch });
+    closeSheets(); renderToday(); renderPlan();
+    toast('已保存');
+  };
   $('#td-complete').onclick = function () {
     const t = state.activeTask; if (!t) return;
     t.done = !t.done;
@@ -3297,6 +3454,8 @@ async function boot() {
   $('#td-delete').onclick = () => {
     const t = state.activeTask; if (!t) return;
     state.tasks = state.tasks.filter(x => x.id !== t.id);
+    state.secondary = state.secondary.filter(x => x.id !== t.id);
+    state.activeTask = null;
     renderToday(); renderPlan(); closeSheets(); toast('已删除');
   };
 
