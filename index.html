@@ -2556,7 +2556,7 @@ function toast(msg) {
 
 /* ─────────────── 状态持久化（localStorage + Supabase）─────────────── */
 const PERSIST_KEY = 'epoch-state';
-const STATE_KEY    = 'state.full';   // user_settings.state 全量 JSON
+const STATE_KEY    = 'state.full';   // app_state.value 全量 JSON
 
 function readEnv() {
   // 由 scripts/inject.mjs 在构建时替换；fallback 用于本地调试
@@ -2596,7 +2596,7 @@ async function _cloudSave() {
   if (!sb || !currentUser) return;
   try {
     const payload = JSON.stringify(state);
-    const { error } = await sb.from('user_settings').upsert(
+    const { error } = await sb.from('app_state').upsert(
       { user_id: currentUser.id, key: STATE_KEY, value: payload, updated_at: new Date().toISOString() },
       { onConflict: 'user_id,key' }
     );
@@ -2607,7 +2607,7 @@ async function _cloudLoad() {
   if (!sb || !currentUser) return false;
   try {
     const { data, error } = await sb
-      .from('user_settings')
+      .from('app_state')
       .select('value,updated_at')
       .eq('user_id', currentUser.id)
       .eq('key', STATE_KEY)
@@ -2627,7 +2627,7 @@ function resetState() {
   try { localStorage.removeItem(PERSIST_KEY); } catch (_) {}
   if (sb && currentUser) {
     // 异步清空云端 state.full；其余表保留行结构以备恢复
-    sb.from('user_settings').delete()
+    sb.from('app_state').delete()
       .eq('user_id', currentUser.id)
       .eq('key', STATE_KEY)
       .then(()=>{}).catch(()=>{});
