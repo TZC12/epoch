@@ -37,7 +37,8 @@ t('百分比真实', d.getElementById('dash-pct')?.textContent === Math.round(do
 t('分数真实（x/y 项）', d.getElementById('dash-frac')?.textContent.replace(/\s/g, '') === `${doneN}/${totalN}项`);
 t('已完成数字真实', d.getElementById('dash-done')?.textContent === String(doneN));
 t('待完成数字真实', d.getElementById('dash-todo')?.textContent === String(totalN - doneN));
-t('时间范围来自真实任务时间', /\d{1,2}:\d{2}\s*—\s*\d{1,2}:\d{2}/.test(d.getElementById('dash-span')?.textContent || ''));
+t('横向进度条已删除', !d.querySelector('.dash-bar') && !d.getElementById('dash-bar'));
+t('时间范围/剩余时间文字已删除', !d.querySelector('.dash-range') && !d.getElementById('dash-span') && !d.getElementById('dash-left'));
 
 console.log('— 文案与分区清理 —');
 const bodyTxt = d.getElementById('today-body').textContent;

@@ -58,7 +58,7 @@
   --ease: cubic-bezier(0.32, 0.72, 0.24, 1);
 }
 
-html, body { height: 100%; }
+html, body { height: 100%; text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Noto Sans SC',
@@ -296,27 +296,30 @@ body {
 .tl-add svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; }
 .phone[data-mode="dark"] .tl-add:hover { background: rgba(255,255,255,.07); }
 
-.dash { margin-top: 14px; }
-.dash-top { display: flex; align-items: center; gap: 18px; }
-.dash-gauge { position: relative; width: 168px; flex-shrink: 0; }
-.dash-gauge svg { width: 100%; display: block; }
+.dash { margin-top: 18px; }
+.dash-top { display: flex; align-items: center; gap: 22px; }
+.dash-gauge { position: relative; width: 152px; height: 92px; flex-shrink: 0; }
+.dash-gauge svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .dash-gauge .g-bg { fill: none; stroke: rgba(120,130,150,.14); stroke-width: 13; stroke-linecap: round; }
 .dash-gauge .g-fg {
   fill: none; stroke: var(--accent); stroke-width: 13; stroke-linecap: round;
   stroke-dasharray: 0 264;   /* 弧长 π*84 ≈ 263.9 */
   transition: stroke-dasharray .5s var(--ease);
 }
-.g-center { position: absolute; left: 0; right: 0; bottom: 2px; text-align: center; }
-.g-center b { font-size: 30px; font-weight: 700; color: var(--ink-1); letter-spacing: -.02em; }
-.g-center span { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.g-center { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; pointer-events: none; }
+.g-center b { font-size: 27px; font-weight: 700; color: var(--ink-1); letter-spacing: -.02em; line-height: 1.05; }
+.g-center span { display: block; font-size: 11.5px; color: var(--ink-3); margin-top: 3px; white-space: nowrap; }
 .dash-side { flex: 1; min-width: 0; }
-.ds-label { font-size: 13px; color: var(--ink-3); }
-.ds-nums { display: flex; gap: 22px; margin-top: 10px; }
-.ds-n b { display: block; font-size: 22px; font-weight: 700; color: var(--ink-1); letter-spacing: -.02em; }
-.ds-n span { display: block; font-size: 11.5px; color: var(--ink-4); margin-top: 2px; }
-.dash-bar { height: 8px; border-radius: 4px; background: rgba(120,130,150,.14); overflow: hidden; margin-top: 16px; }
-.dash-bar i { display: block; height: 100%; width: 0; border-radius: 4px; background: linear-gradient(90deg, #2E4A3A, var(--accent)); transition: width .5s var(--ease); }
-.dash-range { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--ink-4); font-variant-numeric: tabular-nums; }
+.ds-label { font-size: 12.5px; color: var(--ink-3); letter-spacing: .02em; }
+.ds-nums { display: flex; gap: 30px; margin-top: 14px; }
+.ds-n b { display: block; font-size: 24px; font-weight: 700; color: var(--ink-1); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.ds-n span { display: block; font-size: 11.5px; color: var(--ink-4); margin-top: 3px; }
+@media (max-width: 380px) {
+  .dash-top { gap: 18px; }
+  .dash-gauge { width: 132px; height: 80px; }
+  .g-center b { font-size: 24px; }
+  .ds-nums { gap: 22px; }
+}
 
 /* ═══════════ 时间轴：紧急紫 / 左滑删除 ═══════════ */
 :root { --urgent: #7C5CFF; }
@@ -981,8 +984,6 @@ body {
               </div>
             </div>
           </div>
-          <div class="dash-bar"><i id="dash-bar"></i></div>
-          <div class="dash-range"><span id="dash-span">—</span><span id="dash-left"></span></div>
         </div>
       </div>
 
@@ -2266,18 +2267,6 @@ function updateDash() {
   set('#dash-done', String(done));
   set('#dash-todo', String(total - done));
   const arc = $('#dash-arc'); if (arc) arc.style.strokeDasharray = `${pct / 100 * 264} 264`;
-  const bar = $('#dash-bar'); if (bar) bar.style.width = pct + '%';
-  const times = todayTasks().filter(x => x.time).map(x => x.time).sort();
-  let span = '—', left = '';
-  if (times.length) {
-    span = `${times[0]} — ${times[times.length - 1]}`;
-    const diff = toMin(times[times.length - 1]) - minsNow;
-    if (total > 0 && done >= total) left = '今日已全部完成';
-    else if (diff <= 0) left = '今天的时间轴已结束';
-    else left = `还剩 ${Math.floor(diff / 60) ? Math.floor(diff / 60) + ' 小时 ' : ''}${diff % 60} 分`;
-  } else if (total === 0) left = '今天还没有安排';
-  set('#dash-span', span);
-  set('#dash-left', left);
 }
 
 /* 左滑删除手势：横向位移跟手，露出删除按钮 */
