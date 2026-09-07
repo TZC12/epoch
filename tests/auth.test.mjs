@@ -33,7 +33,7 @@ t('应用图标（内嵌 SVG）存在', !!d.querySelector('.auth-icon svg'));
 t('品牌名只有 Epoch（无 · 时）', d.querySelector('.auth-brand')?.textContent.trim() === 'Epoch');
 t('账号输入框存在（用户名或邮箱）', !!d.querySelector('#auth-account'));
 t('密码输入框存在', !!d.querySelector('#auth-pwd'));
-t('登录按钮存在', d.querySelector('#auth-signin')?.textContent.trim() === 'Log In');
+t('登录按钮存在', d.querySelector('#auth-signin')?.textContent.trim() === '登录');
 t('<title> 为 Epoch', d.title === 'Epoch');
 t('无 · 时 残留于标题', !d.title.includes('时'));
 
