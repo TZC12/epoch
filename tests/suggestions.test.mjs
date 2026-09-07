@@ -45,7 +45,6 @@ w.__epoch.state.tasks.forEach((x, i) => x.done = doneBackup[i]);
 // 安静状态：全部完成 + inbox 清空 → 0 张卡（留白）
 w.__epoch.state.inbox = [];
 w.__epoch.state.tasks.forEach(x => x.done = true);
-w.__epoch.state.secondary.forEach(x => x.done = true);
 cards = w.buildSuggestions();
 t('全部完成 + Inbox 空 → 零卡片（安静）', cards.length === 0);
 
@@ -81,7 +80,7 @@ const seg = d.querySelector('#plan-seg');
 const r = { left: 0, width: 500, top: 0, height: 40 };
 t('segIndexFromX：0% → 第 0 段', w.segIndexFromX(r.left + 1, { left: r.left, width: r.width, children: seg.children }) === 0);
 t('segIndexFromX：99% → 最后一段', w.segIndexFromX(r.left + r.width - 1, { left: r.left, width: r.width, children: seg.children }) === seg.children.length - 1);
-t('segIndexFromX：50% → 中间段', w.segIndexFromX(r.left + 250, { left: r.left, width: r.width, children: seg.children }) === 2);
+t('segIndexFromX：50% → 中间段', w.segIndexFromX(r.left + 250, { left: r.left, width: r.width, children: seg.children }) === Math.floor(seg.children.length / 2));
 
 // 轻点仍可切换
 w.goTab('plan'); await sleep(50);

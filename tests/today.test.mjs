@@ -30,9 +30,9 @@ t('日期含年份与星期（如 2026年…星期日）', /2026年/.test(dl) &&
 t('头部右侧有加号（新建事件）', !!d.getElementById('tl-add'));
 
 console.log('— 仪表盘进度（真实计算） —');
-const act = S().tasks.filter(x => x.title !== '睡觉');
-const doneN = act.filter(x => x.done).length + S().secondary.filter(x => x.done).length;
-const totalN = act.length + S().secondary.length;
+const act = S().tasks.filter(x => x.title !== '睡觉');   // M1：随时任务已并入 tasks（tier='anytime'）
+const doneN = act.filter(x => x.done).length;
+const totalN = act.length;
 t('百分比真实', d.getElementById('dash-pct')?.textContent === Math.round(doneN / totalN * 100) + '%');
 t('分数真实（x/y 项）', d.getElementById('dash-frac')?.textContent.replace(/\s/g, '') === `${doneN}/${totalN}项`);
 t('已完成数字真实', d.getElementById('dash-done')?.textContent === String(doneN));

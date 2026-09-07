@@ -68,7 +68,7 @@ t('Today 时间轴仍渲染', d.querySelectorAll('#today-body .tl-row').length >
 const row2 = [...d.querySelectorAll('#today-body .tl-row:not(.done)')][0];
 const id2 = row2?.dataset.task;
 row2?.querySelector('.tl-check').click(); await sleep(60);
-const allT = [...w.__epoch.state.tasks, ...w.__epoch.state.secondary];
+const allT = w.__epoch.state.tasks;   // M1：secondary 已并入 tasks
 t('仍可勾选任务', !!id2 && allT.find(x => x.id === id2)?.done === true);
 
 console.log(`\n结果：${pass} 通过，${fail} 失败`);

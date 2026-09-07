@@ -851,6 +851,16 @@ body {
 .phone[data-mode="dark"] .skel { background: linear-gradient(90deg, rgba(255,255,255,.05) 25%, rgba(255,255,255,.09) 37%, rgba(255,255,255,.05) 63%); background-size: 400% 100%; }
 .phone[data-mode="dark"] .ob-dots i { background: rgba(255,255,255,.16); }
 .phone[data-mode="dark"] .ob-dots i.on { background: var(--ink-1); }
+/* Plan 快速捕获（M1：Inbox 的主动入口） */
+.cap-row { margin: 12px 20px 0; }
+.cap-in { width: 100%; height: 40px; border-radius: 12px; border: 1px solid rgba(255,255,255,.72);
+  background: rgba(255,255,255,.5); backdrop-filter: blur(26px); -webkit-backdrop-filter: blur(26px);
+  padding: 0 14px; font-size: 13.5px; color: var(--ink-1); outline: none;
+  transition: border-color var(--dur-2) var(--ease), background var(--dur-2) var(--ease); }
+.cap-in::placeholder { color: var(--ink-3); }
+.cap-in:focus { border-color: rgba(91,174,130,.55); background: rgba(255,255,255,.62); }
+.phone[data-mode="dark"] .cap-in { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); }
+.phone[data-mode="dark"] .cap-in:focus { background: rgba(255,255,255,.085); }
 </style>
 </head>
 <body data-page-node-id="MCSZqaEXfFQnKMIEG9CKVM">
@@ -1018,8 +1028,10 @@ body {
     <!-- ══════════════════════ PLAN ══════════════════════ -->
     <section class="screen" data-screen="plan" data-page-node-id="hdg9UwUDw9MfhEXebOvKVi">
       <div class="seg" id="plan-seg" style="margin-top:6px" data-page-node-id="8KfphmPmwoIWs809Uk3vWz">
-        <button class="on" data-seg="inbox" data-page-node-id="dbqw21wT2VBurTHrsE77TK">收集箱</button><button data-seg="today" data-page-node-id="FgkcGyjiYIm5YC4RxCofxL">今天</button><button data-seg="week" data-page-node-id="7YJ3keB5fqGrTo61qW1N8S">本周</button><button data-seg="upcoming" data-page-node-id="FcIvD2eBSFs7Bswnv5PzDO">以后</button><button data-seg="unscheduled" data-page-node-id="iSCiFd473aR36yhTBmrVDD">未安排</button>
+        <button class="on" data-seg="inbox" data-page-node-id="dbqw21wT2VBurTHrsE77TK">收集箱</button><button data-seg="today" data-page-node-id="FgkcGyjiYIm5YC4RxCofxL">今天</button><button data-seg="scheduled" data-page-node-id="7YJ3keB5fqGrTo61qW1N8S">已排</button>
       </div>
+
+      <div class="cap-row"><input class="cap-in" id="cap-in" type="text" placeholder="想到什么，先放进来…" /></div>
 
       <div class="myday" data-open="sheet-myday" data-page-node-id="wFD1H3R7r5reu4Wi09DcVs">
         <div class="q" data-page-node-id="B290G7iRn1fWEDlXVidUDw">生成建议日程</div>
@@ -1447,8 +1459,8 @@ body {
   <div class="sheet" id="sheet-rs" data-page-node-id="3NcenO2nP5sIAjMcjmo9mr">
     <div class="grab" data-page-node-id="gMNdNzfXNlUnb7eic8YG6L"></div>
     <div class="eyebrow" data-page-node-id="NmUkZ4G9YXEoaZ7Ielz4iU">Reschedule</div>
-    <div class="t-panel" style="margin-top:6px" id="rs-title" data-page-node-id="zoupEdoyWKyeTg8CEfGVPf">移到什么时候？</div>
-    <div class="t-sub" style="margin-top:5px" data-page-node-id="gCuROxzj8zB0jiKfGaC8gH">系统优先推荐有空档、且不挤掉 Main Task 的位置。</div>
+    <div class="t-panel" style="margin-top:6px" id="rs-title" data-user data-page-node-id="zoupEdoyWKyeTg8CEfGVPf">移到什么时候？</div>
+    <div class="t-sub" style="margin-top:5px" data-page-node-id="gCuROxzj8zB0jiKfGaC8gH">选择一个日期。事情会出现在那天的 Today 里。</div>
     <div style="margin-top:18px" id="rs-list" data-page-node-id="wpFrvG1axpwNwqMoFQIaR1"></div>
     <div class="btn-row" style="margin-top:20px" data-page-node-id="I4uMDNEEozRMl7ziBAc8it">
       <button class="btn btn-g" style="flex:1" data-close-sheet data-page-node-id="cdWn20it4fGkIhE2RQeDVY">取消</button>
@@ -1523,11 +1535,10 @@ const state = {
     { id:'t5', time:'20:15', title:'Run · 30 min', dur:30, done:false, tier:'main', goal:'Health', routine:'Run · Mon/Wed/Fri', notes:'慢跑 · 保持心率区间 · 跑后拉伸 5 分钟' },
     { id:'t6', time:'22:00', title:'Learn · Product Design', dur:45, done:false, tier:'main', goal:'Career', routine:'Tuesday Learning', notes:'看一个产品，只记录一句「为什么它让我觉得高级」。' },
     { id:'t7', time:'23:20', title:'睡觉', dur:null, done:false, tier:'block', goal:null, routine:'Evening', notes:'' },
-  ],
-  secondary: [
-    { id:'s1', title:'回复消息', done:false, hint:'' },
-    { id:'s2', title:'整理文件', done:false, hint:'' },
-    { id:'s3', title:'读一篇文章', done:false, hint:'' },
+    /* 随时事项（原 secondary，M1 起并入 tasks：tier='anytime'、无 time/date） */
+    { id:'s1', title:'回复消息', done:false, tier:'anytime' },
+    { id:'s2', title:'整理文件', done:false, tier:'anytime' },
+    { id:'s3', title:'读一篇文章', done:false, tier:'anytime' },
   ],
   habits: [
     { id:'h1', name:'Posture',  sub:'5 min',  done:true  },
@@ -1540,17 +1551,8 @@ const state = {
     { id:'i3', title:'Make A5L campaign',      hint:'未安排' },
     { id:'i4', title:'Sort export documents',  hint:'未安排' },
   ],
-  week: [
-    { id:'w1', title:'Learn English',        hint:'周四 · 22:00' },
-    { id:'w2', title:'Run · 30 min',         hint:'周三 / 周五 · 20:15' },
-    { id:'w3', title:'Learn Product Design', hint:'周四 · 22:00' },
-    { id:'w4', title:'APQP 第 2 章',          hint:'周六 · 15:30' },
-  ],
-  upcoming: [
-    { id:'u1', title:'体检预约',   hint:'下周二' },
-    { id:'u2', title:'续保保险',   hint:'下周五' },
-  ],
-  unscheduled: [],
+  /* M1：week/upcoming/unscheduled 已删除——排期只有唯一事实来源 tasks.date，
+     Plan 的「已排」视图由 date 派生，不再是独立存储 */
   goals: [
     { id:'g1', kicker:'CAREER', title:'Learn automotive engineering systems', note:'当前季度 · 只展开这一层', pct:62,
       focus:'APQP / PPAP 流程', next:'读完 APQP 第 2 章，输出一页流程对照表',
@@ -1588,6 +1590,7 @@ const state = {
   work:  '08:00 – 18:30',
   obCompleted: false,
   lang: 'zh',              // 界面语言：zh | en（用户内容不翻译，只切换界面 chrome）
+  theme: 'light',          // 主题：light | dark | system（设置里切换，持久化）
   // 健康助手：Epoch 只读系统健康层，数据影响今天的规划
   health: {
     connected: false,
@@ -1648,14 +1651,10 @@ const I18N = {
     'note.heavy':'今天排得有点满。','note.move':'移走','note.reduce':'减少','note.skip':'跳过',
     'energy.ok':'好','energy.keep':'保持',
     'plan.title':'规划','plan.sub':'先收集，后安排。不要强迫自己立刻决定日期。',
-    'seg.inbox':'收集箱','seg.today':'今天','seg.week':'本周','seg.upcoming':'以后','seg.unscheduled':'未安排',
-    'plan.count.inbox':'先记录，后安排','plan.count.today':'今天已安排的','plan.count.week':'本周','plan.count.upcoming':'更远','plan.count.unscheduled':'没有日期',
-    'plan.items':'{n} 项 · ',
+    'seg.inbox':'收集箱','seg.today':'今天','seg.scheduled':'已排',
     'empty.inbox.1':'没什么在等你。','empty.inbox.2':'收集箱是空的。想到什么随时丢进来。',
-    'empty.unscheduled.1':'没什么在等你。','empty.unscheduled.2':'所有事情都已经有位置了。',
+    'empty.scheduled.1':'这里还没有安排。','empty.scheduled.2':'从收集箱挑一件，给它一个日期。',
     'empty.today.1':'今天是空的。','empty.today.2':'今天还没有安排。',
-    'empty.upcoming.1':'还没有安排。','empty.upcoming.2':'更远的未来还是空的。',
-    'empty.week.1':'还没有安排。','empty.week.2':'本周还没有安排。',
     'adapt.why':'判断依据：优先级中 · 周六 15:30 有 60 分钟空档 · 与「阅读」不冲突',
     'adapt.accept':'接受','adapt.change':'调整',
     'myday.q':'生成建议日程','myday.d':'根据固定工作时间、Routines、运动与学习安排，以及你今天的空档，自动生成一版时间轴。',
@@ -1704,10 +1703,7 @@ const I18N = {
     'md.note.low':'考虑到{reasons}，已自动降低强度。接受后，这会替换今天的时间轴。',
     'md.accept':'接受','md.adjust':'调整',
     'rs.title':'移到什么时候？','rs.sub':'系统优先推荐有空档、且不挤掉重点任务的位置。',
-    'rs.opt1.t':'今晚 22:00','rs.opt1.d':'今天还剩 45 分钟空档',
-    'rs.opt2.t':'周四 22:00','rs.opt2.d':'学习时段 · 推荐',
-    'rs.opt3.t':'周六 15:30','rs.opt3.d':'60 分钟空档 · 不挤掉重点任务',
-    'rs.opt4.t':'放进收集箱','rs.opt4.d':'先不决定','rs.cancel':'取消',
+    'rs.cancel':'取消',
     'notif.title':'允许的 3 类通知','notif.sub':'每小时提醒、焦虑式文案、连续天数警告 —— 都不会出现。',
     'notif.1.t':'20:15 · Routine 提醒','notif.1.a':'Snooze · 5 min',
     'notif.2.t':'22:00 · 重要任务','notif.2.a':'完成 · 改期',
@@ -1795,6 +1791,7 @@ const I18N = {
     'toast.back2inbox':'已移回收集箱，不删除','toast.skiptoday':'已跳过，明天不再提醒',
     'toast.walk':'已改成 Walk · 20 min','toast.keep':'保持原计划',
     'toast.saved':'已存入收集箱','toast.scheduled':'已安排到{when}',
+    'tl.anytime':'随时','rs.today':'今天','rs.tomorrow':'明天','rs.weekend':'本周末','rs.nextweek':'下周一',
     'toast.timeline':'今天的时间轴已更新','toast.adjust':'可以在规划里逐项调整',
     'toast.moved':'已移到周六 15:30','toast.skip':'已跳过','toast.deleted':'已删除','toast.undo':'撤销',
     'auth.busy.in':'登录中…','auth.busy.up':'注册中…',
@@ -1818,14 +1815,10 @@ const I18N = {
     'note.heavy':'Your day looks heavy.','note.move':'Move','note.reduce':'Reduce','note.skip':'Skip',
     'energy.ok':'OK','energy.keep':'Keep',
     'plan.title':'Plan','plan.sub':'Capture first, plan later. No pressure to pick a date right away.',
-    'seg.inbox':'Inbox','seg.today':'Today','seg.week':'This Week','seg.upcoming':'Upcoming','seg.unscheduled':'Unscheduled',
-    'plan.count.inbox':'capture first, plan later','plan.count.today':'scheduled for today','plan.count.week':'this week','plan.count.upcoming':'later','plan.count.unscheduled':'no date',
-    'plan.items':'{n} · ',
+    'seg.inbox':'Inbox','seg.today':'Today','seg.scheduled':'Scheduled',
     'empty.inbox.1':'Nothing waiting.','empty.inbox.2':'Inbox is empty. Drop anything here anytime.',
-    'empty.unscheduled.1':'Nothing waiting.','empty.unscheduled.2':'Everything already has a place.',
+    'empty.scheduled.1':'Nothing scheduled yet.','empty.scheduled.2':'Pick one from the Inbox and give it a date.',
     'empty.today.1':'Your day is clear.','empty.today.2':'Nothing planned for today.',
-    'empty.upcoming.1':'Nothing planned yet.','empty.upcoming.2':'The further future is still empty.',
-    'empty.week.1':'Nothing planned yet.','empty.week.2':'Nothing planned this week.',
     'adapt.q':'English was not completed.','adapt.d':'Move English to Saturday 15:30?',
     'adapt.why':'Why: medium priority · Sat 15:30 has a 60-min gap · no conflict with Reading',
     'adapt.accept':'Accept','adapt.change':'Change',
@@ -1868,10 +1861,7 @@ const I18N = {
     'md.note.low':'Given {reasons}, intensity is lowered automatically. Accepting replaces today\u2019s timeline.',
     'md.accept':'Accept','md.adjust':'Adjust',
     'rs.title':'Move it to when?','rs.sub':'We suggest gaps that don\u2019t crowd out your main tasks.',
-    'rs.opt1.t':'Tonight 22:00','rs.opt1.d':'45 min left today',
-    'rs.opt2.t':'Thursday 22:00','rs.opt2.d':'Learning slot · suggested',
-    'rs.opt3.t':'Saturday 15:30','rs.opt3.d':'60-min gap · keeps main tasks intact',
-    'rs.opt4.t':'Back to Inbox','rs.opt4.d':'Decide later','rs.cancel':'Cancel',
+    'rs.cancel':'Cancel',
     'notif.title':'Only 3 kinds of notifications','notif.sub':'No hourly pings, no guilt-trip copy, no streak warnings.',
     'notif.1.t':'20:15 · Routine reminder','notif.1.a':'Snooze · 5 min',
     'notif.2.t':'22:00 · Important task','notif.2.a':'Complete · Reschedule',
@@ -1958,7 +1948,8 @@ const I18N = {
     'focus.quit':'Quit focus','focus.start':'Start','focus.pause':'Pause','focus.resume':'Resume','focus.done':'Done',
     'toast.back2inbox':'Back to Inbox — not deleted','toast.skiptoday':"Skipped — won't nag tomorrow",
     'toast.walk':'Changed to Walk · 20 min','toast.keep':'Keeping the original plan',
-    'toast.saved':'Saved to Inbox','toast.scheduled':'Scheduled to {when}',
+    'toast.saved':'Saved to Inbox','toast.scheduled':'Scheduled for {when}',
+    'tl.anytime':'Anytime','rs.today':'Today','rs.tomorrow':'Tomorrow','rs.weekend':'This weekend','rs.nextweek':'Next Monday',
     'toast.timeline':'Today\u2019s timeline updated','toast.adjust':'Adjust item by item in Plan',
     'toast.moved':'Moved to Sat 15:30','toast.skip':'Skipped','toast.deleted':'Deleted','toast.undo':'Undo',
     'auth.busy.in':'Signing in…','auth.busy.up':'Creating account…',
@@ -2122,12 +2113,15 @@ const ZH2EN = {
   '今天':'Today','未安排':'Unscheduled','建议':'Suggested','空档':'Open slot','缓冲':'Buffer',
   '撤销':'Undo','已删除':'Deleted','登录中…':'Signing in…','注册中…':'Creating account…',
   '已跳过':'Skipped','已跳过，明天不再提醒':"Skipped — won't nag tomorrow",'收集箱':'Inbox','以后':'Later','生成':'Generate',
+  '已排':'Scheduled','明天':'Tomorrow','本周末':'This weekend','下周一':'Next Monday',
+  '选择一个日期。事情会出现在那天的 Today 里。':'Pick a date. It shows up in that day\u2019s Today.',
   '来自本周反思':'From weekly review','调整当天强度':"Tunes today's intensity",'每周二':'Every Tuesday',
   '每周重复出现的生活结构。修改一次，未来的 Task 跟着变。':'A repeating weekly structure. Change once — future Tasks follow.',
   '存入 Inbox':'Save to Inbox','保存后它会出现在 Plan 的 Inbox 里，等你安排。':'It lands in Plan → Inbox, ready to be scheduled.',
 };
 const ZH2EN_PH = {
   '这件事是…':'What is it…','备注…（跑后拉伸、带伞、只写一页）':'Notes… stretch, umbrella, one page…',
+  '想到什么，先放进来…':'Capture anything…',
   '用户名或邮箱':'Username or email','至少 8 位':'At least 8 characters','仅字母、数字、下划线':'Letters, numbers, underscores',
   '只写一件事…':'Just one thing…','这周做成了什么…':'What went well…','什么消耗了你…':'What drained you…',
   '下周只改这一件事…':'One change for next week…','例如：我想要更大的自由和更多的选择权。':'e.g. More freedom, more options.','例如：学会 APQP 流程':'e.g. Learn the APQP process',
@@ -2196,6 +2190,16 @@ function fmtDateCN(d) {
   return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 · 星期${'日一二三四五六'[d.getDay()]}`;
 }
 function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+/* 短日期提示（语言感知）：zh '09-08 周二' / en 'Sep 8' */
+function fmtShortDate(iso) {
+  try {
+    const [y, m, dd] = iso.split('-').map(Number);
+    const dt = new Date(y, m - 1, dd);
+    return state.lang === 'en'
+      ? `${MONTH_EN[dt.getMonth()].slice(0, 3)} ${dt.getDate()}`
+      : `${String(m).padStart(2, '0')}-${String(dd).padStart(2, '0')} 周${'日一二三四五六'[dt.getDay()]}`;
+  } catch (_) { return iso; }
+}
 function calendarDotClass(h) {
   if (!h) return '';
   if (h.urgent) return 'urgent';
@@ -2238,12 +2242,6 @@ function applyRoute(hash) {
     const t = state.tasks.find(x => x.id === arg) || state.tasks.find(x => x.tier === 'main') || state.tasks[0];
     $('#focus-task').textContent = t ? t.title : 'Focus';
     resetFocus(); return $('#focus').classList.add('on');
-  }
-  if (kind === 'state') {
-    state.todayState = arg || 'default';
-    if (arg === 'completed') state.secondary.forEach(x => x.done = true);
-    if (arg === 'default')   { state.secondary.forEach(x => x.done = false); state.tasks.forEach((t,i) => t.done = i < 3); }
-    renderToday(); return goTab('today');
   }
   goTab('today');
 }
@@ -2308,7 +2306,7 @@ function loadGoal(id) {
 
 /* ─────────────── TODAY 渲染 ─────────────── */
 /* 测试/interop 钩子：受控暴露只读引用 */
-window.__epoch = { get state() { return state; } };
+window.__epoch = { get state() { return state; }, migrateLegacy };
 window.renderToday = renderToday;
 window.openTaskDetail = openTaskDetail;
 window.checkDayRollover = checkDayRollover;
@@ -2326,8 +2324,8 @@ function buildSuggestions() {
       { label: '改时间', act: 'resched' },
     ],
   });
-  // 2) 负载过高
-  const remaining = state.tasks.filter(x => x.title !== '睡觉' && !x.done).length + state.secondary.filter(x => !x.done).length;
+  // 2) 负载过高（今天的可见负载：时间轴 + 随时）
+  const remaining = todayTasks().filter(x => x.title !== '睡觉' && !x.done).length;
   if (remaining > 4) out.push({
     id: 'heavy', q: t('note.heavy'),
     d: tpl('sug.heavy.d', { n: remaining }),
@@ -2360,12 +2358,12 @@ function runSugAct(act) {
     if (t) { state.rsTarget = t; openReschedule(t.title); } return true;
   }
   if (act === 'reduce')  {
-    const last = state.secondary.filter(x => !x.done).pop();
-    if (last) { state.secondary = state.secondary.filter(x => x.id !== last.id); state.inbox.unshift({ id: 'ix' + Date.now(), title: last.title, hint: '移回 Inbox' }); }
+    const last = todayTasks().filter(x => x.tier === 'anytime' && !x.done).pop();
+    if (last) { state.tasks = state.tasks.filter(x => x.id !== last.id); state.inbox.unshift({ id: 'ix' + Date.now(), title: last.title, hint: '' }); }
     toast('已移回 Inbox，不删除'); renderToday(); return false;
   }
   if (act === 'skipone') {
-    const last = state.secondary.filter(x => !x.done).pop();
+    const last = todayTasks().filter(x => x.tier === 'anytime' && !x.done).pop();
     if (last) last.done = true;
     toast('已跳过，明天不再提醒'); renderToday(); return false;
   }
@@ -2495,8 +2493,8 @@ function enableSegSlide(seg, onChange) {
 /* ─────────────── 仪表盘：全部真实计算 ─────────────── */
 function updateDash() {
   const act = todayTasks().filter(x => x.title !== '睡觉');
-  const done = act.filter(x => x.done).length + state.secondary.filter(x => x.done).length;
-  const total = act.length + state.secondary.length;
+  const done = act.filter(x => x.done).length;
+  const total = act.length;
   const pct = total ? Math.round(done / total * 100) : 0;
   const set = (id, v) => { const el = $(id); if (el) el.textContent = v; };
   set('#dash-pct', pct + '%');
@@ -2581,7 +2579,6 @@ function renderToday() {
 
   // ── 正常 / 全完成 ──
   const tasks = todayTasks().map(t => ({ ...t, done: s === 'completed' ? true : t.done }));
-  if (s === 'completed') state.secondary.forEach(x => x.done = true);
 
   const actionable = tasks.filter(t => t.title !== '睡觉');
   const done = actionable.filter(t => t.done).length;
@@ -2592,27 +2589,19 @@ function renderToday() {
   let curIdx = -1;
   tasks.forEach((t, i) => { if (t.time && toMin(t.time) <= minsNow) curIdx = i; });
 
-  // Timeline（注意：map 的任务参数名 t 遮蔽了 i18n 函数 t()）
+  // Timeline（注意：map 的任务参数名 t 遮蔽了 i18n 函数 t()，i18n 先在闭包外求值）
+  const anytimeTxt = t('tl.anytime');
   const tl = tasks.map((t, i) => {
     const meta = (t.dur && t.dur >= 60) ? `${Math.round(t.dur/60)} h` : (t.dur ? `${t.dur} min` : '');
     const metaLine = (meta || t.routine) ? `<div class="tl-meta">${[meta, t.routine].filter(Boolean).join(' · ')}</div>` : '';
     return `
       <div class="tl-row ${t.done ? 'done' : ''} ${i === curIdx && !t.done ? 'now' : ''}" data-task="${t.id}">
-        <span class="tl-time">${t.time}</span>
+        <span class="tl-time">${t.time || anytimeTxt}</span>
         <div class="tl-main"><div class="tl-title ${t.urgent ? 'urgent' : ''}" data-user>${t.title}</div>${metaLine}</div>
         <span class="tl-check">${CHECK}</span>
         <button class="tl-del" aria-label="删除">删除</button>
       </div>`;
   }).join('');
-
-  // 次要事项并入时间轴（无固定时间 → "随时"）
-  const secRows = state.secondary.map(s2 => `
-    <div class="tl-row ${s2.done ? 'done' : ''}" data-task="${s2.id}">
-      <span class="tl-time">随时</span>
-      <div class="tl-main"><div class="tl-title ${s2.urgent ? 'urgent' : ''}" data-user>${s2.title}</div></div>
-      <span class="tl-check">${CHECK}</span>
-      <button class="tl-del" aria-label="删除">删除</button>
-    </div>`).join('');
 
   // Habits
   const habitHtml = state.habits.map(h => `
@@ -2622,11 +2611,11 @@ function renderToday() {
     </div>`).join('');
 
   // 负载与能量提示已并入上下文建议卡（renderSuggestions），按状态出现/消失
-  const remaining = actionable.filter(t => !t.done).length + state.secondary.filter(t => !t.done).length;
+  const remaining = actionable.filter(t => !t.done).length;
 
   const allDone = remaining === 0;
   body.innerHTML = `
-    ${(tasks.length || state.secondary.length) ? tl + secRows : ''}
+    ${tasks.length ? tl : ''}
     <div class="sec"><h2>${t('sec.habits')}</h2><span class="n">${t('sec.habits.note')}</span></div>
     <div class="habits">${habitHtml}</div>
     ${allDone ? `
@@ -2656,15 +2645,11 @@ function bindToday(root) {
       // 勾选区域
       if (e.target.closest('.tl-check')) {
         const t = state.tasks.find(x => x.id === id);
-        const sc = state.secondary.find(x => x.id === id);
         if (t) { t.done = !t.done; renderToday(); }
-        else if (sc) { sc.done = !sc.done; renderToday(); }
         return;
       }
       const t = state.tasks.find(x => x.id === id);
-      if (t) { openTaskDetail(t); return; }
-      const sc = state.secondary.find(x => x.id === id);
-      if (sc) openTaskDetail(sc);
+      if (t) openTaskDetail(t);
     });
   });
   root.querySelectorAll('[data-habit]').forEach(c => {
@@ -2725,10 +2710,8 @@ function renderPlan() {
 
   let items = [];
   if (active === 'inbox') items = state.inbox;
-  else if (active === 'today') { const hintNoneTxt = t('hint.none'); items = state.tasks.filter(t => t.tier !== 'block').map(t => ({ id:t.id, title:t.title, hint:t.time || hintNoneTxt, hintEm:'' })); }
-  else if (active === 'week') items = state.week;
-  else if (active === 'upcoming') items = state.upcoming;
-  else items = state.unscheduled;
+  else if (active === 'today') { const hintNoneTxt = t('hint.none'); items = todayTasks().filter(x => x.tier !== 'block').map(x => ({ id:x.id, title:x.title, hint:x.time || hintNoneTxt, hintEm:'' })); }
+  else { const k = dateKey(new Date()); items = state.tasks.filter(x => x.date && x.date !== k).sort((a, b) => a.date < b.date ? -1 : 1).map(x => ({ id:x.id, title:x.title, hint:fmtShortDate(x.date), hintEm:'' })); }
 
   if (!items.length) {
     list.innerHTML = `<div class="empty"><div class="e1">${t('empty.'+active+'.1')}</div><div class="e2">${t('empty.'+active+'.2')}</div></div>`;
@@ -2760,47 +2743,59 @@ function renderPlan() {
   save();
 }
 
-/* Plan 列表项删除（收集箱/本周/以后/未安排）：可撤销 */
+/* Plan 列表项删除：收集箱项可撤销删除；已排/今天段删除真实任务（deleteTaskUndoable） */
 function deletePlanItemUndoable(el) {
   const id = el.dataset.planItem;
   const active = $('#plan-seg .on')?.dataset.seg || 'inbox';
-  const listKey = active === 'today' ? null
-    : { inbox:'inbox', week:'week', upcoming:'upcoming', unscheduled:'unscheduled' }[active];
-  if (listKey) {
-    const idx = state[listKey].findIndex(x => x.id === id);
-    if (idx < 0) return;
-    const item = state[listKey][idx];
-    state[listKey].splice(idx, 1);
-    renderPlan();
-    toast(t('toast.deleted'), { label: t('toast.undo'), onClick: () => {
-      state[listKey].splice(Math.min(idx, state[listKey].length), 0, item);
-      save(); renderPlan();
-    }});
-  } else {
-    deleteTaskUndoable(id);   // today 分段显示的是真实任务
-  }
+  if (active !== 'inbox') { deleteTaskUndoable(id); return; }
+  const idx = state.inbox.findIndex(x => x.id === id);
+  if (idx < 0) return;
+  const item = state.inbox[idx];
+  state.inbox.splice(idx, 1);
+  renderPlan();
+  toast(t('toast.deleted'), { label: t('toast.undo'), onClick: () => {
+    state.inbox.splice(Math.min(idx, state.inbox.length), 0, item);
+    save(); renderPlan();
+  }});
 }
 
+/* Reschedule：选项是真实日期（今天/明天/本周末/下周一）。
+   收集箱项 → 转成带日期的真实任务（单一事实来源 tasks.date）；已有任务 → 直接改 date */
 function openReschedule(title) {
   $('#rs-title').textContent = title;
+  refreshNow();
+  const mk = (offset) => { const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset); return dateKey(d); };
+  const nextDow = (dow) => {
+    for (let i = 1; i <= 7; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+      if (d.getDay() === dow) return dateKey(d);
+    }
+    return mk(7);
+  };
   const opts = [
-    { t: t('rs.opt1.t'), d: t('rs.opt1.d') },
-    { t: t('rs.opt2.t'), d: t('rs.opt2.d') },
-    { t: t('rs.opt3.t'), d: t('rs.opt3.d') },
-    { t: t('rs.opt4.t'), d: t('rs.opt4.d'), inbox: true },
+    { label: t('rs.today'),     date: mk(0) },
+    { label: t('rs.tomorrow'),  date: mk(1) },
+    { label: t('rs.weekend'),   date: nextDow(6) },
+    { label: t('rs.nextweek'),  date: nextDow(1) },
   ];
   $('#rs-list').innerHTML = opts.map((o, i) => `
-    <div class="item" data-rs="${i}"><span class="t">${o.t}</span><span class="h">${o.d}</span></div>`).join('');
+    <div class="item" data-rs="${i}"><span class="t">${o.label}</span><span class="h">${fmtShortDate(o.date)}</span></div>`).join('');
   $('#rs-list').querySelectorAll('[data-rs]').forEach(el => {
     el.onclick = () => {
       const o = opts[+el.dataset.rs];
       const it = state.rsTarget;
-      if (it && !o.inbox) {
+      if (!it) return;
+      if (state.inbox.find(x => x.id === it.id)) {
         state.inbox = state.inbox.filter(x => x.id !== it.id);
-        state.week.push({ id: it.id, title: it.title, hint: o.t });
-        toast(tpl('toast.scheduled', {when: ' ' + o.t}));
+        state.tasks.push({ id: it.id, title: it.title, date: o.date, time: null, dur: null,
+          done: false, tier: 'anytime', goal: null, routine: null, notes: '' });
+      } else {
+        it.date = o.date;
       }
-      closeSheets(); renderPlan();
+      state.rsTarget = null;
+      closeSheets();
+      renderToday(); renderPlan(); save();
+      toast(tpl('toast.scheduled', { when: o.label }));
     };
   });
   openSheet('sheet-rs');
@@ -2811,8 +2806,8 @@ function renderProgress() {
   $('#prog-title').textContent = '真实进度';
   const body = $('#prog-body');
 
-  // 今天（来自 state.tasks / state.habits，非硬编码）
-  const actionable = state.tasks.filter(x => x.title !== '睡觉');
+  // 今天（来自 todayTasks，与 Today 仪表盘同口径；非硬编码）
+  const actionable = todayTasks().filter(x => x.title !== '睡觉');
   const doneT = actionable.filter(x => x.done).length;
   const totalT = actionable.length;
   const pct = totalT ? Math.round(doneT / totalT * 100) : 0;
@@ -3131,12 +3126,9 @@ function hideToast() {
 
 /* 破坏性操作的统一入口：删除后可一键撤销（Apple HIG: undo-support） */
 function deleteTaskUndoable(id) {
-  const i1 = state.tasks.findIndex(x => x.id === id);
-  const i2 = state.secondary.findIndex(x => x.id === id);
-  let listKey, index;
-  if (i1 >= 0) { listKey = 'tasks'; index = i1; }
-  else if (i2 >= 0) { listKey = 'secondary'; index = i2; }
-  else return;
+  const index = state.tasks.findIndex(x => x.id === id);
+  if (index < 0) return;
+  const listKey = 'tasks';
   const item = state[listKey][index];
   state[listKey].splice(index, 1);
   state.activeTask = null;
@@ -3171,20 +3163,40 @@ function _localLoad() {
     const raw = localStorage.getItem(PERSIST_KEY);
     if (!raw) return false;
     const saved = JSON.parse(raw);
-    ['tasks','secondary','habits','inbox','week','upcoming','unscheduled','goals','routines','health',
-     'direction','domains','wake','sleep','work','obCompleted','history','lastDay','lang'].forEach(k => {
+    ['tasks','habits','inbox','goals','routines','health',
+     'direction','domains','wake','sleep','work','obCompleted','history','lastDay','lang','theme'].forEach(k => {
       if (saved[k] !== undefined) state[k] = saved[k];
     });
+    migrateLegacy(saved);
     return true;
   } catch (_) { return false; }
+}
+/* 旧版数据迁移（M1：week/upcoming/unscheduled/secondary → tasks.date 单一模型）
+   旧 week/upcoming/unscheduled 条目没有真实日期 → 全部回到收集箱，不丢失；
+   旧 secondary 条目 → 并入 tasks（tier:'anytime'） */
+function migrateLegacy(saved) {
+  try {
+    if (Array.isArray(saved.secondary)) saved.secondary.forEach(s => {
+      if (s && s.title && !state.tasks.find(x => x.id === s.id)) {
+        state.tasks.push({ ...s, tier: 'anytime', time: null, date: null });
+      }
+    });
+    ['week','upcoming','unscheduled'].forEach(k => {
+      if (Array.isArray(saved[k])) saved[k].forEach(it => {
+        if (it && it.title && !state.inbox.find(x => x.id === it.id || x.title === it.title)) {
+          state.inbox.push({ id: it.id || ('m' + Math.random().toString(36).slice(2, 8)), title: it.title, hint: '' });
+        }
+      });
+    });
+  } catch (_) {}
 }
 /* 把某一天的最终状态定格进 history（供 Me 页 Calendar 四色使用） */
 function snapshotFor(k) {
   try {
     const act = state.tasks.filter(x => x.title !== '睡觉' && (!x.date || x.date === k));
-    const done = act.filter(x => x.done).length + state.secondary.filter(x => x.done).length;
-    const total = act.length + state.secondary.length;
-    const urgent = act.some(x => x.urgent) || state.secondary.some(x => x.urgent);
+    const done = act.filter(x => x.done).length;
+    const total = act.length;
+    const urgent = act.some(x => x.urgent);
     state.history = state.history || {};
     const prev = state.history[k] || {};
     state.history[k] = { done, total, urgent: urgent || !!prev.urgent };
@@ -3221,10 +3233,11 @@ async function _cloudLoad() {
     if (error) { console.warn('[sb] load failed:', error.message); return false; }
     if (!data || !data.value) return false;
     const remote = JSON.parse(data.value);
-    ['tasks','secondary','habits','inbox','week','upcoming','unscheduled','goals','routines','health',
-     'direction','domains','wake','sleep','work','obCompleted','history','lastDay','lang'].forEach(k => {
+    ['tasks','habits','inbox','goals','routines','health',
+     'direction','domains','wake','sleep','work','obCompleted','history','lastDay','lang','theme'].forEach(k => {
       if (remote[k] !== undefined) state[k] = remote[k];
     });
+    migrateLegacy(remote);
     return true;
   } catch (e) { console.warn('[sb] load exception:', e); return false; }
 }
@@ -3263,9 +3276,8 @@ function checkDayRollover() {
   if (state.lastDay === k) return false;
   // 1) 上一天的最终状态定格进 history（用旧的 done + 旧日期 key）
   snapshotFor(state.lastDay);
-  // 2) 当日状态重置：时间轴 / 次要 / 习惯全部回到未完成（过去日期的任务是记录，保留 done）
+  // 2) 当日状态重置：时间轴（含"随时"）全部回到未完成（过去日期的任务是记录，保留 done）
   state.tasks.forEach(x => { if (!x.date || x.date >= k) x.done = false; });
-  state.secondary.forEach(x => { x.done = false; });
   state.habits.forEach(x => { x.done = false; });
   if (state.todayState === 'completed') state.todayState = 'default';
   dismissedCards.clear();       // 上下文建议卡：新的一天重新有资格出现
@@ -3743,6 +3755,19 @@ async function boot() {
   });
   enableSegSlide($('#plan-seg'), () => renderPlan());   // 长按 300ms 进入滑动切换
 
+  // 快速捕获：回车入收集箱；若在其他分段，自动切回收集箱让新条目可见（交互闭环）
+  const capIn = $('#cap-in');
+  if (capIn) capIn.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const v = (capIn.value || '').trim();
+    if (!v) return;
+    state.inbox.unshift({ id: 'c' + Date.now(), title: v, hint: '' });
+    capIn.value = '';
+    $$('#plan-seg button').forEach(x => x.classList.remove('on'));
+    $('#plan-seg [data-seg="inbox"]')?.classList.add('on');
+    renderPlan(); save();
+  });
+
   // Task Detail 操作
   $('#td-save').onclick = () => {
     const title = ($('#td-title-in').value || '').trim();
@@ -3759,7 +3784,7 @@ async function boot() {
       notes: ($('#td-notes-in').value || '').trim(),
     };
     if (state.activeTask) Object.assign(state.activeTask, patch);
-    else state.tasks.push({ id: 'n' + Date.now(), done: false, tier: 'main', ...patch });
+    else state.tasks.push({ id: 'n' + Date.now(), done: false, tier: ($('#td-time-in').value ? 'main' : 'anytime'), ...patch });
     closeSheets(); renderToday(); renderPlan();
     toast('已保存');
   };
@@ -3824,7 +3849,7 @@ async function boot() {
   };
   $('#focus-quit').onclick = () => { resetFocus(); $('#focus').classList.remove('on'); };
 
-  // 主题 — 只在「系统设置」里切换：白天 / 黑夜 / 随系统
+  // 主题 — 只在「系统设置」里切换：白天 / 黑夜 / 随系统（选择持久化）
   const applyMode = (m) => {
     const phone = $('.phone');
     // 注意：dataset 必须小写，CSS 选择器是 [data-mode="dark"]
@@ -3833,9 +3858,10 @@ async function boot() {
       : m;
     phone.dataset.mode = resolved;
     $$('#theme-seg button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+    if (state.theme !== m) { state.theme = m; save(); }
   };
   $$('#theme-seg button').forEach(b => b.onclick = () => applyMode(b.dataset.mode));
-  applyMode('light');
+  applyMode(state.theme || 'light');
 
   // 深链 / 浏览器前进后退
   window.addEventListener('popstate', () => applyRoute(location.hash));

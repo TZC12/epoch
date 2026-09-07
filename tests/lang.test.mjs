@@ -24,6 +24,7 @@ t('默认语言 zh', S().lang === 'zh');
 t('仪表盘标签为中文', d.querySelector('.ds-label')?.textContent === '今日进度');
 t('底部 Tab 为中文', d.querySelector('.tab[data-tab="plan"] span')?.textContent === '规划');
 t('Plan 分段为中文', d.querySelector('#plan-seg [data-seg="inbox"]')?.textContent === '收集箱');
+t('Plan 分段收敛为 3 个（收集箱/今天/已排）', d.querySelectorAll('#plan-seg button').length === 3);
 
 console.log('— 切换英文：系统文字统一 —');
 w.setLang('en'); await sleep(120);
@@ -32,6 +33,7 @@ t('仪表盘标签变英文', d.querySelector('.ds-label')?.textContent === 'Pro
 t('已完成/待完成变英文', d.querySelector('.ds-n span')?.textContent === 'Done' || d.querySelectorAll('.ds-n span')[0]?.textContent === 'Done');
 t('Tab 变英文', d.querySelector('.tab[data-tab="plan"] span')?.textContent === 'Plan');
 t('Plan 分段变英文', d.querySelector('#plan-seg [data-seg="inbox"]')?.textContent === 'Inbox');
+t('已排分段变英文', d.querySelector('#plan-seg [data-seg="scheduled"]')?.textContent === 'Scheduled');
 t('日期行变英文格式', /September|Sep/.test(d.getElementById('date-line')?.textContent || ''));
 t('语言持久化到本地', JSON.parse(w.localStorage.getItem('epoch-state') || '{}').lang === 'en');
 
