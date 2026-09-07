@@ -85,22 +85,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 桌面端：手机容器像一台真正的设备 */
-@media (min-width: 520px) {
-  body { padding: 32px 0; background: linear-gradient(180deg, #E5EAF1 0%, #ECEFF5 100%); align-items: center; }
-  .phone {
-    border-radius: 44px;
-    border: 1px solid rgba(255,255,255,.6);
-    box-shadow: 0 32px 80px rgba(60,70,100,.18), 0 4px 16px rgba(60,70,100,.06);
-    min-height: 880px;
-    max-height: 880px;
-  }
-}
-@media (prefers-color-scheme: dark) and (min-width: 520px) {
-  body { background: linear-gradient(180deg, #0B0D11 0%, #11141A 100%); }
-  .phone { border-color: rgba(255,255,255,.06); }
-}
-
 /* ═══════════ 手机容器 ═══════════ */
 .phone {
   position: relative;
@@ -112,6 +96,26 @@ body {
   display: flex;
   flex-direction: column;
   isolation: isolate;
+}
+
+/* 桌面端：手机容器像一台真正的设备（置于基础规则之后，确保覆盖 min-height/max-width） */
+@media (min-width: 520px) {
+  body { padding: 32px 0; background: linear-gradient(180deg, #E5EAF1 0%, #ECEFF5 100%); align-items: center; }
+  .phone {
+    border-radius: 44px;
+    border: 1px solid rgba(255,255,255,.6);
+    box-shadow: 0 32px 80px rgba(60,70,100,.18), 0 4px 16px rgba(60,70,100,.06);
+    height: calc(100dvh - 64px);   /* 贴合窗口高度，任何窗口都不出页面滚动条 */
+    min-height: 640px;             /* 极矮窗口保底（此时 body 允许滚动） */
+    max-height: none;
+  }
+}
+@media (min-width: 1024px) {
+  .phone { max-width: 480px; }     /* 大屏加宽，单列内容更舒展 */
+}
+@media (prefers-color-scheme: dark) and (min-width: 520px) {
+  body { background: linear-gradient(180deg, #0B0D11 0%, #11141A 100%); }
+  .phone { border-color: rgba(255,255,255,.06); }
 }
 
 /* ── Aurora：大范围、柔和、低透明度、缓慢移动 ── */
