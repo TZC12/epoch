@@ -113,5 +113,36 @@ t('紧急计划 → urgent（紫）', w.calendarDotClass({ done: 5, total: 5, ur
 t('无数据 → 空', w.calendarDotClass(undefined) === '');
 t('habit-dots 渲染 70 格', d.querySelectorAll('#habit-dots i').length === 70);
 
+console.log('— 删除可撤销（undo-support） —');
+{
+  const target = S().tasks.find(x => x.title !== '睡觉');
+  const before = S().tasks.length;
+  const row = d.querySelector(`.tl-row[data-task="${target.id}"]`);
+  row?.querySelector('.tl-del')?.click(); await sleep(80);
+  t('左滑删除后任务移除', S().tasks.length === before - 1);
+  const toastEl = d.getElementById('toast');
+  t('toast 有 role=status + aria-live', toastEl?.getAttribute('role') === 'status' && toastEl?.getAttribute('aria-live') === 'polite');
+  const undoBtn = toastEl?.querySelector('.toast-act');
+  t('toast 出现撤销按钮', !!undoBtn);
+  undoBtn?.click(); await sleep(80);
+  t('点撤销后任务恢复', S().tasks.some(x => x.id === target.id) && S().tasks.length === before);
+}
+{
+  const target2 = S().tasks.find(x => x.title !== '睡觉');
+  w.openTaskDetail(target2); await sleep(60);
+  d.getElementById('td-delete').click(); await sleep(60);
+  t('编辑弹框删除也移除任务', !S().tasks.some(x => x.id === target2.id));
+  t('删除后弹框关闭', !d.querySelector('#sheet-task')?.classList.contains('on'));
+  d.querySelector('#toast .toast-act')?.click(); await sleep(60);
+  t('编辑删除同样可撤销', S().tasks.some(x => x.id === target2.id));
+}
+
+console.log('— 可达性基础（触控目标 / 焦点环 / 点按延迟） —');
+t('Tab 按钮 min-height 44px', /min-height:\s*44px/.test(html));
+t('tl-add 有扩展热区（::after）', /\.tl-add::after[^}]*inset:\s*-8px/.test(html));
+t('键盘焦点环规则存在', /:focus-visible[^{]*\{[^}]*outline/.test(html));
+t('touch-action: manipulation 已启用', /touch-action:\s*manipulation/.test(html));
+t('auth 错误区 role=alert', d.getElementById('auth-err')?.getAttribute('role') === 'alert');
+
 console.log(`\n结果：${pass} 通过，${fail} 失败`);
 process.exit(fail ? 1 : 0);
