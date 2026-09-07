@@ -297,7 +297,7 @@ body {
 .phone[data-mode="dark"] .tl-add:hover { background: rgba(255,255,255,.07); }
 
 .dash { margin-top: 18px; }
-.dash-top { display: flex; align-items: center; gap: 22px; }
+.dash-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .dash-gauge { position: relative; width: 152px; height: 92px; flex-shrink: 0; }
 .dash-gauge svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .dash-gauge .g-bg { fill: none; stroke: rgba(120,130,150,.14); stroke-width: 13; stroke-linecap: round; }
@@ -309,13 +309,13 @@ body {
 .g-center { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; pointer-events: none; }
 .g-center b { font-size: 27px; font-weight: 700; color: var(--ink-1); letter-spacing: -.02em; line-height: 1.05; }
 .g-center span { display: block; font-size: 11.5px; color: var(--ink-3); margin-top: 3px; white-space: nowrap; }
-.dash-side { flex: 1; min-width: 0; }
+.dash-side { min-width: 0; }
 .ds-label { font-size: 12.5px; color: var(--ink-3); letter-spacing: .02em; }
-.ds-nums { display: flex; gap: 30px; margin-top: 14px; }
+.ds-nums { display: flex; gap: 34px; margin-top: 14px; }
 .ds-n b { display: block; font-size: 24px; font-weight: 700; color: var(--ink-1); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 .ds-n span { display: block; font-size: 11.5px; color: var(--ink-4); margin-top: 3px; }
 @media (max-width: 380px) {
-  .dash-top { gap: 18px; }
+  .dash-top { gap: 20px; }
   .dash-gauge { width: 132px; height: 80px; }
   .g-center b { font-size: 24px; }
   .ds-nums { gap: 22px; }
