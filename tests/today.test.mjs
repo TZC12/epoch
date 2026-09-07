@@ -144,5 +144,17 @@ t('键盘焦点环规则存在', /:focus-visible[^{]*\{[^}]*outline/.test(html))
 t('touch-action: manipulation 已启用', /touch-action:\s*manipulation/.test(html));
 t('auth 错误区 role=alert', d.getElementById('auth-err')?.getAttribute('role') === 'alert');
 
+console.log('— 收集箱左滑删除可撤销 —');
+{
+  const item = S().inbox[0];
+  const before = S().inbox.length;
+  const el = d.querySelector(`#plan-list [data-plan-item="${item.id}"]`);
+  t('收集箱项已渲染（含删除按钮）', !!el && !!el.querySelector('.tl-del'));
+  el?.querySelector('.tl-del')?.click(); await sleep(80);
+  t('删除后收集箱 -1', S().inbox.length === before - 1);
+  d.querySelector('#toast .toast-act')?.click(); await sleep(80);
+  t('撤销后收集箱恢复', S().inbox.length === before && S().inbox.some(x => x.id === item.id));
+}
+
 console.log(`\n结果：${pass} 通过，${fail} 失败`);
 process.exit(fail ? 1 : 0);

@@ -452,6 +452,7 @@ body {
 
 /* ═══════════ PLAN ═══════════ */
 .item {
+  position: relative;
   display: flex; align-items: center; gap: 12px; padding: 14px 2px;
   border-bottom: 1px solid var(--hair); border-radius: 0;
   margin-bottom: 0;
@@ -461,6 +462,7 @@ body {
 }
 .item:first-child { border-top: 1px solid var(--hair); }
 .item:active .t { opacity: .6; }
+.item.reveal .tl-del { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
 .item .t { font-size: 15px; font-weight: 500; color: var(--ink-1); flex: 1; letter-spacing: -.006em; }
 .item .h { font-size: 11.5px; color: var(--ink-4); text-align: right; flex-shrink: 0; }
 .item .h em { font-style: normal; color: var(--accent-ink); font-weight: 500; }
@@ -1011,24 +1013,16 @@ body {
 
     <!-- ══════════════════════ PLAN ══════════════════════ -->
     <section class="screen" data-screen="plan" data-page-node-id="hdg9UwUDw9MfhEXebOvKVi">
-      <div class="head" data-page-node-id="4hqXcAv3SvwxEaRb0gKd5t">
-        <div class="eyebrow" data-page-node-id="0nDWCN751BxukRWBCCj5N7">Plan</div>
-        <div class="t-page" data-page-node-id="ClMYTg0EtbpUHvzLxOXQMz">规划</div>
-        <div class="sub-note" data-page-node-id="ZC00QMFLJOqkbVE1zaTIE9">先收集，后安排。不要强迫自己立刻决定日期。</div>
-      </div>
-
-      <div class="seg" id="plan-seg" data-page-node-id="8KfphmPmwoIWs809Uk3vWz">
-        <button class="on" data-seg="inbox" data-page-node-id="dbqw21wT2VBurTHrsE77TK">Inbox</button><button data-seg="today" data-page-node-id="FgkcGyjiYIm5YC4RxCofxL">Today</button><button data-seg="week" data-page-node-id="7YJ3keB5fqGrTo61qW1N8S">This Week</button><button data-seg="upcoming" data-page-node-id="FcIvD2eBSFs7Bswnv5PzDO">Upcoming</button><button data-seg="unscheduled" data-page-node-id="iSCiFd473aR36yhTBmrVDD">Unscheduled</button>
+      <div class="seg" id="plan-seg" style="margin-top:6px" data-page-node-id="8KfphmPmwoIWs809Uk3vWz">
+        <button class="on" data-seg="inbox" data-page-node-id="dbqw21wT2VBurTHrsE77TK">收集箱</button><button data-seg="today" data-page-node-id="FgkcGyjiYIm5YC4RxCofxL">今天</button><button data-seg="week" data-page-node-id="7YJ3keB5fqGrTo61qW1N8S">本周</button><button data-seg="upcoming" data-page-node-id="FcIvD2eBSFs7Bswnv5PzDO">以后</button><button data-seg="unscheduled" data-page-node-id="iSCiFd473aR36yhTBmrVDD">未安排</button>
       </div>
 
       <div class="myday" data-open="sheet-myday" data-page-node-id="wFD1H3R7r5reu4Wi09DcVs">
-        <div class="eyebrow" data-page-node-id="lehQx8rCyQpHLZ3RyKmBuo">Plan My Day</div>
         <div class="q" data-page-node-id="B290G7iRn1fWEDlXVidUDw">生成建议日程</div>
-        <div class="d" data-page-node-id="wla4SwAfRAkVAIUCLnLEBA">根据固定工作时间、Routines、运动与学习安排，以及你今天的空档，自动生成一版时间轴。</div>
-        <div class="go" data-page-node-id="kJaiPM4GYHMJ8YBcZvQEq5">Generate <svg viewBox="0 0 24 24" data-page-node-id="Y1cjCAElDiwFzW7tyciyzB"><path d="M5 12h14M13 6l6 6-6 6" data-page-node-id="VIVwZumiQf02OeR6N33f9w"/></svg></div>
+        <div class="go" data-page-node-id="kJaiPM4GYHMJ8YBcZvQEq5">生成 <svg viewBox="0 0 24 24" data-page-node-id="Y1cjCAElDiwFzW7tyciyzB"><path d="M5 12h14M13 6l6 6-6 6" data-page-node-id="VIVwZumiQf02OeR6N33f9w"/></svg></div>
       </div>
 
-      <div class="sec tight" data-page-node-id="qKVkKi5uIc2ZgeidAlMPqU"><h2 id="plan-label" data-page-node-id="y6sovSIZpjYarSLt5Zmg6T">Inbox</h2><span class="n" id="plan-count" data-page-node-id="6eHOCcGD7DHJHKOIpZNqf3"></span></div>
+      <div class="sec tight" data-page-node-id="qKVkKi5uIc2ZgeidAlMPqU"><h2 id="plan-label" data-page-node-id="y6sovSIZpjYarSLt5Zmg6T">收集箱</h2></div>
       <div id="plan-list" data-page-node-id="uJKvpeDA8HLDgF9kYU85nK"></div>
     </section>
 
@@ -1188,7 +1182,7 @@ body {
 
       <div class="sec" data-page-node-id="QFhwuKnMNfFfE06oH6o9CQ"><h2 data-page-node-id="br0BMd52z7bmV50dn2zqu2">操作</h2></div>
       <div class="btn-row" data-page-node-id="MIzW8EpZSjgLs6HpveUP4X">
-        <button class="btn btn-g" style="flex:1" data-page-node-id="H5dqt9UkCiyLQ7bIa8NGYp">Skip this week</button>
+        <button class="btn btn-g" style="flex:1" data-page-node-id="H5dqt9UkCiyLQ7bIa8NGYp">跳过</button>
         <button class="btn btn-g" style="flex:1" data-page-node-id="olxX8cVBlqxlTAf5bIF8js">Reschedule</button>
         <button class="btn btn-g" style="flex:1" data-page-node-id="qkzCRosDF4Pv9plBloyfeT">Duplicate</button>
       </div>
@@ -1794,11 +1788,11 @@ const I18N = {
     'ob.gen.lbl':'正在生成第一周…','ob.gen.sub':'根据你的作息与 Routines 排入今天和本周的空档。<br/>之后每天 20:30 会再排一次。',
     'ob.done.q':'好了。','ob.done.d':'今天有 3 个重点任务。先做完第一个，剩下的明天再说。',
     'focus.quit':'退出专注','focus.start':'开始','focus.pause':'暂停','focus.resume':'继续','focus.done':'完成',
-    'toast.back2inbox':'已移回收集箱，不删除','toast.skiptoday':'今天跳过，明天不再提醒',
+    'toast.back2inbox':'已移回收集箱，不删除','toast.skiptoday':'已跳过，明天不再提醒',
     'toast.walk':'已改成 Walk · 20 min','toast.keep':'保持原计划',
     'toast.saved':'已存入收集箱','toast.scheduled':'已安排到{when}',
     'toast.timeline':'今天的时间轴已更新','toast.adjust':'可以在规划里逐项调整',
-    'toast.moved':'已移到周六 15:30','toast.skip':'今天跳过','toast.deleted':'已删除','toast.undo':'撤销',
+    'toast.moved':'已移到周六 15:30','toast.skip':'已跳过','toast.deleted':'已删除','toast.undo':'撤销',
     'auth.busy.in':'登录中…','auth.busy.up':'注册中…',
     'toast.connected':'已连接 · 基线需要约 2 周数据','toast.disconnected':'已断开，数据已清除',
     'toast.denied':'未授权，健康功能保持关闭','toast.week':'第一周已生成',
@@ -1958,11 +1952,11 @@ const I18N = {
     'ob.gen.lbl':'Building your first week…','ob.gen.sub':'Placing today and this week\u2019s gaps around your schedule and routines.<br/>Re-planned daily at 20:30.',
     'ob.done.q':'Done.','ob.done.d':'3 main tasks today. Finish the first one — the rest can wait until tomorrow.',
     'focus.quit':'Quit focus','focus.start':'Start','focus.pause':'Pause','focus.resume':'Resume','focus.done':'Done',
-    'toast.back2inbox':'Back to Inbox — not deleted','toast.skiptoday':'Skipped today, no reminder tomorrow',
+    'toast.back2inbox':'Back to Inbox — not deleted','toast.skiptoday':"Skipped — won't nag tomorrow",
     'toast.walk':'Changed to Walk · 20 min','toast.keep':'Keeping the original plan',
     'toast.saved':'Saved to Inbox','toast.scheduled':'Scheduled to {when}',
     'toast.timeline':'Today\u2019s timeline updated','toast.adjust':'Adjust item by item in Plan',
-    'toast.moved':'Moved to Sat 15:30','toast.skip':'Skipped today','toast.deleted':'Deleted','toast.undo':'Undo',
+    'toast.moved':'Moved to Sat 15:30','toast.skip':'Skipped','toast.deleted':'Deleted','toast.undo':'Undo',
     'auth.busy.in':'Signing in…','auth.busy.up':'Creating account…',
     'toast.connected':'Connected · baseline needs ~2 weeks of data','toast.disconnected':'Disconnected, data wiped',
     'toast.denied':'Not authorized — health stays off','toast.week':'First week generated',
@@ -2114,15 +2108,16 @@ const ZH2EN = {
   '好了。':'Done.','今天有 3 个 Main Task。先做完第一个，剩下的明天再说。':'3 Main Tasks today. Finish the first one — the rest can wait.','进入 Today':'Enter Today',
   '上一步':'Back','开始':'Start','继续':'Continue',
   /* 建议卡 / Toast / Progress */
-  '开始专注':'Start focus','改时间':'Reschedule','今天看起来有点满。':'Your day looks heavy.','移回一件':'Move one back','跳过一件':'Skip one',
+  '开始专注':'Start focus','改时间':'Reschedule','今天看起来有点满。':'Your day looks heavy.','移回一件':'Move one back',
   '改成 Walk':'Switch to Walk','保持原计划':'Keep the plan','去安排':'Schedule one','知道了':'Got it',
   '新的一天，时间轴已重置':'New day — timeline reset','可以在 Plan 里逐项调整':'Adjust item by item in Plan','已保存':'Saved',
-  '先起个名字':'Give it a name first','先写一句话':'Write one line first','已存入 Inbox':'Saved to Inbox','今天跳过':'Skipped for today',
-  '已按建议调整今天':'Today adjusted as suggested','已移回 Inbox，不删除':'Moved back to Inbox — not deleted','今天跳过，明天不再提醒':"Skipped today — won't nag tomorrow",
+  '先起个名字':'Give it a name first','先写一句话':'Write one line first','已存入 Inbox':'Saved to Inbox',
+  '已按建议调整今天':'Today adjusted as suggested','已移回 Inbox，不删除':'Moved back to Inbox — not deleted',
   '已改成 Walk · 20 min':'Switched to Walk · 20 min',
   '真实进度':'Progress','真实完成':'actual','点击看详情':'Tap for detail','每周一件':'One thing a week',
   '今天':'Today','未安排':'Unscheduled','建议':'Suggested','空档':'Open slot','缓冲':'Buffer',
   '撤销':'Undo','已删除':'Deleted','登录中…':'Signing in…','注册中…':'Creating account…',
+  '已跳过':'Skipped','已跳过，明天不再提醒':"Skipped — won't nag tomorrow",'收集箱':'Inbox','以后':'Later','生成':'Generate',
   '来自本周反思':'From weekly review','调整当天强度':"Tunes today's intensity",'每周二':'Every Tuesday',
   '每周重复出现的生活结构。修改一次，未来的 Task 跟着变。':'A repeating weekly structure. Change once — future Tasks follow.',
   '存入 Inbox':'Save to Inbox','保存后它会出现在 Plan 的 Inbox 里，等你安排。':'It lands in Plan → Inbox, ready to be scheduled.',
@@ -2332,7 +2327,7 @@ function buildSuggestions() {
   if (remaining > 4) out.push({
     id: 'heavy', q: t('note.heavy'),
     d: tpl('sug.heavy.d', { n: remaining }),
-    acts: [{ label: '移回一件', act: 'reduce', primary: true }, { label: '跳过一件', act: 'skipone' }],
+    acts: [{ label: '移回一件', act: 'reduce', primary: true }, { label: '跳过', act: 'skipone' }],
   });
   // 3) 能量低（连接健康数据后才有）
   const energy = energyOf();
@@ -2368,7 +2363,7 @@ function runSugAct(act) {
   if (act === 'skipone') {
     const last = state.secondary.filter(x => !x.done).pop();
     if (last) last.done = true;
-    toast('今天跳过，明天不再提醒'); renderToday(); return false;
+    toast('已跳过，明天不再提醒'); renderToday(); return false;
   }
   if (act === 'walk') {
     const run = state.tasks.find(x => x.title.startsWith('Run'));
@@ -2738,19 +2733,48 @@ function renderPlan() {
       <div class="item" data-plan-item="${it.id}">
         <span class="t" data-user>${it.title}</span>
         ${it.hintEm ? `<span class="h">${it.hint} <em>${it.hintEm}</em></span>` : (it.hint ? `<span class="h">${it.hint}</span>` : '')}
+        <button class="tl-del" aria-label="${t('td.delete')}">删除</button>
       </div>`).join('');
   }
-  $('#plan-count').textContent = items.length ? tpl('plan.items', {n: items.length}) + t('plan.count.' + active) : t('plan.count.' + active);
 
   list.querySelectorAll('[data-plan-item]').forEach(el => {
-    el.addEventListener('click', () => {
-      const t = state.tasks.find(x => x.id === el.dataset.planItem);
-      if (t) { openTaskDetail(t); return; }
+    bindRowSwipe(el);
+    el.querySelector('.tl-del')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      deletePlanItemUndoable(el);
+    });
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('.tl-del')) return;
+      // 左滑露出删除后，点击其他区域先收回
+      if (el.classList.contains('reveal')) { el.classList.remove('reveal'); el.style.transform = ''; return; }
+      const tsk = state.tasks.find(x => x.id === el.dataset.planItem);
+      if (tsk) { openTaskDetail(tsk); return; }
       const it = state.inbox.find(x => x.id === el.dataset.planItem);
       if (it) { state.rsTarget = it; openReschedule(it.title); }
     });
   });
   save();
+}
+
+/* Plan 列表项删除（收集箱/本周/以后/未安排）：可撤销 */
+function deletePlanItemUndoable(el) {
+  const id = el.dataset.planItem;
+  const active = $('#plan-seg .on')?.dataset.seg || 'inbox';
+  const listKey = active === 'today' ? null
+    : { inbox:'inbox', week:'week', upcoming:'upcoming', unscheduled:'unscheduled' }[active];
+  if (listKey) {
+    const idx = state[listKey].findIndex(x => x.id === id);
+    if (idx < 0) return;
+    const item = state[listKey][idx];
+    state[listKey].splice(idx, 1);
+    renderPlan();
+    toast(t('toast.deleted'), { label: t('toast.undo'), onClick: () => {
+      state[listKey].splice(Math.min(idx, state[listKey].length), 0, item);
+      save(); renderPlan();
+    }});
+  } else {
+    deleteTaskUndoable(id);   // today 分段显示的是真实任务
+  }
 }
 
 function openReschedule(title) {
@@ -3753,7 +3777,7 @@ async function boot() {
   };
   $('#td-skip').onclick = () => {
     const t = state.activeTask; if (!t) return;
-    t.done = true; renderToday(); closeSheets(); toast('今天跳过');
+    t.done = true; renderToday(); closeSheets(); toast('已跳过');
   };
   $('#td-delete').onclick = () => {
     const ev = state.activeTask; if (!ev) return;
