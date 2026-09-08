@@ -2455,7 +2455,7 @@ function bindRowSwipe(row) {
     if (mode === 'done') return;
     const mx = e.clientX - sx, my = e.clientY - sy;
     if (!mode) {
-      if (Math.abs(mx) < 8 && Math.abs(my) < 8) return;
+      if (Math.abs(mx) < 6 && Math.abs(my) < 6) return;
       mode = Math.abs(mx) > Math.abs(my) ? 'x' : 'y';
       if (mode === 'y') { mode = 'done'; return; }
     }
@@ -2465,15 +2465,22 @@ function bindRowSwipe(row) {
     row.style.transform = dx < -64 ? 'translateX(-64px)' : `translateX(${Math.max(-64, dx * 0.6)}px)`;
     row.classList.toggle('reveal', dx < -56);
   });
-  const end = () => {
+  // 关键：横向锁定后必须向浏览器声明"此手势归页内 JS"——否则真机上手指带丝毫
+  // 纵向分量，浏览器就接管纵向滚动并发出 pointercancel，行在半途弹回、来不及点删除
+  row.addEventListener('touchmove', (e) => {
+    if (mode === 'x' && e.cancelable) e.preventDefault();
+  }, { passive: false });
+  const release = (stolen) => {
     if (mode !== 'x') { mode = null; return; }
     mode = 'done';
     row.style.transition = 'transform .25s var(--ease)';
-    if (dx < -56) { row.style.transform = 'translateX(-64px)'; row.classList.add('reveal'); }
+    // pointercancel = 手势被浏览器抢走：已明显滑动（-40）就保持露出，别弹回
+    const hold = dx < (stolen ? -40 : -56);
+    if (hold) { row.style.transform = 'translateX(-64px)'; row.classList.add('reveal'); }
     else { row.style.transform = ''; row.classList.remove('reveal'); }
   };
-  row.addEventListener('pointerup', end);
-  row.addEventListener('pointercancel', end);
+  row.addEventListener('pointerup', () => release(false));
+  row.addEventListener('pointercancel', () => release(true));
 }
 
 function renderToday() {
