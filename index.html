@@ -664,11 +664,10 @@ button:disabled, .btn:disabled, .btn.loading { opacity: var(--op-disabled); poin
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   background: none; border: none; cursor: pointer; font-family: inherit;
   padding: 8px 0; min-height: 44px; border-radius: var(--r-sm); color: var(--text-disabled);
-  transition: color .16s var(--ease), transform .14s var(--ease);
+  transition: color .16s var(--ease);   /* 原版行为：仅颜色过渡；无缩放回弹（2026-09-08 用户指示：导航栏不得有晃动/动效） */
 }
 .tab .ic { width: var(--ic-20); height: var(--ic-20); }
 .tab span { font-size:12px; font-weight: 500; letter-spacing: .005em; }
-.tab:active { transform: scale(.92); }
 .tab.on { color: var(--text-primary); }
 /* tab 激活态强调 = 颜色（primary/tertiary），不加重描边 */
 
