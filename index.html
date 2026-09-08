@@ -126,7 +126,7 @@ body {
 .phone {
   position: relative;
   width: 100%;
-  max-width: 430px;
+  max-width: 480px;   /* ≥ 全系 iPhone 逻辑宽（最大 17 Pro Max 440px），真机不再截断露底；大屏由媒体查询接管 */
   min-height: 100dvh;
   background: #F8F9FF;
   overflow: hidden;
@@ -178,7 +178,8 @@ body {
   position: absolute; inset: 0;
   overflow-y: auto; overflow-x: hidden;   /* 只纵滚；横向溢出（待命中的删除钮）一律裁剪，禁止整页左右拖动 */
   overscroll-behavior-y: contain;
-  padding: 24px 24px 140px;   /* 顶部安全距离 */
+  /* 顶部安全区：独立模式（添加到主屏）下避让灵动岛/状态栏；Safari 浏览器内 env=0 不受影响 */
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 24px 140px;
   -webkit-overflow-scrolling: touch;
 }
 .screen::-webkit-scrollbar, .panel::-webkit-scrollbar, .sheet::-webkit-scrollbar { display: none; }
