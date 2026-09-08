@@ -58,5 +58,32 @@ if (html === before) {
   console.warn('[inject] WARN: no placeholders replaced. Did index.html contain __SUPABASE_URL__ and __SUPABASE_ANON_KEY__?')
 }
 
+// ── 版本标识：每次构建生成 version.json + 页面内嵌 commit SHA ──
+// Cloudflare Pages 构建环境官方注入 CF_PAGES / CF_PAGES_BRANCH / CF_PAGES_COMMIT_SHA；
+// 本地 npm run dev / build 没有这些变量 → environment=development, commit=dev-local。
+let pkg = {}
+try { pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')) } catch (_) {}
+const commit = (process.env.CF_PAGES_COMMIT_SHA || '').trim()
+const branch = (process.env.CF_PAGES_BRANCH || '').trim()
+const onPages = process.env.CF_PAGES === '1' || !!commit
+const versionInfo = {
+  name: pkg.name || 'epoch',
+  version: pkg.version || '0.0.0',
+  commit: commit || 'dev-local',
+  branch: branch || 'local',
+  environment: onPages ? (branch === 'main' ? 'production' : 'preview') : 'development',
+  built_at: new Date().toISOString(),
+}
+try {
+  writeFileSync(resolve(root, 'version.json'), JSON.stringify(versionInfo, null, 2) + '\n')
+} catch (err) {
+  console.error('[inject] WARN: cannot write version.json —', err.message)
+}
+html = html.replaceAll('__APP_VERSION__', versionInfo.commit)
+if (html.includes('__APP_VERSION__')) {
+  console.warn('[inject] WARN: __APP_VERSION__ placeholder still present in index.html')
+}
+console.log(`[inject] version: ${versionInfo.environment} · ${versionInfo.commit.slice(0, 7)} · ${versionInfo.branch} · ${versionInfo.built_at}`)
+
 writeFileSync(target, html)
 console.log(`[inject] injected SUPABASE_URL + SUPABASE_ANON_KEY into ${target}`)

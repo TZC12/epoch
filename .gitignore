@@ -6,6 +6,9 @@ dev-dist
 !.env.example
 *.local
 
+# 构建产物（inject.mjs 在 Pages 构建容器内生成，勿提交）
+version.json
+
 # WorkBuddy / 编辑器本地文件
 .workbuddy/plans/
 .workbuddy/memory/

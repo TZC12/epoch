@@ -15,6 +15,9 @@
 <!-- Environment placeholders; replaced at build time by scripts/inject.mjs -->
 <meta name="x-supabase-url" content="__SUPABASE_URL__" />
 <meta name="x-supabase-anon" content="__SUPABASE_ANON_KEY__" />
+<!-- 版本标识：构建时由 scripts/inject.mjs 注入真实 commit SHA（排查部署用，不在界面展示） -->
+<meta name="app-version" content="__APP_VERSION__" />
+<script>window.__APP_VERSION__='__APP_VERSION__';</script>
 <!-- supabase-js -->
 <!-- supabase-js UMD loaded dynamically in boot() with retry -->
 <style>
