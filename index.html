@@ -2445,9 +2445,16 @@ function updateDash() {
 }
 
 /* 左滑删除手势：横向位移跟手，露出删除按钮 */
+let lastSwipeEndAt = 0;   // 最近一次滑动手势结束时刻
+/* iOS 已知行为：preventDefault 过的拖拽在手势结束时仍会派发一次 click，
+ * 恰好命中"点行身→收回删除钮"处理器 → 每次松手必弹回（2026-09-08 用户报告）。
+ * 双保险：touchend 阻断合成 click + 450ms 内的行身 click 一律忽略。 */
+const justSwiped = () => performance.now() - lastSwipeEndAt < 450;
+
 function bindRowSwipe(row) {
-  let sx = 0, sy = 0, dx = 0, mode = null; // null | 'x' | 'y' | 'done'
+  let sx = 0, sy = 0, dx = 0, mode = null, wasSwipe = false;
   row.addEventListener('pointerdown', (e) => {
+    wasSwipe = false;
     if (e.target.closest('.tl-del')) return;
     sx = e.clientX; sy = e.clientY; dx = 0; mode = null;
   });
@@ -2458,6 +2465,7 @@ function bindRowSwipe(row) {
       if (Math.abs(mx) < 6 && Math.abs(my) < 6) return;
       mode = Math.abs(mx) > Math.abs(my) ? 'x' : 'y';
       if (mode === 'y') { mode = 'done'; return; }
+      wasSwipe = true;
     }
     if (mode !== 'x') return;
     dx = Math.min(0, mx);
@@ -2470,9 +2478,13 @@ function bindRowSwipe(row) {
   row.addEventListener('touchmove', (e) => {
     if (mode === 'x' && e.cancelable) e.preventDefault();
   }, { passive: false });
+  row.addEventListener('touchend', (e) => {
+    if (wasSwipe && e.cancelable) e.preventDefault();   // 掐掉滑动后的合成 click
+  }, { passive: false });
   const release = (stolen) => {
     if (mode !== 'x') { mode = null; return; }
     mode = 'done';
+    lastSwipeEndAt = performance.now();
     row.style.transition = 'transform .25s var(--ease)';
     // pointercancel = 手势被浏览器抢走：已明显滑动（-40）就保持露出，别弹回
     const hold = dx < (stolen ? -40 : -56);
@@ -2587,6 +2599,7 @@ function bindToday(root) {
     row.addEventListener('click', (e) => {
       const id = row.dataset.task;
       if (e.target.closest('.tl-del')) return;
+      if (justSwiped()) return;   // 滑动刚结束的幽灵 click（iOS preventDefault 拖拽后仍派发）
       // 左滑露出删除后，点击其他区域先收回
       if (row.classList.contains('reveal')) { row.classList.remove('reveal'); row.style.transform = ''; return; }
       // 勾选区域
@@ -2804,6 +2817,7 @@ function renderPlan() {
     });
     el.addEventListener('click', (e) => {
       if (e.target.closest('.tl-del')) return;
+      if (justSwiped()) return;   // 滑动刚结束的幽灵 click（iOS preventDefault 拖拽后仍派发）
       // 左滑露出删除后，点击其他区域先收回
       if (el.classList.contains('reveal')) { el.classList.remove('reveal'); el.style.transform = ''; return; }
       const tsk = state.tasks.find(x => x.id === el.dataset.planItem);

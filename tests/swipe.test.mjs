@@ -52,6 +52,7 @@ if (!w.PointerEvent) w.PointerEvent = class extends w.MouseEvent {};
 await new Promise(r => setTimeout(r, 1100));
 
 const pev = (type, x, y) => new w.PointerEvent(type, { clientX: x, clientY: y, bubbles: true });
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 async function swipe(row, dx, { drift = 0, cancel = false } = {}) {
   const r = row.getBoundingClientRect();
   const y0 = r.top + r.height / 2, x0 = r.left + 40;
@@ -73,7 +74,10 @@ console.log('— 行为：正常滑动与释放 —');
   await swipe(row, -70);
   t('滑到 -70 松手 → 保持露出（可点删除）', row.classList.contains('reveal') && row.style.transform === 'translateX(-64px)');
   row.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
-  t('点行身收回（既有交互不破）', !row.classList.contains('reveal'));
+  t('松手后的幽灵 click 不收回（iOS 主诉修复点）', row.classList.contains('reveal'));
+  await sleep(500);
+  row.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+  t('450ms 后点行身仍可收回（既有交互不破）', !row.classList.contains('reveal'));
   await swipe(row, -25);
   t('只滑 -25 松手 → 弹回', !row.classList.contains('reveal'));
 }
@@ -82,14 +86,20 @@ console.log('— 行为：手势被抢（pointercancel）收留策略 —');
 {
   const row = firstRow();
   await swipe(row, -50, { drift: 8, cancel: true });
-  t('被抢时已滑 -50 → 保持露出（修复点：不再弹回）', row.classList.contains('reveal'));
+  t('被抢时已滑 -50 → 保持露出（不再弹回）', row.classList.contains('reveal'));
   row.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+  t('被抢后幽灵 click 不收回', row.classList.contains('reveal'));
+  await sleep(500);
+  row.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+  t('450ms 后点行身收回', !row.classList.contains('reveal'));
   await swipe(row, -25, { drift: 10, cancel: true });
   t('被抢时只滑 -25 → 弹回', !row.classList.contains('reveal'));
 }
 
-console.log('— 非被动 touchmove 已注册（声明手势归属） —');
+console.log('— 非被动 touchmove/touchend 已注册（声明手势归属 + 掐幽灵 click） —');
 t('touchmove + preventDefault + passive:false 存在于 bindRowSwipe', /addEventListener\('touchmove', \(e\) => \{\s*if \(mode === 'x' && e\.cancelable\) e\.preventDefault\(\);\s*\}, \{ passive: false \}\)/.test(html));
+t('touchend preventDefault（滑动后掐合成 click）存在', /addEventListener\('touchend', \(e\) => \{\s*if \(wasSwipe && e\.cancelable\) e\.preventDefault\(\);/.test(html));
+t('行身 click 处理器带 justSwiped 幽灵窗（两处：Today + Plan）', (html.match(/if \(justSwiped\(\)\) return;/g) || []).length === 2);
 
 console.log(`\n结果：${pass} 通过，${fail} 失败`);
 process.exit(fail ? 1 : 0);
