@@ -58,7 +58,7 @@ console.log('— 编辑弹框（动态生成） —');
 w.openTaskDetail(S().tasks.find(x => x.title !== '睡觉')); await sleep(80);
 t('类型 chips 已删（仅剩紧急）', [...d.querySelectorAll('#td-types .chip')].every(c => c.id === 'td-urgent'));
 t('紧急 chip 变英文', d.getElementById('td-urgent')?.textContent === 'Urgent');
-t('表单标签变英文', [...d.querySelectorAll('.td-f label')].some(l => l.textContent === 'Start time'));
+t('表单标签变英文', [...d.querySelectorAll('.td-f-btn .td-fl')].map(l => l.textContent).join('|') === 'Start time|Date');
 t('保存按钮变英文', d.getElementById('td-save')?.textContent === 'Save');
 w.closeSheets();
 

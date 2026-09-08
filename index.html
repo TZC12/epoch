@@ -409,6 +409,50 @@ body {
 .td-notes-in:focus { border-color: var(--brd); }
 .td-when2 { font-size:14px; color: var(--text-disabled); margin-top: 4px; }
 
+/* ═══════════ 日期/时间选择器（sheet-task 内联 · 应用内玻璃风格，替代原生弹窗） ═══════════ */
+.td-f-btn { text-align: left; font-family: inherit; background: transparent; border: none;
+  border-bottom: 1.5px solid var(--brd); border-radius: 0; padding: 8px 4px; cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease); }
+.td-f-btn.active { border-bottom-color: var(--accent-ink); }
+.td-f-btn .td-fl { display: block; font-size: var(--fs-caption); color: var(--text-disabled); margin-bottom: var(--sp-1); font-weight: 400; }
+.td-f-btn .td-fv { display: block; font-size: var(--fs-body); font-weight: 500; color: var(--text-primary); }
+.td-f-btn .td-fv.unset { color: var(--text-disabled); font-weight: 400; }
+.dtp { margin-top: var(--sp-3); background: var(--surface-thin); border: 1px solid var(--border-soft);
+  border-radius: var(--r-md); padding: var(--sp-4); }
+.dtp[hidden] { display: none; }
+.dtp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-2); }
+.dtp-month { font-size: var(--fs-small); font-weight: 600; color: var(--text-primary); letter-spacing: -.01em; }
+.dtp-nav { width: 44px; height: 44px; border: none; background: transparent; cursor: pointer;
+  font-family: inherit; font-size: var(--fs-h3); line-height: 1; color: var(--text-tertiary);
+  border-radius: var(--r-pill); touch-action: manipulation; }
+.dtp-nav:active { background: var(--surface-strong); }
+.dtp-dow, .dtp-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.dtp-dow { text-align: center; font-size: var(--fs-caption); color: var(--text-disabled); margin-bottom: var(--sp-1); }
+.dtp-grid { row-gap: 2px; }
+.dtp-grid i { min-height: 44px; }
+.dtp-grid b { min-height: 44px; display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-small); font-weight: 400; color: var(--text-secondary);
+  border-radius: var(--r-pill); cursor: pointer; touch-action: manipulation;
+  transition: background var(--dur-1) var(--ease); }
+.dtp-grid b:active { background: var(--surface-strong); }
+.dtp-grid b.today { color: var(--accent-ink); font-weight: 600; }
+.dtp-grid b.sel, .dtp-grid b.sel:active { background: var(--success); color: #fff; font-weight: 600; }
+.dtp-wcap { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); text-align: center;
+  font-size: var(--fs-caption); color: var(--text-disabled); margin-bottom: var(--sp-1); }
+.dtp-wheels { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); }
+.dtp-wheels[hidden] { display: none; }
+.wheel-hl { position: absolute; left: var(--sp-3); right: var(--sp-3); top: 50%; height: 40px;
+  transform: translateY(-50%); border-top: 1px solid var(--divider); border-bottom: 1px solid var(--divider);
+  pointer-events: none; }
+.wheel { height: 200px; overflow-y: auto; scroll-snap-type: y mandatory; text-align: center;
+  margin: 0; padding: 0; list-style: none; scrollbar-width: none; overscroll-behavior: contain; }
+.wheel::-webkit-scrollbar { display: none; }
+.wheel .wsp { height: 80px; }
+.wheel li { height: 40px; line-height: 40px; scroll-snap-align: center; font-size: var(--fs-h3);
+  font-variant-numeric: tabular-nums; color: var(--text-disabled); cursor: pointer; touch-action: manipulation; }
+.wheel li.sel { color: var(--text-primary); font-weight: 600; }
+.dtp-foot { display: flex; align-items: center; gap: var(--sp-3); margin-top: var(--sp-3); }
+
 /* ═══════════ Calendar 四色语义 ═══════════ */
 .grid-dots i.full { background: var(--accent); opacity: 1; }
 .grid-dots i.part { background: #E8A13D; opacity: 1; }
@@ -1279,11 +1323,39 @@ button:disabled, .btn:disabled, .btn.loading { opacity: var(--op-disabled); poin
     <input class="td-title-in" id="td-title-in" placeholder="这件事是…" />
     <div class="chip-row" id="td-types" style="margin-top:12px"></div>
     <div class="td-form-grid" style="margin-top:16px">
-      <div class="td-f"><label>开始时间</label><input type="time" id="td-time-in" /></div>
-      <div class="td-f"><label>日期</label><input type="date" id="td-date-in" /></div>
+      <input type="hidden" id="td-time-in" /><input type="hidden" id="td-date-in" />
+      <button type="button" class="td-f-btn" id="td-time-f" aria-haspopup="true">
+        <span class="td-fl">开始时间</span><span class="td-fv unset" id="td-time-view" data-user></span>
+      </button>
+      <button type="button" class="td-f-btn" id="td-date-f" aria-haspopup="true">
+        <span class="td-fl">日期</span><span class="td-fv unset" id="td-date-view" data-user></span>
+      </button>
       <div class="td-f"><label>时长（分钟）</label><input type="number" id="td-dur-in" min="5" step="5" inputmode="numeric" placeholder="如 40" /></div>
       <div class="td-f"><label>关联 Goal</label><select id="td-goal-in"></select></div>
       <div class="td-f"><label>来自 Routine</label><select id="td-routine-in"></select></div>
+    </div>
+    <!-- 日期/时间选择器（点字段展开，应用内风格） -->
+    <div class="dtp" id="dtp" hidden>
+      <div class="dtp-cal" id="dtp-cal">
+        <div class="dtp-head">
+          <button type="button" class="dtp-nav" id="dtp-prev" aria-label="上个月">‹</button>
+          <span class="dtp-month" id="dtp-month" data-user></span>
+          <button type="button" class="dtp-nav" id="dtp-next" aria-label="下个月">›</button>
+        </div>
+        <div class="dtp-dow" id="dtp-dow" data-user></div>
+        <div class="dtp-grid" id="dtp-grid"></div>
+      </div>
+      <div class="dtp-wcap" id="dtp-wcap" hidden><span>小时</span><span>分钟</span></div>
+      <div class="dtp-wheels" id="dtp-wheels" hidden>
+        <div class="wheel-hl"></div>
+        <ul class="wheel" id="dtp-wh" data-user></ul>
+        <ul class="wheel" id="dtp-wm" data-user></ul>
+      </div>
+      <div class="dtp-foot">
+        <button type="button" class="chip" id="dtp-clear">清除</button>
+        <span style="flex:1"></span>
+        <button type="button" class="btn btn-g btn-sm" id="dtp-done">完成</button>
+      </div>
     </div>
     <textarea class="td-notes-in" id="td-notes-in" rows="2" placeholder="备注…（跑后拉伸、带伞、只写一页）" style="margin-top:16px"></textarea>
     <div class="btn-row" style="margin-top:16px">
@@ -1932,6 +2004,8 @@ const ZH2EN = {
   '已写':'Written','本周待写':'Not written this week',
   '每周重复出现的生活结构。修改一次，未来的 Task 跟着变。':'A repeating weekly structure. Change once — future Tasks follow.',
   '存入 Inbox':'Save to Inbox','保存后它会出现在 Plan 的 Inbox 里，等你安排。':'It lands in Plan → Inbox, ready to be scheduled.',
+  /* 日期/时间选择器 */
+  '清除':'Clear','小时':'Hour','分钟':'Min',
 };
 const ZH2EN_PH = {
   '这件事是…':'What is it…','备注…（跑后拉伸、带伞、只写一页）':'Notes… stretch, umbrella, one page…',
@@ -2508,6 +2582,7 @@ function openTaskDetail(task) {
   $('#td-routine-in').innerHTML = '<option value="">无</option>' +
     state.routines.map(r => `<option value="${r.name}" ${cur.routine === r.name ? 'selected' : ''}>${r.name}</option>`).join('');
   $('#td-notes-in').value = isNew ? '' : (cur.notes || '');
+  dtpClose(); dtpFmtView();   // 选择器面板复位 + 字段显示值刷新
 
   const btn = $('#td-complete');
   btn.textContent = (!isNew && cur.done) ? t('td.undo') : t('td.complete');
@@ -2517,6 +2592,132 @@ function openTaskDetail(task) {
   openSheet('sheet-task');
   if (isNew) setTimeout(() => $('#td-title-in').focus(), 400);
 }
+
+/* ─────────────── 日期/时间选择器（应用内玻璃风格；写回 td-time-in / td-date-in 隐藏存储） ─────────────── */
+const DTP_H = 40;                        // 滚轮行高（须与 .wheel li 一致）
+const DTP_VIEW = 200;                    // 滚轮可视高度（5 行）
+const DTP = { mode: null, y: 0, m: 0 };
+function dtpFmtView() {
+  const tv = $('#td-time-in').value, dv = $('#td-date-in').value;
+  const tvEl = $('#td-time-view'), dvEl = $('#td-date-view');
+  if (!tvEl || !dvEl) return;
+  tvEl.textContent = tv || t('td.unset');
+  dvEl.textContent = dv ? fmtShortDate(dv) : t('td.unset');
+  tvEl.classList.toggle('unset', !tv);
+  dvEl.classList.toggle('unset', !dv);
+}
+function dtpOpen(mode) {
+  refreshNow();
+  DTP.mode = mode;
+  $('#dtp').hidden = false;
+  $('#dtp-cal').hidden = mode !== 'date';
+  $('#dtp-wheels').hidden = mode !== 'time';
+  $('#dtp-wcap').hidden = mode !== 'time';
+  $('#td-time-f').classList.toggle('active', mode === 'time');
+  $('#td-date-f').classList.toggle('active', mode === 'date');
+  if (mode === 'date') {
+    const v = $('#td-date-in').value;
+    const [yy, mm] = v ? v.split('-').map(Number) : [now.getFullYear(), now.getMonth() + 1];
+    DTP.y = yy; DTP.m = mm - 1;
+    dtpRenderCal();
+  } else dtpSyncWheels();
+}
+function dtpClose() {
+  const p = $('#dtp');
+  if (!p || p.hidden) return;
+  p.hidden = true;
+  $('#td-time-f').classList.remove('active');
+  $('#td-date-f').classList.remove('active');
+  DTP.mode = null;
+}
+function dtpRenderCal() {
+  $('#dtp-month').textContent = state.lang === 'en'
+    ? `${MONTH_EN[DTP.m]} ${DTP.y}` : `${DTP.y}年${DTP.m + 1}月`;
+  $('#dtp-dow').textContent = state.lang === 'en' ? 'Su Mo Tu We Th Fr Sa' : '日一二三四五六';
+  const first = new Date(DTP.y, DTP.m, 1).getDay();
+  const days = new Date(DTP.y, DTP.m + 1, 0).getDate();
+  const todayK = dateKey(now);
+  const sel = $('#td-date-in').value;
+  let html = '';
+  for (let i = 0; i < first; i++) html += '<i></i>';
+  for (let d = 1; d <= days; d++) {
+    const k = dateKey(new Date(DTP.y, DTP.m, d));
+    const cls = [k === sel && 'sel', k === todayK && 'today'].filter(Boolean).join(' ');
+    html += `<b data-d="${d}"${cls ? ` class="${cls}"` : ''}>${d}</b>`;
+  }
+  const grid = $('#dtp-grid');
+  grid.innerHTML = html;
+  grid.querySelectorAll('[data-d]').forEach(el => {
+    el.onclick = () => {
+      $('#td-date-in').value = dateKey(new Date(DTP.y, DTP.m, +el.dataset.d));
+      dtpFmtView(); dtpRenderCal();
+    };
+  });
+}
+function dtpRenderWheels() {
+  const wh = $('#dtp-wh'), wm = $('#dtp-wm');
+  if (wh.children.length) return;
+  const wsp = '<div class="wsp"></div>';
+  wh.innerHTML = wsp + Array.from({ length: 24 }, (_, h) =>
+    `<li data-v="${h}">${String(h).padStart(2, '0')}</li>`).join('') + wsp;
+  wm.innerHTML = wsp + Array.from({ length: 12 }, (_, i) => {
+    const m = i * 5; return `<li data-v="${m}">${String(m).padStart(2, '0')}</li>`;
+  }).join('') + wsp;
+  [wh, wm].forEach(w => {
+    w.querySelectorAll('li').forEach(li => { li.onclick = () => dtpPick(w, li); });
+    let raf = null;   // 滚动停驻 → 以居中行为选中值
+    w.addEventListener('scroll', () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        const idx = Math.max(0, Math.min(w.children.length - 3, Math.round(w.scrollTop / DTP_H)));
+        const li = w.children[idx + 1];   // +1 跳过顶部占位
+        if (li) dtpSetFromWheel(w, +li.dataset.v, li);
+      });
+    });
+  });
+}
+function dtpMarkSel(w, li) {
+  w.querySelectorAll('li.sel').forEach(x => x.classList.remove('sel'));
+  if (li) li.classList.add('sel');
+}
+function dtpSetFromWheel(w, v, li) {
+  const [h, m] = ($('#td-time-in').value || '00:00').split(':');
+  $('#td-time-in').value = w.id === 'dtp-wh'
+    ? `${String(v).padStart(2, '0')}:${m || '00'}`
+    : `${h || '00'}:${String(v).padStart(2, '0')}`;
+  if (li) dtpMarkSel(w, li);
+  dtpFmtView();
+}
+function dtpPick(w, li) {          // 点选滚轮项 + 滚动居中（scrollTop = 序号 × 行高，80px 上下占位已含）
+  dtpSetFromWheel(w, +li.dataset.v, li);
+  const idx = Math.max(0, [...w.children].indexOf(li) - 1);
+  w.scrollTop = idx * DTP_H;
+}
+function dtpSyncWheels() {
+  dtpRenderWheels();
+  let [h, m] = ($('#td-time-in').value || '').split(':').map(Number);
+  if (Number.isNaN(h)) h = now.getHours();          // 未定时段 → 预选当前小时，不写值
+  if (Number.isNaN(m)) m = 0;
+  m = Math.round(m / 5) * 5 % 60;                   // 滚轮步进 5 分钟
+  const cur = $('#td-time-in').value;
+  if (cur && m !== +cur.split(':')[1]) $('#td-time-in').value = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  const wh = $('#dtp-wh'), wm = $('#dtp-wm');
+  wh.scrollTop = h * DTP_H; wm.scrollTop = (m / 5) * DTP_H;
+  dtpMarkSel(wh, wh.querySelector(`[data-v="${h}"]`));
+  dtpMarkSel(wm, wm.querySelector(`[data-v="${m}"]`));
+  dtpFmtView();
+}
+$('#td-time-f').onclick = () => DTP.mode === 'time' ? dtpClose() : dtpOpen('time');
+$('#td-date-f').onclick = () => DTP.mode === 'date' ? dtpClose() : dtpOpen('date');
+$('#dtp-prev').onclick = () => { DTP.m--; if (DTP.m < 0) { DTP.m = 11; DTP.y--; } dtpRenderCal(); };
+$('#dtp-next').onclick = () => { DTP.m++; if (DTP.m > 11) { DTP.m = 0; DTP.y++; } dtpRenderCal(); };
+$('#dtp-clear').onclick = () => {
+  if (DTP.mode === 'time') { $('#td-time-in').value = ''; dtpSyncWheels(); }
+  else { $('#td-date-in').value = ''; dtpRenderCal(); }
+  dtpFmtView();
+};
+$('#dtp-done').onclick = dtpClose;
 
 /* ─────────────── PLAN 渲染 ─────────────── */
 function renderPlan() {
