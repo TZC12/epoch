@@ -176,7 +176,8 @@ body {
 
 .screen, .panel {
   position: absolute; inset: 0;
-  overflow-y: auto; overscroll-behavior-y: contain;
+  overflow-y: auto; overflow-x: hidden;   /* 只纵滚；横向溢出（待命中的删除钮）一律裁剪，禁止整页左右拖动 */
+  overscroll-behavior-y: contain;
   padding: 24px 24px 140px;   /* 顶部安全距离 */
   -webkit-overflow-scrolling: touch;
 }
@@ -373,13 +374,16 @@ body {
 /* ═══════════ 时间轴：紧急紫 / 左滑删除 ═══════════ */
 .tl-title.urgent { color: var(--urgent); }
 .tl-row { position: relative; }
+/* 横向手势归 JS 滑动删除所有（pan-y = 纵向滚动照常、横向不交给浏览器平移），
+   必须晚于基础 touch-action: manipulation 规则才能覆盖生效 */
+.tl-row, .item { touch-action: pan-y; }
 .tl-del {
   position: absolute; right: 0; top: 50%; transform: translateY(-50%) translateX(100%);
   width: 64px; height: 72%; border: none; border-radius: var(--r-md); cursor: pointer;
   background: #E0655A; color: #fff; font-family: inherit; font-size:14px; font-weight: 600;
-  opacity: 0; pointer-events: none; transition: opacity .2s var(--ease);
+  opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s var(--ease);
 }
-.tl-row.reveal .tl-del { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
+.tl-row.reveal .tl-del { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(-50%) translateX(0); }
 .tl-row.reveal .tl-check { opacity: 0; }
 
 /* ═══════════ 事件编辑器 ═══════════ */
@@ -551,7 +555,7 @@ button:disabled, .btn:disabled, .btn.loading { opacity: var(--op-disabled); poin
 }
 .item:first-child { border-top: 1px solid var(--divider); }
 .item:active .t { opacity: .6; }
-.item.reveal .tl-del { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
+.item.reveal .tl-del { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(-50%) translateX(0); }
 .item .t { font-size:16px; font-weight: 500; color: var(--text-primary); flex: 1; letter-spacing: -.006em; }
 .item .h { font-size:12px; color: var(--text-disabled); text-align: right; flex-shrink: 0; }
 .item .h em { font-style: normal; color: var(--accent-ink); font-weight: 500; }
