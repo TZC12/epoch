@@ -92,5 +92,25 @@ t('phone 立即切换 dark', d.querySelector('.phone')?.dataset.mode === 'dark')
 t('主题写入 localStorage', JSON.parse(w.localStorage.getItem('epoch-state') || '{}').theme === 'dark');
 d.querySelector('#theme-seg [data-mode="light"]')?.click(); await sleep(40);
 
+console.log('— Weekly Review 真保存（说谎按钮修复） —');
+{
+  const saveBtn = d.getElementById('wr-save');
+  t('保存按钮存在', !!saveBtn);
+  t('保存按钮不再绑定 data-back（只关不存的谎言已拆除）', saveBtn && !saveBtn.hasAttribute('data-back'));
+  d.querySelector('[data-push="weekly"]')?.click(); await sleep(60);
+  t('weekly 面板可打开', d.querySelector('[data-panel="weekly"]')?.classList.contains('on'));
+  d.getElementById('wr-good').value = '跑完了三次步';
+  d.getElementById('review-one').value = '把睡前刷手机改成阅读';
+  const ib = S().inbox.length;
+  saveBtn.click(); await sleep(80);
+  t('state.review 已写入', !!S().review && S().review.good === '跑完了三次步');
+  t('review.week = 本周一', S().review.week === w.weekKey());
+  t('「下周一件事」进收集箱（回顾→下周计划闭环）', S().inbox.length === ib + 1 && S().inbox[0].title === '把睡前刷手机改成阅读' && S().inbox[0].hint === '来自本周反思');
+  t('toast 反馈已保存', (d.getElementById('toast')?.textContent || '').includes('已保存'));
+  t('保存后面板自动关闭', !d.querySelector('[data-panel="weekly"]')?.classList.contains('on'));
+  t('Me 周回顾行显示已写', d.getElementById('me-weekly-sub')?.textContent === '已写');
+  t('review 持久化到 localStorage', (() => { const s = JSON.parse(w.localStorage.getItem('epoch-state') || '{}'); return !!(s.review && s.review.one === '把睡前刷手机改成阅读'); })());
+}
+
 console.log(`\n结果：${pass} 通过，${fail} 失败`);
 process.exit(fail ? 1 : 0);

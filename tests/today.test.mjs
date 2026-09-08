@@ -111,7 +111,8 @@ t('部分完成 → part（橙）', w.calendarDotClass({ done: 2, total: 5 }) ==
 t('缺席 → miss（红）', w.calendarDotClass({ done: 0, total: 3 }) === 'miss');
 t('紧急计划 → urgent（紫）', w.calendarDotClass({ done: 5, total: 5, urgent: true }) === 'urgent');
 t('无数据 → 空', w.calendarDotClass(undefined) === '');
-t('habit-dots 渲染 70 格', d.querySelectorAll('#habit-dots i').length === 70);
+w.renderProgress(); await sleep(80);
+t('70 天点阵渲染 70 格（Progress 主体）', d.querySelectorAll('#prog-body .grid-dots i').length === 70);
 
 console.log('— 删除可撤销（undo-support） —');
 {

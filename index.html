@@ -27,11 +27,8 @@
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 :root {
+  --bg: #F8F9FF;   /* 页面底色：深底浅字（ink 主按钮/激活 chip）的反转字色 */
   /* ── 文字层级：用明度而非颜色建立层级 ── */
-  --ink-1: #22252A;   /* 标题 / 任务 */
-  --ink-2: #4B5058;   /* 正文 */
-  --ink-3: #8A9099;   /* 次要 */
-  --ink-4: #B2B8C1;   /* 弱提示 */
 
   /* ── 唯一强调色：柔和绿，只用于「完成 / 进行中 / 活跃」 ── */
   --accent: #5BAE82;
@@ -43,21 +40,56 @@
   --danger-soft: rgba(196, 100, 100, 0.11);
 
   /* ── Glass ── */
-  --glass: rgba(255, 255, 255, 0.50);
-  --glass-2: rgba(255, 255, 255, 0.62);
-  --glass-thin: rgba(255, 255, 255, 0.34);
-  --brd: rgba(255, 255, 255, 0.72);
-  --brd-soft: rgba(255, 255, 255, 0.55);
+  --glass: rgba(255,255,255,0.5);
+  --glass-2: rgba(255,255,255,0.68);
+  --glass-thin: rgba(255,255,255,0.34);
+  --brd: rgba(255,255,255,0.72);
+  --brd-soft: rgba(255,255,255,0.55);
   --blur: blur(26px);
   --blur-l: blur(34px) saturate(1.7);
-  --sh: 0 8px 32px rgba(60, 70, 100, 0.055);
 
-  --hair: rgba(34, 37, 42, 0.055);
 
   --r-xl: 28px; --r-lg: 24px; --r-md: 20px; --r-sm: 14px;
   --ease: cubic-bezier(0.32, 0.72, 0.24, 1);
   /* 动效时长 token（微交互 150-300ms；退场应比进场快）——新代码一律引用 */
   --dur-1: .16s; --dur-2: .24s; --dur-3: .32s;
+
+  /* ═══ 设计系统语义 token（2026-09-08 定版）——新代码一律引用；存量在 P4 逐步切换 ═══ */
+  --urgent: #7C5CFF;
+  /* 文字：同一墨色的 alpha 四档（100/65/45/30） */
+  --ink: #22252A;
+  --text-primary: rgba(34, 37, 42, 1);
+  --text-secondary: rgba(34, 37, 42, 0.65);
+  --text-tertiary: rgba(34, 37, 42, 0.45);
+  --text-disabled: rgba(34, 37, 42, 0.30);
+  /* 表面（玻璃三档）/ 边 / 分隔 */
+  --surface: rgba(255,255,255,0.5);
+  --surface-strong: rgba(255,255,255,0.68);
+  --surface-thin: rgba(255,255,255,0.34);
+  --surface-solid: #FFFFFF;
+  --border: rgba(255,255,255,0.72);
+  --border-soft: rgba(255,255,255,0.55);
+  --divider: rgba(34, 37, 42, 0.07);
+  --overlay: rgba(28, 33, 48, 0.32);
+  /* 语义色（accent 只用于完成/进行中/活跃；主按钮=墨色 N1 定版） */
+  --accent-strong: #3C8A61;
+  --success: #5BAE82; --success-soft: rgba(91, 174, 130, 0.13);
+  --warning: #E8A13D; --warning-soft: rgba(232, 161, 61, 0.14);
+  --danger-strong: #B04E4E;
+  --info: #5B7FD7; --info-soft: rgba(91, 127, 215, 0.12);
+  /* 字阶（七级） */
+  --fs-display: 48px; --fs-h1: 32px; --fs-h2: 24px; --fs-h3: 20px;
+  --fs-body: 16px; --fs-small: 14px; --fs-caption: 12px;
+  /* 间距（八档 4/8/12/16/24/32/48/64） */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+  /* 圆角 / 阴影（elevation 四级）/ 不透明 */
+  --r-pill: 99px; --r-full: 50%;
+  --elev-flat: none;
+  --elev-surface: 0 8px 32px rgba(60, 70, 100, 0.055);
+  --elev-floating: 0 10px 34px rgba(60, 70, 100, 0.09);
+  --elev-modal: 0 32px 80px rgba(60, 70, 100, 0.14);
+  --op-disabled: 0.38; --op-secondary: 0.68;
 }
 
 /* 键盘可达性：焦点环只在键盘聚焦时出现，不干扰触控 */
@@ -67,8 +99,8 @@ button, .tab, .chip, .item, .tl-row, .row, .seg > button { touch-action: manipul
 /* toast 内的动作按钮（如撤销） */
 .toast-act {
   border: none; background: none; cursor: pointer; font-family: inherit;
-  font-size: 13px; font-weight: 600; color: var(--accent-ink);
-  padding: 6px 2px; margin: -6px 0;
+  font-size:14px; font-weight: 600; color: var(--accent-ink);
+  padding: 8px 4px; margin: -6px 0;
 }
 
 html, body { height: 100%; text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
@@ -77,7 +109,7 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Noto Sans SC',
     'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif;
   background: #E7EBF3;
-  color: var(--ink-2);
+  color: var(--text-secondary);
   display: flex;
   justify-content: center;
   align-items: stretch;
@@ -102,9 +134,9 @@ body {
 @media (min-width: 520px) {
   body { padding: 32px 0; background: linear-gradient(180deg, #E5EAF1 0%, #ECEFF5 100%); align-items: center; }
   .phone {
-    border-radius: 44px;
-    border: 1px solid rgba(255,255,255,.6);
-    box-shadow: 0 32px 80px rgba(60,70,100,.18), 0 4px 16px rgba(60,70,100,.06);
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(255,255,255,0.55);
+    box-shadow: var(--elev-modal);
     height: calc(100dvh - 64px);   /* 贴合窗口高度，任何窗口都不出页面滚动条 */
     min-height: 640px;             /* 极矮窗口保底（此时 body 允许滚动） */
     max-height: none;
@@ -115,7 +147,7 @@ body {
 }
 @media (prefers-color-scheme: dark) and (min-width: 520px) {
   body { background: linear-gradient(180deg, #0B0D11 0%, #11141A 100%); }
-  .phone { border-color: rgba(255,255,255,.06); }
+  .phone { border-color: rgba(255,255,255,0.07); }
 }
 
 /* ── Aurora：大范围、柔和、低透明度、缓慢移动 ── */
@@ -140,7 +172,7 @@ body {
 .screen, .panel {
   position: absolute; inset: 0;
   overflow-y: auto; overscroll-behavior-y: contain;
-  padding: 22px 22px 140px;   /* 顶部安全距离 */
+  padding: 24px 24px 140px;   /* 顶部安全距离 */
   -webkit-overflow-scrolling: touch;
 }
 .screen::-webkit-scrollbar, .panel::-webkit-scrollbar, .sheet::-webkit-scrollbar { display: none; }
@@ -154,29 +186,29 @@ body {
   backdrop-filter: blur(30px) saturate(1.5); -webkit-backdrop-filter: blur(30px) saturate(1.5);
   transform: translateX(100%);
   transition: transform .34s var(--ease);
-  padding-bottom: 60px;
+  padding-bottom: 64px;
 }
-.panel.on { transform: translateX(0); box-shadow: -24px 0 48px rgba(60,70,100,.08); }
+.panel.on { transform: translateX(0); box-shadow: var(--elev-floating); }
 
 /* ═══════════ 排版 ═══════════ */
-.t-page   { font-size: 32px; line-height: 1.14; font-weight: 600; color: var(--ink-1); letter-spacing: -.022em; margin-top: 5px; }
-.t-panel  { font-size: 26px; line-height: 1.2;  font-weight: 600; color: var(--ink-1); letter-spacing: -.018em; }
-.t-card   { font-size: 19px; line-height: 1.34; font-weight: 600; color: var(--ink-1); letter-spacing: -.012em; }
-.t-body   { font-size: 16px; line-height: 1.45; font-weight: 500; color: var(--ink-1); }
-.t-sub    { font-size: 14px; line-height: 1.5;  color: var(--ink-3); }
-.t-cap    { font-size: 12px; line-height: 1.5;  color: var(--ink-4); }
-.eyebrow  { font-size: 12px; font-weight: 600; letter-spacing: .07em; color: var(--ink-3); }
+.t-page   { font-size: 32px; line-height: 1.14; font-weight: 600; color: var(--text-primary); letter-spacing: -.022em; margin-top: 4px; }
+.t-panel  { font-size:24px; line-height: 1.2;  font-weight: 600; color: var(--text-primary); letter-spacing: -.018em; }
+.t-card   { font-size:20px; line-height: 1.34; font-weight: 600; color: var(--text-primary); letter-spacing: -.012em; }
+.t-body   { font-size: 16px; line-height: 1.45; font-weight: 500; color: var(--text-primary); }
+.t-sub    { font-size: 14px; line-height: 1.5;  color: var(--text-tertiary); }
+.t-cap    { font-size: 12px; line-height: 1.5;  color: var(--text-disabled); }
+.eyebrow  { font-size: 12px; font-weight: 600; letter-spacing: .07em; color: var(--text-tertiary); }
 .num      { font-variant-numeric: tabular-nums; }
 
-.head { padding-top: 6px; }
-.head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
-.sub-note { margin-top: 4px; font-size: 13px; color: var(--ink-3); }
+.head { padding-top: 8px; }
+.head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.sub-note { margin-top: 4px; font-size:14px; color: var(--text-tertiary); }
 
 /* 区块标题：用间距而非分割线 */
-.sec { margin: 34px 0 12px; display: flex; align-items: baseline; gap: 9px; }
-.sec h2 { font-size: 15px; font-weight: 600; color: var(--ink-2); letter-spacing: .005em; }
-.sec .n { font-size: 11.5px; color: var(--ink-4); margin-left: auto; }
-.sec.tight { margin-top: 26px; }
+.sec { margin: 32px 0 12px; display: flex; align-items: baseline; gap: 8px; }
+.sec h2 { font-size:16px; font-weight: 600; color: var(--text-secondary); letter-spacing: .005em; }
+.sec .n { font-size:12px; color: var(--text-disabled); margin-left: auto; }
+.sec.tight { margin-top: 24px; }
 
 /* ═══════════ Glass Surface（克制使用）═══════════ */
 .glass {
@@ -184,83 +216,76 @@ body {
   backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
   border: 1px solid var(--brd);
   border-radius: var(--r-lg);
-  box-shadow: var(--sh);
+  box-shadow: var(--elev-surface);
 }
 .glass-2 { background: var(--glass-2); }
 
 /* ═══════════ TODAY ═══════════ */
-.date-line { font-size: 14px; color: var(--ink-3); margin-top: 3px; }
-.date-line b { color: var(--ink-2); font-weight: 600; }
+.date-line { font-size: 14px; color: var(--text-tertiary); margin-top: 4px; }
+.date-line b { color: var(--text-secondary); font-weight: 600; }
 
 /* Timeline — 时间是结构线索，不是卡片 */
 .tl-row {
   display: grid; grid-template-columns: 50px 1fr 26px;
-  align-items: center; gap: 14px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--hair);
+  align-items: center; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--divider);
   cursor: pointer; position: relative;
   transition: opacity .22s var(--ease), padding .22s var(--ease);
 }
 .tl-row:last-child { border-bottom: none; }
 .tl-row:active .tl-title { opacity: .6; }
-.tl-time { font-size: 12.5px; font-weight: 500; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.tl-time { font-size:14px; font-weight: 500; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
 .tl-main { min-width: 0; }
-.tl-title { font-size: 16.5px; font-weight: 500; color: var(--ink-1); line-height: 1.36; letter-spacing: -.008em; }
-.tl-meta { font-size: 11.5px; color: var(--ink-4); margin-top: 2px; }
+.tl-title { font-size:16px; font-weight: 500; color: var(--text-primary); line-height: 1.36; letter-spacing: -.008em; }
+.tl-meta { font-size:12px; color: var(--text-disabled); margin-top: 4px; }
 .tl-check {
   width: 23px; height: 23px; border-radius: 50%; border: 1.5px solid rgba(34,37,42,.18);
   display: flex; align-items: center; justify-content: center; justify-self: end;
   transition: all .18s var(--ease);
 }
 .tl-check svg { width: 11px; height: 11px; stroke: #fff; stroke-width: 2.6; fill: none; opacity: 0; transform: scale(.5); transition: all .18s var(--ease); }
-.tl-row.done { opacity: .42; padding: 11px 0; }
+.tl-row.done { opacity: .42; padding: 12px 0; }
 .tl-row.done .tl-title { text-decoration: line-through; text-decoration-color: rgba(34,37,42,.28); }
 .tl-row.done .tl-check { background: var(--accent); border-color: var(--accent); }
 .tl-row.done .tl-check svg { opacity: 1; transform: scale(1); }
 
 /* 进行中：一条细线 + 轻标签，不用大色块 */
-.tl-row.now::before { content: ''; position: absolute; left: -13px; top: 14px; bottom: 14px; width: 2.5px; border-radius: 99px; background: var(--accent); }
+.tl-row.now::before { content: ''; position: absolute; left: -13px; top: 14px; bottom: 14px; width: 2.5px; border-radius: var(--r-pill); background: var(--accent); }
 .tl-row.now .tl-time { color: var(--accent-ink); }
-.tag-now { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--accent-ink); margin-top: 4px; }
+.tag-now { display: inline-flex; align-items: center; gap: 4px; font-size:12px; font-weight: 600; color: var(--accent-ink); margin-top: 4px; }
 .tag-now i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 2.2s ease-in-out infinite; }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
-.tag-next { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; color: var(--ink-4); margin-top: 4px; }
+.tag-next { display: inline-flex; align-items: center; gap: 4px; font-size:12px; font-weight: 500; color: var(--text-disabled); margin-top: 4px; }
 
 /* 任务行（Main / Secondary）— 去掉玻璃，安静到只有线和点 */
-.task {
-  display: flex; align-items: center; gap: 13px;
-  padding: 13px 2px; border-radius: 0;
-  background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;
-  border-bottom: 1px solid var(--hair);
-  margin-bottom: 0; cursor: pointer;
-  transition: opacity .22s var(--ease), padding .22s var(--ease);
-}
-.task:first-child { border-top: 1px solid var(--hair); }
-.task:active .t { opacity: .6; }
-.task .dot { width: 21px; height: 21px; border-radius: 50%; border: 1.5px solid rgba(34,37,42,.2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .18s var(--ease); }
-.task .dot svg { width: 10px; height: 10px; stroke: #fff; stroke-width: 2.8; fill: none; opacity: 0; transform: scale(.5); transition: all .18s var(--ease); }
-.task .t { font-size: 15px; font-weight: 500; color: var(--ink-1); flex: 1; min-width: 0; letter-spacing: -.006em; }
-.task .g { font-size: 11px; color: var(--ink-4); flex-shrink: 0; }
-.task.done { opacity: .42; padding: 11px 2px; }
-.task.done .t { text-decoration: line-through; text-decoration-color: rgba(34,37,42,.28); }
-.task.done .dot { background: var(--accent); border-color: var(--accent); }
-.task.done .dot svg { opacity: 1; transform: scale(1); }
-.task.mini { padding: 10px 2px; }
-.task.mini .t { font-size: 14.5px; font-weight: 400; color: var(--ink-2); }
-.task.enter { animation: enterIn .32s var(--ease); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @keyframes enterIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 
 /* 今日习惯 — 一行三列，玻璃去掉，只剩线 */
-.habits { display: flex; gap: 0; margin-top: 6px; border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
+.habits { display: flex; gap: 0; margin-top: 8px; border-top: 1px solid var(--divider); border-bottom: 1px solid var(--divider); }
 .habit-chip {
-  flex: 1; padding: 12px 10px; border: none; background: transparent;
+  flex: 1; padding: 12px 12px; border: none; background: transparent;
   text-align: left; cursor: pointer;
   transition: opacity .18s var(--ease);
 }
-.habit-chip + .habit-chip { border-left: 1px solid var(--hair); }
+.habit-chip + .habit-chip { border-left: 1px solid var(--divider); }
 .habit-chip:active { opacity: .7; }
-.habit-chip .hn { font-size: 12.5px; font-weight: 500; color: var(--ink-2); line-height: 1.3; }
-.habit-chip .hs { font-size: 10.5px; color: var(--ink-4); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+.habit-chip .hn { font-size:14px; font-weight: 500; color: var(--text-secondary); line-height: 1.3; }
+.habit-chip .hs { font-size:12px; color: var(--text-disabled); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
 .habit-chip .hs i { width: 5px; height: 5px; border-radius: 50%; background: rgba(34,37,42,.16); display: block; }
 .habit-chip.on .hn { color: var(--accent-ink); }
 .habit-chip.on .hs { color: var(--accent-ink); }
@@ -268,19 +293,19 @@ body {
 
 /* 负载提醒 — 帮助，不催促 */
 .note {
-  display: flex; align-items: center; gap: 10px; margin-top: 18px;
-  padding: 12px 15px; border-radius: var(--r-md);
+  display: flex; align-items: center; gap: 12px; margin-top: 16px;
+  padding: 12px 16px; border-radius: var(--r-md);
   background: var(--glass-thin); border: 1px solid var(--brd-soft);
-  font-size: 13px; color: var(--ink-3);
+  font-size:14px; color: var(--text-tertiary);
 }
-.note .acts { margin-left: auto; display: flex; gap: 5px; flex-shrink: 0; }
+.note .acts { margin-left: auto; display: flex; gap: 4px; flex-shrink: 0; }
 
 /* 健康建议：与负载提醒同形态，轻 accent 底色 */
-.note.energy-note { background: var(--accent-soft); border-color: var(--accent-line); color: var(--ink-2); line-height: 1.5; }
-.conn-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; margin-right: 6px; vertical-align: 1px; }
+.note.energy-note { background: var(--accent-soft); border-color: var(--accent-line); color: var(--text-secondary); line-height: 1.5; }
+.conn-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; margin-right: 8px; vertical-align: 1px; }
 
 /* ═══════════ 建议卡 Deck — 上下文驱动，左右滑动切换 ═══════════ */
-.sug-deck { margin-top: 18px; }
+.sug-deck { margin-top: 16px; }
 .sug-viewport { overflow: hidden; border-radius: var(--r-lg); touch-action: pan-y; }
 .sug-track {
   display: flex; align-items: stretch;
@@ -290,32 +315,32 @@ body {
 .sug-track.dragging { transition: none; }
 .sug-card {
   flex: 0 0 100%; min-width: 100%; box-sizing: border-box;
-  padding: 16px 18px; border-radius: var(--r-lg);
+  padding: 16px 16px; border-radius: var(--r-lg);
   background: var(--glass-thin); border: 1px solid var(--brd-soft);
   user-select: none; -webkit-user-select: none;
 }
-.sug-card .sug-q { font-size: 14.5px; font-weight: 600; color: var(--ink-1); letter-spacing: -.008em; line-height: 1.4; }
-.sug-card .sug-d { font-size: 12.5px; color: var(--ink-3); margin-top: 6px; line-height: 1.55; }
-.sug-card .sug-acts { display: flex; gap: 8px; margin-top: 14px; }
-.sug-dots { display: flex; justify-content: center; gap: 5px; margin-top: 10px; }
-.sug-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ink-4); opacity: .4; transition: opacity .2s var(--ease), background .2s var(--ease); }
-.sug-dot.on { opacity: 1; background: var(--ink-2); }
+.sug-card .sug-q { font-size:16px; font-weight: 600; color: var(--text-primary); letter-spacing: -.008em; line-height: 1.4; }
+.sug-card .sug-d { font-size:14px; color: var(--text-tertiary); margin-top: 8px; line-height: 1.55; }
+.sug-card .sug-acts { display: flex; gap: 8px; margin-top: 12px; }
+.sug-dots { display: flex; justify-content: center; gap: 4px; margin-top: 12px; }
+.sug-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text-disabled); opacity: .4; transition: opacity .2s var(--ease), background .2s var(--ease); }
+.sug-dot.on { opacity: 1; background: var(--text-secondary); }
 /* ═══════════ Today 仪表盘 ═══════════ */
 .date-row { display: flex; align-items: center; justify-content: space-between; }
-.date-line.big { font-size: 19px; font-weight: 700; color: var(--ink-1); letter-spacing: -.015em; }
+.date-line.big { font-size:20px; font-weight: 700; color: var(--text-primary); letter-spacing: -.015em; }
 .tl-add {
   position: relative;
   width: 34px; height: 34px; border: none; background: transparent; cursor: pointer;
   display: flex; align-items: center; justify-content: center; border-radius: 50%;
-  color: var(--ink-2); transition: background .15s var(--ease), transform .14s var(--ease);
+  color: var(--text-secondary); transition: background .15s var(--ease), transform .14s var(--ease);
 }
 .tl-add::after { content: ''; position: absolute; inset: -8px; border-radius: 50%; }
-.tl-add:hover { background: rgba(255,255,255,.5); color: var(--ink-1); }
+.tl-add:hover { background: rgba(255,255,255,0.5); color: var(--text-primary); }
 .tl-add:active { transform: scale(.88); }
 .tl-add svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; }
-.phone[data-mode="dark"] .tl-add:hover { background: rgba(255,255,255,.07); }
+.phone[data-mode="dark"] .tl-add:hover { background: rgba(255,255,255,0.07); }
 
-.dash { margin-top: 18px; }
+.dash { margin-top: 16px; }
 .dash-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .dash-gauge { position: relative; width: 152px; height: 92px; flex-shrink: 0; }
 .dash-gauge svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -326,28 +351,27 @@ body {
   transition: stroke-dasharray .5s var(--ease);
 }
 .g-center { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; pointer-events: none; }
-.g-center b { font-size: 27px; font-weight: 700; color: var(--ink-1); letter-spacing: -.02em; line-height: 1.05; }
-.g-center span { display: block; font-size: 11.5px; color: var(--ink-3); margin-top: 3px; white-space: nowrap; }
+.g-center b { font-size:24px; font-weight: 700; color: var(--text-primary); letter-spacing: -.02em; line-height: 1.05; }
+.g-center span { display: block; font-size:12px; color: var(--text-tertiary); margin-top: 4px; white-space: nowrap; }
 .dash-side { min-width: 0; }
-.ds-label { font-size: 12.5px; color: var(--ink-3); letter-spacing: .02em; }
-.ds-nums { display: flex; gap: 34px; margin-top: 14px; }
-.ds-n b { display: block; font-size: 24px; font-weight: 700; color: var(--ink-1); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-.ds-n span { display: block; font-size: 11.5px; color: var(--ink-4); margin-top: 3px; }
+.ds-label { font-size:14px; color: var(--text-tertiary); letter-spacing: .02em; }
+.ds-nums { display: flex; gap: 32px; margin-top: 12px; }
+.ds-n b { display: block; font-size: 24px; font-weight: 700; color: var(--text-primary); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.ds-n span { display: block; font-size:12px; color: var(--text-disabled); margin-top: 4px; }
 @media (max-width: 380px) {
-  .dash-top { gap: 20px; }
+  .dash-top { gap: 24px; }
   .dash-gauge { width: 132px; height: 80px; }
   .g-center b { font-size: 24px; }
-  .ds-nums { gap: 22px; }
+  .ds-nums { gap: 24px; }
 }
 
 /* ═══════════ 时间轴：紧急紫 / 左滑删除 ═══════════ */
-:root { --urgent: #7C5CFF; }
-.tl-title.urgent, .task .t.urgent { color: var(--urgent); }
+.tl-title.urgent { color: var(--urgent); }
 .tl-row { position: relative; }
 .tl-del {
   position: absolute; right: 0; top: 50%; transform: translateY(-50%) translateX(100%);
   width: 64px; height: 72%; border: none; border-radius: var(--r-md); cursor: pointer;
-  background: #E0655A; color: #fff; font-family: inherit; font-size: 13px; font-weight: 600;
+  background: #E0655A; color: #fff; font-family: inherit; font-size:14px; font-weight: 600;
   opacity: 0; pointer-events: none; transition: opacity .2s var(--ease);
 }
 .tl-row.reveal .tl-del { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
@@ -356,45 +380,45 @@ body {
 /* ═══════════ 事件编辑器 ═══════════ */
 .td-title-in {
   width: 100%; box-sizing: border-box; border: none; outline: none; background: transparent;
-  border-bottom: 1.5px solid var(--ink-2); padding: 6px 2px 10px;
-  font-family: inherit; font-size: 19px; font-weight: 600; color: var(--ink-1); letter-spacing: -.015em;
+  border-bottom: 1.5px solid var(--text-secondary); padding: 8px 4px 12px;
+  font-family: inherit; font-size:20px; font-weight: 600; color: var(--text-primary); letter-spacing: -.015em;
 }
-.td-title-in:focus { border-bottom-color: var(--ink-1); }
+.td-title-in:focus { border-bottom-color: var(--text-primary); }
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
-  height: 32px; padding: 0 14px; border-radius: 16px; border: 1px solid var(--brd); cursor: pointer;
-  background: var(--glass-thin); color: var(--ink-2); font-family: inherit; font-size: 12.5px;
+  height: 32px; padding: 0 12px; border-radius: var(--r-md); border: 1px solid var(--brd); cursor: pointer;
+  background: var(--glass-thin); color: var(--text-secondary); font-family: inherit; font-size:14px;
   transition: all .15s var(--ease);
 }
-.chip.on { background: var(--ink-1); color: var(--bg); border-color: var(--ink-1); font-weight: 600; }
+.chip.on { background: var(--text-primary); color: var(--bg); border-color: var(--text-primary); font-weight: 600; }
 .chip:active { transform: scale(.95); opacity: .85; }
 .chip.chip-urgent.on { background: var(--urgent); border-color: var(--urgent); color: #fff; }
-.td-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; margin-top: 4px; }
-.td-f label { display: block; font-size: 11.5px; color: var(--ink-4); margin-bottom: 5px; }
+.td-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin-top: 4px; }
+.td-f label { display: block; font-size:12px; color: var(--text-disabled); margin-bottom: 4px; }
 .td-f input, .td-f select {
   width: 100%; box-sizing: border-box; border: none; outline: none;
-  border-bottom: 1.5px solid var(--brd); padding: 6px 2px;
-  font-family: inherit; font-size: 14.5px; color: var(--ink-1); background: transparent;
+  border-bottom: 1.5px solid var(--brd); padding: 8px 4px;
+  font-family: inherit; font-size:16px; color: var(--text-primary); background: transparent;
 }
-.td-f input:focus, .td-f select:focus { border-bottom-color: var(--ink-1); }
+.td-f input:focus, .td-f select:focus { border-bottom-color: var(--text-primary); }
 .td-notes-in {
   width: 100%; box-sizing: border-box; border: 1px solid var(--brd-soft); border-radius: var(--r-md);
-  background: var(--glass-thin); padding: 10px 12px; min-height: 56px; resize: none;
-  font-family: inherit; font-size: 13.5px; color: var(--ink-1); outline: none;
+  background: var(--glass-thin); padding: 12px 12px; min-height: 56px; resize: none;
+  font-family: inherit; font-size:14px; color: var(--text-primary); outline: none;
 }
 .td-notes-in:focus { border-color: var(--brd); }
-.td-when2 { font-size: 12.5px; color: var(--ink-4); margin-top: 2px; }
+.td-when2 { font-size:14px; color: var(--text-disabled); margin-top: 4px; }
 
 /* ═══════════ Calendar 四色语义 ═══════════ */
 .grid-dots i.full { background: var(--accent); opacity: 1; }
 .grid-dots i.part { background: #E8A13D; opacity: 1; }
 .grid-dots i.miss { background: #E0655A; opacity: .85; }
 .grid-dots i.u { background: var(--urgent); opacity: 1; }
-.cal-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 11px; color: var(--ink-4); }
-.cal-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.cal-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; font-size:12px; color: var(--text-disabled); }
+.cal-legend i { display: inline-block; width: 8px; height: 8px; border-radius: var(--r-pill); margin-right: 4px; vertical-align: -1px; }
 
 /* 分段控件：长按滑动模式 */
-.seg.sliding { transform: scale(1.02); box-shadow: 0 6px 22px rgba(60,70,100,.10); }
+.seg.sliding { transform: scale(1.02); box-shadow: var(--elev-surface); }
 .seg.sliding button { transition: none; }
 @media (prefers-reduced-motion: reduce) {
   .sug-track { transition: none !important; }
@@ -407,166 +431,166 @@ body {
   transition: transform .14s var(--ease), opacity .14s var(--ease), background .18s var(--ease);
 }
 .btn:active { transform: scale(.975); }
-.btn-p { width: 100%; height: 52px; background: var(--ink-1); color: #fff; font-size: 16px; font-weight: 600; letter-spacing: -.006em; }
+.btn-p { width: 100%; height: 52px; background: var(--text-primary); color: #fff; font-size: 16px; font-weight: 600; letter-spacing: -.006em; }
 .btn-p.acc { background: var(--accent); }
-.btn-g { height: 46px; background: rgba(34,37,42,.05); color: var(--ink-2); font-size: 14px; font-weight: 500; flex: 1; }
+.btn-g { height: 46px; background: rgba(34,37,42,.05); color: var(--text-secondary); font-size: 14px; font-weight: 500; flex: 1; }
 .btn-g.acc-t { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
 .btn-q {
-  height: 30px; padding: 0 12px; border-radius: 99px;
+  height: 30px; padding: 0 12px; border-radius: var(--r-pill);
   background: var(--accent-soft); color: var(--accent-ink);
   font-size: 12px; font-weight: 600;
 }
-.btn-q.neutral { background: rgba(34,37,42,.055); color: var(--ink-3); }
-.btn-d { background: none; color: var(--danger); font-size: 13px; font-weight: 500; opacity: .78; padding: 12px; }
-.btn-row { display: flex; gap: 9px; }
+.btn-q.neutral { background: rgba(34,37,42,.055); color: var(--text-tertiary); }
+.btn-d { background: none; color: var(--danger); font-size:14px; font-weight: 500; opacity: .78; padding: 12px; }
+.btn-row { display: flex; gap: 8px; }
 .btn-sm { height: 44px; font-size: 14px; border-radius: var(--r-sm); }
+/* 状态层基线（P4）：disabled / loading 统一弱化并阻断点击 */
+button:disabled, .btn:disabled, .btn.loading { opacity: var(--op-disabled); pointer-events: none; }
 
 /* ═══════════ 分段控件 ═══════════ */
 .seg {
-  display: flex; gap: 2px; margin-top: 18px; padding: 3px;
+  display: flex; gap: 4px; margin-top: 16px; padding: 4px;
   background: var(--glass-thin); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
   border: 1px solid var(--brd-soft); border-radius: var(--r-sm);
   overflow-x: auto; scrollbar-width: none;
 }
 .seg::-webkit-scrollbar { display: none; }
 .seg button {
-  flex: 1 0 auto; height: 32px; padding: 0 13px; border: none; border-radius: 11px;
-  background: transparent; font-family: inherit; font-size: 13px; font-weight: 500;
-  color: var(--ink-3); cursor: pointer; white-space: nowrap;
+  flex: 1 0 auto; height: 32px; padding: 0 12px; border: none; border-radius: var(--r-sm);
+  background: transparent; font-family: inherit; font-size:14px; font-weight: 500;
+  color: var(--text-tertiary); cursor: pointer; white-space: nowrap;
   transition: all .18s var(--ease);
 }
-.seg button.on { background: rgba(255,255,255,.92); color: var(--ink-1); font-weight: 600; box-shadow: 0 1px 6px rgba(60,70,100,.08); }
+.seg button.on { background: #fff; color: var(--text-primary); font-weight: 600; box-shadow: var(--elev-surface); }
 .seg button:active { opacity: .6; }
 
 /* ═══════════ 周条 ═══════════ */
 .wd {
-  flex: 1; text-align: center; padding: 9px 0 8px; border-radius: var(--r-sm);
+  flex: 1; text-align: center; padding: 8px 0 8px; border-radius: var(--r-sm);
   background: var(--glass-thin); border: 1px solid var(--brd-soft); cursor: pointer;
   transition: all .18s var(--ease);
 }
 .wd:active { transform: scale(.96); }
-.wd .l { font-size: 10.5px; color: var(--ink-4); }
-.wd .n { font-size: 14px; font-weight: 500; color: var(--ink-2); margin-top: 2px; font-variant-numeric: tabular-nums; }
-.wd .mk { display: flex; justify-content: center; gap: 3px; margin-top: 5px; height: 4px; }
+.wd .l { font-size:12px; color: var(--text-disabled); }
+.wd .n { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.wd .mk { display: flex; justify-content: center; gap: 4px; margin-top: 4px; height: 4px; }
 .wd .mk i { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); opacity: .85; }
-.wd .mk i.m { background: var(--ink-4); opacity: .55; }
-.wd.today { background: rgba(255,255,255,.74); border-color: rgba(255,255,255,.92); }
-.wd.today .n { color: var(--ink-1); font-weight: 600; }
-.wd.today .l { color: var(--ink-3); }
+.wd .mk i.m { background: var(--text-disabled); opacity: .55; }
+.wd.today { background: rgba(255,255,255,0.72); border-color: #fff; }
+.wd.today .n { color: var(--text-primary); font-weight: 600; }
+.wd.today .l { color: var(--text-tertiary); }
 
 /* ═══════════ PLAN ═══════════ */
 .item {
   position: relative;
-  display: flex; align-items: center; gap: 12px; padding: 14px 2px;
-  border-bottom: 1px solid var(--hair); border-radius: 0;
+  display: flex; align-items: center; gap: 12px; padding: 12px 4px;
+  border-bottom: 1px solid var(--divider); border-radius: 0;
   margin-bottom: 0;
   background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;
   cursor: pointer;
   transition: opacity .22s var(--ease);
 }
-.item:first-child { border-top: 1px solid var(--hair); }
+.item:first-child { border-top: 1px solid var(--divider); }
 .item:active .t { opacity: .6; }
 .item.reveal .tl-del { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
-.item .t { font-size: 15px; font-weight: 500; color: var(--ink-1); flex: 1; letter-spacing: -.006em; }
-.item .h { font-size: 11.5px; color: var(--ink-4); text-align: right; flex-shrink: 0; }
+.item .t { font-size:16px; font-weight: 500; color: var(--text-primary); flex: 1; letter-spacing: -.006em; }
+.item .h { font-size:12px; color: var(--text-disabled); text-align: right; flex-shrink: 0; }
 .item .h em { font-style: normal; color: var(--accent-ink); font-weight: 500; }
 .item .drag { width: 14px; height: 10px; flex-shrink: 0; opacity: .3; background:
-  radial-gradient(circle 1.4px at 3px 2px, var(--ink-3) 99%, transparent) ,
-  radial-gradient(circle 1.4px at 3px 5px, var(--ink-3) 99%, transparent) ,
-  radial-gradient(circle 1.4px at 3px 8px, var(--ink-3) 99%, transparent); }
+  radial-gradient(circle 1.4px at 3px 2px, var(--text-tertiary) 99%, transparent) ,
+  radial-gradient(circle 1.4px at 3px 5px, var(--text-tertiary) 99%, transparent) ,
+  radial-gradient(circle 1.4px at 3px 8px, var(--text-tertiary) 99%, transparent); }
 
 /* Adaptive：修复计划，不惩罚 */
 
 /* Plan My Day 入口 */
-.myday { margin-top: 20px; padding: 20px; border-radius: var(--r-xl); cursor: pointer;
-  background: linear-gradient(135deg, rgba(255,255,255,.62), rgba(255,255,255,.40));
+.myday { margin-top: 24px; padding: 24px; border-radius: var(--r-xl); cursor: pointer;
+  background: linear-gradient(135deg, rgba(255,255,255,0.68), rgba(255,255,255,0.34));
   backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-  border: 1px solid rgba(255,255,255,.78); box-shadow: var(--sh);
+  border: 1px solid rgba(255,255,255,0.72); box-shadow: var(--elev-surface);
   transition: transform .14s var(--ease); }
 .myday:active { transform: scale(.985); }
-.myday .q { font-size: 17px; font-weight: 600; color: var(--ink-1); margin-top: 5px; letter-spacing: -.012em; }
-.myday .d { font-size: 13px; color: var(--ink-3); margin-top: 5px; line-height: 1.55; }
-.myday .go { display: flex; align-items: center; gap: 6px; margin-top: 13px; font-size: 13px; font-weight: 600; color: var(--accent-ink); }
+.myday .q { font-size:20px; font-weight: 600; color: var(--text-primary); margin-top: 4px; letter-spacing: -.012em; }
+.myday .d { font-size:14px; color: var(--text-tertiary); margin-top: 4px; line-height: 1.55; }
+.myday .go { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size:14px; font-weight: 600; color: var(--accent-ink); }
 .myday .go svg { width: 13px; height: 13px; stroke: currentColor; stroke-width: 2.2; fill: none; }
 
 /* ═══════════ PROGRESS ═══════════ */
-.big { font-size: 46px; font-weight: 600; color: var(--ink-1); letter-spacing: -.032em; font-variant-numeric: tabular-nums; line-height: 1; }
-.big small { font-size: 21px; color: var(--ink-3); font-weight: 500; letter-spacing: -.01em; }
-.metric { display: flex; align-items: center; gap: 12px; padding: 14px 2px; border-bottom: 1px solid var(--hair); }
+.metric { display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--divider); }
 .metric:last-child { border-bottom: none; }
-.metric .m { font-size: 15px; font-weight: 500; color: var(--ink-2); flex: 1; }
-.metric .v { font-size: 15px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
-.metric .v b { color: var(--ink-1); font-weight: 600; }
+.metric .m { font-size:16px; font-weight: 500; color: var(--text-secondary); flex: 1; }
+.metric .v { font-size:16px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.metric .v b { color: var(--text-primary); font-weight: 600; }
 
 /* 7-day rhythm：细柱，无网格无坐标轴 */
-.rhythm { display: flex; align-items: flex-end; gap: 8px; height: 92px; margin-top: 8px; }
-.rhythm .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.rhythm .bar { width: 100%; max-width: 26px; height: 60px; border-radius: 99px; background: rgba(34,37,42,.085); position: relative; }
-.rhythm .bar i { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 99px; background: var(--accent); opacity: .9; }
-.rhythm .bar.low i { opacity: .42; }
-.rhythm .l { font-size: 10.5px; color: var(--ink-4); }
+
+
+
+
+
+
 
 /* 月度一致性 — 极简点阵 */
-.grid-dots { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 10px; }
-.grid-dots i { width: 100%; max-width: 15px; height: 15px; flex: 1 1 15px; border-radius: 5px; background: rgba(34,37,42,.07); }
+.grid-dots { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 12px; }
+.grid-dots i { width: 100%; max-width: 15px; height: 15px; flex: 1 1 15px; border-radius: var(--r-pill); background: rgba(34,37,42,.07); }
 .grid-dots i.on { background: var(--accent); }
 .grid-dots i.mid { background: var(--accent); opacity: .4; }
 
-.insight { margin-top: 20px; padding: 17px 19px; border-radius: var(--r-lg); background: var(--glass);
+.insight { margin-top: 24px; padding: 16px 16px; border-radius: var(--r-lg); background: var(--glass);
   backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid var(--brd); }
-.insight .q { font-size: 14.5px; font-weight: 600; color: var(--ink-1); line-height: 1.45; }
-.insight .d { font-size: 12.5px; color: var(--ink-3); margin-top: 5px; line-height: 1.55; }
+.insight .q { font-size:16px; font-weight: 600; color: var(--text-primary); line-height: 1.45; }
+.insight .d { font-size:14px; color: var(--text-tertiary); margin-top: 4px; line-height: 1.55; }
 
 .field {
-  margin-top: 13px; width: 100%; border: none; outline: none; background: transparent;
-  font-family: inherit; font-size: 14.5px; color: var(--ink-1); line-height: 1.55; resize: none;
+  margin-top: 12px; width: 100%; border: none; outline: none; background: transparent;
+  font-family: inherit; font-size:16px; color: var(--text-primary); line-height: 1.55; resize: none;
 }
-.field::placeholder { color: var(--ink-4); }
+.field::placeholder { color: var(--text-disabled); }
 
 /* ═══════════ ME ═══════════ */
-.direction { margin-top: 22px; padding: 22px; border-radius: var(--r-xl); background: var(--glass-2);
-  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid rgba(255,255,255,.82); cursor: pointer;
+.direction { margin-top: 24px; padding: 24px; border-radius: var(--r-xl); background: var(--glass-2);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid rgba(255,255,255,0.72); cursor: pointer;
   transition: transform .14s var(--ease); }
 .direction:active { transform: scale(.99); }
 .direction .eyebrow { color: var(--accent-ink); }
-.direction .state { font-size: 20px; font-weight: 600; color: var(--ink-1); line-height: 1.42; margin-top: 9px; letter-spacing: -.014em; }
-.domains { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
-.domains span { font-size: 12px; color: var(--ink-3); padding: 5px 11px; border-radius: 99px;
-  background: rgba(255,255,255,.5); border: 1px solid rgba(255,255,255,.72); }
+.direction .state { font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1.42; margin-top: 8px; letter-spacing: -.014em; }
+
+
 
 /* 链路 Direction → Goals → Routines → Today */
-.chain { display: flex; align-items: center; gap: 5px; margin-top: 15px; flex-wrap: wrap; }
-.chain .node { font-size: 10.5px; font-weight: 600; color: var(--ink-3); padding: 4px 8px; border-radius: 8px;
-  background: rgba(255,255,255,.46); border: 1px solid rgba(255,255,255,.68); letter-spacing: .01em; }
-.chain .node.on { color: var(--accent-ink); background: var(--accent-soft); border-color: var(--accent-line); }
-.chain .arr { color: var(--ink-4); font-size: 10px; }
 
-.goal { margin-top: 9px; padding: 16px 18px; border-radius: var(--r-lg); background: var(--glass);
+
+
+
+
+.goal { margin-top: 8px; padding: 16px 16px; border-radius: var(--r-lg); background: var(--glass);
   backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid var(--brd); cursor: pointer;
   transition: transform .14s var(--ease); }
 .goal:active { transform: scale(.985); }
-.goal .g { font-size: 11px; font-weight: 600; color: var(--ink-3); letter-spacing: .06em; }
-.goal .t { font-size: 15.5px; font-weight: 600; color: var(--ink-1); margin-top: 5px; letter-spacing: -.01em; }
-.goal .f { font-size: 12.5px; color: var(--ink-3); margin-top: 3px; }
-.goal .lv { display: flex; gap: 4px; margin-top: 11px; }
-.goal .lv i { height: 3.5px; flex: 1; border-radius: 99px; background: rgba(34,37,42,.08); }
-.goal .lv i.on { background: var(--accent); }
+.goal .g { font-size:12px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .06em; }
+.goal .t { font-size:16px; font-weight: 600; color: var(--text-primary); margin-top: 4px; letter-spacing: -.01em; }
+.goal .f { font-size:14px; color: var(--text-tertiary); margin-top: 4px; }
+/* N2 进度可视化收敛：goal pct 唯一形态 = pill 进度条（配 caption 数字）；分段 .lv 已删 */
+.pbar { display: flex; align-items: center; gap: 12px; }
+.pbar .track { flex: 1; height: 5px; border-radius: var(--r-pill); background: rgba(34,37,42,.08); overflow: hidden; }
+.pbar .track i { display: block; height: 100%; border-radius: var(--r-pill); background: var(--accent); }
+.pbar .pct { font-size: 12px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
 
-.row { display: flex; align-items: center; gap: 12px; padding: 13px 2px; border-bottom: 1px solid var(--hair); cursor: pointer; }
+.row { display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--divider); cursor: pointer; }
 .row:active .t { opacity: .6; }
 .row:last-child { border-bottom: none; }
-.row .t { font-size: 15px; font-weight: 500; color: var(--ink-1); flex: 1; letter-spacing: -.006em; }
-.row .d { font-size: 12px; color: var(--ink-4); }
-.row .chev { width: 7px; height: 7px; border-top: 1.8px solid var(--ink-4); border-right: 1.8px solid var(--ink-4); transform: rotate(45deg); flex-shrink: 0; }
+.row .t { font-size:16px; font-weight: 500; color: var(--text-primary); flex: 1; letter-spacing: -.006em; }
+.row .d { font-size: 12px; color: var(--text-disabled); }
+.row .chev { width: 7px; height: 7px; border-top: 1.8px solid var(--text-disabled); border-right: 1.8px solid var(--text-disabled); transform: rotate(45deg); flex-shrink: 0; }
 
 /* ═══════════ 底部导航 — 安静 ═══════════ */
 .tabbar {
   position: absolute; bottom: 0; left: 0; right: 0; z-index: 30;
   display: flex; align-items: stretch;
   padding: 7px 10px calc(13px + env(safe-area-inset-bottom));
-  background: rgba(255,255,255,.56);
+  background: rgba(255,255,255,0.55);
   backdrop-filter: blur(26px) saturate(1.6); -webkit-backdrop-filter: blur(26px) saturate(1.6);
-  border-top: 1px solid rgba(255,255,255,.68);
+  border-top: 1px solid rgba(255,255,255,0.68);
   transition: transform .3s var(--ease), opacity .3s var(--ease);
 }
 .phone[data-nav="panel"] .tabbar { transform: translateY(110%); opacity: 0; pointer-events: none; }
@@ -575,94 +599,94 @@ body {
 .phone[data-nav="auth"] .tabbar { transform: translateY(110%); opacity: 0; pointer-events: none; }
 .phone[data-nav="auth"] .fab { transform: scale(0); opacity: 0; pointer-events: none; }
 .tab {
-  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   background: none; border: none; cursor: pointer; font-family: inherit;
-  padding: 6px 0; min-height: 44px; border-radius: var(--r-sm); color: var(--ink-4);
+  padding: 8px 0; min-height: 44px; border-radius: var(--r-sm); color: var(--text-disabled);
   transition: color .16s var(--ease), transform .14s var(--ease);
 }
 .tab svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 1.7; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.tab span { font-size: 10.5px; font-weight: 500; letter-spacing: .005em; }
+.tab span { font-size:12px; font-weight: 500; letter-spacing: .005em; }
 .tab:active { transform: scale(.92); }
-.tab.on { color: var(--ink-1); }
+.tab.on { color: var(--text-primary); }
 .tab.on svg { stroke-width: 2; }
 
 /* Quick Add */
 .fab {
   position: absolute; right: 20px; bottom: 96px; z-index: 25;
   width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
-  border: 1px solid rgba(255,255,255,.82);
-  background: rgba(255,255,255,.68);
+  border: 1px solid rgba(255,255,255,0.72);
+  background: rgba(255,255,255,0.68);
   backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-  box-shadow: 0 8px 28px rgba(60,70,100,.12);
+  box-shadow: var(--elev-floating);
   display: flex; align-items: center; justify-content: center;
   transition: transform .22s var(--ease), opacity .22s var(--ease);
 }
 .fab:active { transform: scale(.9); }
-.fab svg { width: 19px; height: 19px; stroke: var(--ink-1); stroke-width: 2.1; fill: none; stroke-linecap: round; }
+.fab svg { width: 19px; height: 19px; stroke: var(--text-primary); stroke-width: 2.1; fill: none; stroke-linecap: round; }
 
 /* ═══════════ 登录屏 — 参考排版 ═══════════ */
 .auth-screen { padding: 0; }
-.auth-view { min-height: 100%; display: flex; flex-direction: column; padding: 0 34px; }
+.auth-view { min-height: 100%; display: flex; flex-direction: column; padding: 0 32px; }
 .auth-view[hidden] { display: none; }
 .auth-topbar { display: flex; align-items: center; margin: 16px -10px 0; }
-.auth-back { display: flex; align-items: center; gap: 5px; background: none; border: none; cursor: pointer; font-family: inherit; font-size: 14.5px; color: var(--ink-2); padding: 8px 10px; }
+.auth-back { display: flex; align-items: center; gap: 4px; background: none; border: none; cursor: pointer; font-family: inherit; font-size:16px; color: var(--text-secondary); padding: 8px 12px; }
 .auth-back svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.auth-icon { display: flex; justify-content: center; margin-top: 52px; }
-.auth-icon svg { width: 68px; height: 68px; border-radius: 22px; box-shadow: 0 10px 34px rgba(60,70,100,.12); }
-.auth-brand { text-align: center; font-size: 17px; font-weight: 700; letter-spacing: .02em; color: var(--ink-1); margin-top: 14px; }
-.auth-head { text-align: center; margin-top: 36px; }
-.auth-head.left { text-align: left; margin-top: 30px; }
-.auth-title { font-size: 32px; font-weight: 700; letter-spacing: -.022em; color: var(--ink-1); line-height: 1.15; }
-.auth-title.sm { font-size: 26px; }
-.auth-sub { font-size: 14px; color: var(--ink-3); margin-top: 10px; letter-spacing: .01em; }
-.auth-form { margin-top: 40px; }
-.auth-label { display: block; font-size: 14.5px; font-weight: 500; color: var(--ink-1); letter-spacing: -.005em; }
+.auth-icon { display: flex; justify-content: center; margin-top: 48px; }
+.auth-icon svg { width: 68px; height: 68px; border-radius: var(--r-lg); box-shadow: var(--elev-floating); }
+.auth-brand { text-align: center; font-size:20px; font-weight: 700; letter-spacing: .02em; color: var(--text-primary); margin-top: 12px; }
+.auth-head { text-align: center; margin-top: 32px; }
+.auth-head.left { text-align: left; margin-top: 32px; }
+.auth-title { font-size: 32px; font-weight: 700; letter-spacing: -.022em; color: var(--text-primary); line-height: 1.15; }
+.auth-title.sm { font-size:24px; }
+.auth-sub { font-size: 14px; color: var(--text-tertiary); margin-top: 12px; letter-spacing: .01em; }
+.auth-form { margin-top: 48px; }
+.auth-label { display: block; font-size:16px; font-weight: 500; color: var(--text-primary); letter-spacing: -.005em; }
 .auth-underline { position: relative; margin-top: 4px; }
 .auth-input {
   width: 100%; box-sizing: border-box; background: transparent; border: none; outline: none;
-  border-bottom: 1.5px solid var(--ink-2); padding: 12px 2px;
-  font-size: 16px; font-family: inherit; color: var(--ink-1);
+  border-bottom: 1.5px solid var(--text-secondary); padding: 12px 4px;
+  font-size: 16px; font-family: inherit; color: var(--text-primary);
 }
-.auth-input::placeholder { color: var(--ink-4); }
-.auth-input:focus { border-bottom-color: var(--ink-1); }
-.auth-underline.has-eye .auth-input { padding-right: 38px; }
+.auth-input::placeholder { color: var(--text-disabled); }
+.auth-input:focus { border-bottom-color: var(--text-primary); }
+.auth-underline.has-eye .auth-input { padding-right: 32px; }
 .auth-eye {
   position: absolute; right: 2px; bottom: 10px; width: 30px; height: 30px;
   display: flex; align-items: center; justify-content: center;
-  background: none; border: none; cursor: pointer; color: var(--ink-2); padding: 0;
+  background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 0;
 }
 .auth-eye svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.auth-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 13px; }
-.auth-check { display: flex; align-items: center; gap: 7px; color: var(--ink-1); cursor: pointer; user-select: none; }
-.auth-check input { width: 16px; height: 16px; accent-color: var(--ink-1); cursor: pointer; }
-.auth-forgot { color: var(--ink-4); text-decoration: none; cursor: pointer; }
-.auth-forgot:hover { color: var(--ink-2); }
+.auth-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size:14px; }
+.auth-check { display: flex; align-items: center; gap: 8px; color: var(--text-primary); cursor: pointer; user-select: none; }
+.auth-check input { width: 16px; height: 16px; accent-color: var(--text-primary); cursor: pointer; }
+.auth-forgot { color: var(--text-disabled); text-decoration: none; cursor: pointer; }
+.auth-forgot:hover { color: var(--text-secondary); }
 .auth-btn-dark {
-  width: 100%; height: 54px; margin-top: 34px; border: none; cursor: pointer;
-  border-radius: 27px; background: #16181D; color: #FFFFFF;
-  font-family: inherit; font-size: 15.5px; font-weight: 600; letter-spacing: -.005em;
+  width: 100%; height: 54px; margin-top: 32px; border: none; cursor: pointer;
+  border-radius: var(--r-xl); background: #16181D; color: #FFFFFF;
+  font-family: inherit; font-size:16px; font-weight: 600; letter-spacing: -.005em;
   transition: transform .18s var(--ease), opacity .18s var(--ease);
 }
 .auth-btn-dark:active { transform: scale(.97); }
 .auth-btn-dark:disabled { opacity: .55; cursor: default; }
-.auth-err { font-size: 12.5px; color: var(--danger); min-height: 18px; text-align: center; margin-top: 12px; }
+.auth-err { font-size:14px; color: var(--danger); min-height: 18px; text-align: center; margin-top: 12px; }
 .phone[data-mode="dark"] .auth-btn-dark { background: #F2F4F8; color: #0D0F13; }
-.auth-legal { text-align: center; font-size: 11.5px; color: var(--ink-4); line-height: 1.55; margin-top: 14px; }
-.auth-foot { margin-top: auto; text-align: center; font-size: 13px; color: var(--ink-3); padding: 26px 0 10px; }
-.auth-foot a { color: var(--ink-1); font-weight: 600; cursor: pointer; text-decoration: none; }
-.auth-fp-done { text-align: center; margin-top: 48px; font-size: 14px; color: var(--ink-2); line-height: 1.7; }
-.auth-fp-done b { color: var(--ink-1); }
+.auth-legal { text-align: center; font-size:12px; color: var(--text-disabled); line-height: 1.55; margin-top: 12px; }
+.auth-foot { margin-top: auto; text-align: center; font-size:14px; color: var(--text-tertiary); padding: 24px 0 12px; }
+.auth-foot a { color: var(--text-primary); font-weight: 600; cursor: pointer; text-decoration: none; }
+.auth-fp-done { text-align: center; margin-top: 48px; font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+.auth-fp-done b { color: var(--text-primary); }
 
 /* 次级页面返回条 */
 .panel-bar {
   position: sticky; top: 10px; z-index: 5;
-  display: flex; align-items: center; gap: 10px;
-  padding: 6px 0 12px; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 0 12px; margin-bottom: 4px;
   background: linear-gradient(to bottom, rgba(248,249,255,.96) 60%, rgba(248,249,255,0));
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 }
-.back { display: flex; align-items: center; gap: 5px; background: none; border: none; cursor: pointer;
-  font-family: inherit; font-size: 14px; font-weight: 500; color: var(--ink-3); padding: 4px 8px 4px 0; }
+.back { display: flex; align-items: center; gap: 4px; background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 500; color: var(--text-tertiary); padding: 4px 8px 4px 0; }
 .back svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 .back:active { opacity: .6; }
 
@@ -675,34 +699,32 @@ body {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 50;
   background: rgba(252,253,255,.88);
   backdrop-filter: var(--blur-l); -webkit-backdrop-filter: var(--blur-l);
-  border-top: 1px solid rgba(255,255,255,.92);
-  border-radius: 30px 30px 0 0;
-  padding: 11px 24px calc(28px + env(safe-area-inset-bottom));
+  border-top: 1px solid #fff;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: 12px 24px calc(24px + env(safe-area-inset-bottom));
   transform: translateY(105%); transition: transform .38s var(--ease);
   max-height: 90%; overflow-y: auto;
 }
 .sheet.on { transform: translateY(0); }
-.grab { width: 38px; height: 4.5px; border-radius: 99px; background: rgba(34,37,42,.13); margin: 0 auto 18px; }
+.grab { width: 38px; height: 4.5px; border-radius: var(--r-pill); background: rgba(34,37,42,.13); margin: 0 auto 16px; }
 
-.td-grid { margin-top: 18px; }
-.td-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 2px; border-bottom: 1px solid var(--hair); }
-.td-row .k { font-size: 13px; color: var(--ink-3); }
-.td-row .v { font-size: 14px; font-weight: 500; color: var(--ink-1); text-align: right; }
+.td-grid { margin-top: 16px; }
+.td-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 4px; border-bottom: 1px solid var(--divider); }
+.td-row .k { font-size:14px; color: var(--text-tertiary); }
+.td-row .v { font-size: 14px; font-weight: 500; color: var(--text-primary); text-align: right; }
 .td-row .v.link { color: var(--accent-ink); font-weight: 600; cursor: pointer; }
-.td-notes { font-size: 13px; color: var(--ink-3); line-height: 1.65; margin-top: 15px; }
-.td-acts { margin-top: 22px; }
+.td-notes { font-size:14px; color: var(--text-tertiary); line-height: 1.65; margin-top: 16px; }
+.td-acts { margin-top: 24px; }
 
-.qa-input { width: 100%; border: none; outline: none; background: transparent;
-  font-family: inherit; font-size: 21px; font-weight: 500; color: var(--ink-1);
-  padding: 4px 0 14px; border-bottom: 1px solid var(--hair); letter-spacing: -.012em; }
-.qa-input::placeholder { color: var(--ink-4); font-weight: 400; }
-.qa-sug { display: flex; align-items: center; gap: 9px; margin-top: 18px; font-size: 13px; color: var(--ink-3); flex-wrap: wrap; }
 
-.md-row { display: grid; grid-template-columns: 50px 1fr; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--hair); align-items: center; }
-.md-row .tm { font-size: 12.5px; font-weight: 500; color: var(--ink-3); font-variant-numeric: tabular-nums; }
-.md-row .ti { font-size: 15px; font-weight: 500; color: var(--ink-1); letter-spacing: -.008em; }
-.md-row .src { font-size: 11px; color: var(--ink-4); margin-top: 1px; }
-.md-note { font-size: 12.5px; color: var(--ink-3); margin-top: 14px; line-height: 1.55; }
+
+
+
+
+
+
+
+
 
 /* ═══════════ Focus — 全屏安静 ═══════════ */
 .veil { position: absolute; inset: 0; z-index: 60; background: rgba(248,249,255,.86);
@@ -710,33 +732,33 @@ body {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   opacity: 0; pointer-events: none; transition: opacity .32s var(--ease); padding: 0 32px; }
 .veil.on { opacity: 1; pointer-events: auto; }
-.focus-task { font-size: 17px; font-weight: 500; color: var(--ink-3); text-align: center; }
-.focus-time { font-size: 68px; font-weight: 600; color: var(--ink-1); letter-spacing: -.03em;
+.focus-task { font-size:20px; font-weight: 500; color: var(--text-tertiary); text-align: center; }
+.focus-time { font-size:48px; font-weight: 600; color: var(--text-primary); letter-spacing: -.03em;
   font-variant-numeric: tabular-nums; margin-top: 16px; line-height: 1; }
-.focus-time.done-c { color: var(--accent); font-size: 46px; }
-.focus-start { margin-top: 38px; padding: 15px 54px; border-radius: 99px; border: none; cursor: pointer;
-  background: var(--ink-1); color: #fff; font-family: inherit; font-size: 16px; font-weight: 600;
+.focus-time.done-c { color: var(--accent); font-size:48px; }
+.focus-start { margin-top: 32px; padding: 16px 48px; border-radius: var(--r-pill); border: none; cursor: pointer;
+  background: var(--text-primary); color: #fff; font-family: inherit; font-size: 16px; font-weight: 600;
   transition: transform .14s var(--ease); }
 .focus-start:active { transform: scale(.97); }
-.focus-quit { margin-top: 20px; background: none; border: none; cursor: pointer;
-  font-family: inherit; font-size: 13px; color: var(--ink-4); }
+.focus-quit { margin-top: 24px; background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size:14px; color: var(--text-disabled); }
 
 /* ═══════════ 空 / 加载 / 错误 状态 — 安静 ═══════════ */
-.empty { text-align: center; padding: 52px 20px 40px; }
-.empty .e1 { font-size: 16px; font-weight: 500; color: var(--ink-2); letter-spacing: -.008em; }
-.empty .e2 { font-size: 12.5px; color: var(--ink-4); margin-top: 5px; line-height: 1.6; }
-.empty .ea { margin-top: 20px; display: inline-flex; }
+.empty { text-align: center; padding: 48px 24px 48px; }
+.empty .e1 { font-size: 16px; font-weight: 500; color: var(--text-secondary); letter-spacing: -.008em; }
+.empty .e2 { font-size:14px; color: var(--text-disabled); margin-top: 4px; line-height: 1.6; }
+.empty .ea { margin-top: 24px; display: inline-flex; }
 
-.skel { border-radius: 10px; background: linear-gradient(90deg, rgba(34,37,42,.055) 25%, rgba(34,37,42,.09) 37%, rgba(34,37,42,.055) 63%);
+.skel { border-radius: var(--r-sm); background: linear-gradient(90deg, rgba(34,37,42,.055) 25%, rgba(34,37,42,.09) 37%, rgba(34,37,42,.055) 63%);
   background-size: 400% 100%; animation: shimmer 1.5s ease-in-out infinite; }
 @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
-.skel-row { display: grid; grid-template-columns: 50px 1fr 26px; gap: 14px; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--hair); }
+.skel-row { display: grid; grid-template-columns: 50px 1fr 26px; gap: 12px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--divider); }
 .skel-row:last-child { border-bottom: none; }
 
-.err { margin-top: 30px; padding: 26px 22px; border-radius: var(--r-lg); text-align: center;
+.err { margin-top: 32px; padding: 24px 24px; border-radius: var(--r-lg); text-align: center;
   background: var(--danger-soft); border: 1px solid rgba(196,100,100,.2); }
-.err .e1 { font-size: 14.5px; font-weight: 500; color: var(--danger); line-height: 1.55; }
-.err .btn-g { margin-top: 14px; flex: none; display: inline-flex; align-items: center; justify-content: center; padding: 0 22px; }
+.err .e1 { font-size:16px; font-weight: 500; color: var(--danger); line-height: 1.55; }
+.err .btn-g { margin-top: 12px; flex: none; display: inline-flex; align-items: center; justify-content: center; padding: 0 24px; }
 
 /* ═══════════ 全屏覆盖层（引导 / 屏幕目录）═══════════ */
 .overlay { position: absolute; inset: 0; z-index: 70; display: flex; flex-direction: column;
@@ -747,24 +769,24 @@ body {
 /* 屏幕目录 */
 
 /* ═══════════ 引导流程 ═══════════ */
-.ob { flex: 1; display: flex; flex-direction: column; padding: 0 26px 34px; overflow-y: auto; }
+.ob { flex: 1; display: flex; flex-direction: column; padding: 0 24px 32px; overflow-y: auto; }
 .ob::-webkit-scrollbar { display: none; }
-.ob-top { display: flex; align-items: center; gap: 10px; padding: 16px 0 0; flex-shrink: 0; }
-.ob-dots { display: flex; gap: 5px; }
+.ob-top { display: flex; align-items: center; gap: 12px; padding: 16px 0 0; flex-shrink: 0; }
+.ob-dots { display: flex; gap: 4px; }
 .ob-dots i { width: 5px; height: 5px; border-radius: 50%; background: rgba(34,37,42,.14); transition: all .3s var(--ease); }
-.ob-dots i.on { width: 16px; border-radius: 99px; background: var(--ink-1); }
-.ob-skip { margin-left: auto; background: none; border: none; font-family: inherit; font-size: 13px; color: var(--ink-4); cursor: pointer; }
-.ob-body { flex: 1; padding-top: 34px; }
-.ob-q { font-size: 27px; font-weight: 600; color: var(--ink-1); letter-spacing: -.022em; line-height: 1.24; }
-.ob-d { font-size: 14px; color: var(--ink-3); margin-top: 11px; line-height: 1.6; }
-.ob-opts { margin-top: 28px; display: flex; flex-direction: column; gap: 9px; }
-.ob-opt { display: flex; align-items: center; gap: 13px; padding: 16px 18px; border-radius: var(--r-lg);
+.ob-dots i.on { width: 16px; border-radius: var(--r-pill); background: var(--text-primary); }
+.ob-skip { margin-left: auto; background: none; border: none; font-family: inherit; font-size:14px; color: var(--text-disabled); cursor: pointer; }
+.ob-body { flex: 1; padding-top: 32px; }
+.ob-q { font-size:24px; font-weight: 600; color: var(--text-primary); letter-spacing: -.022em; line-height: 1.24; }
+.ob-d { font-size: 14px; color: var(--text-tertiary); margin-top: 12px; line-height: 1.6; }
+.ob-opts { margin-top: 24px; display: flex; flex-direction: column; gap: 8px; }
+.ob-opt { display: flex; align-items: center; gap: 12px; padding: 16px 16px; border-radius: var(--r-lg);
   background: var(--glass); border: 1px solid var(--brd); cursor: pointer; text-align: left;
   font-family: inherit; transition: all .2s var(--ease); }
 .ob-opt:active { transform: scale(.985); }
-.ob-opt .t { font-size: 15.5px; font-weight: 600; color: var(--ink-1); letter-spacing: -.008em; }
-.ob-opt .d { font-size: 12.5px; color: var(--ink-3); margin-top: 3px; line-height: 1.45; }
-.ob-opt .box { width: 21px; height: 21px; border-radius: 7px; border: 1.5px solid rgba(34,37,42,.2); flex-shrink: 0;
+.ob-opt .t { font-size:16px; font-weight: 600; color: var(--text-primary); letter-spacing: -.008em; }
+.ob-opt .d { font-size:14px; color: var(--text-tertiary); margin-top: 4px; line-height: 1.45; }
+.ob-opt .box { width: 21px; height: 21px; border-radius: var(--r-pill); border: 1.5px solid rgba(34,37,42,.2); flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; transition: all .18s var(--ease); }
 .ob-opt .box svg { width: 11px; height: 11px; stroke: #fff; stroke-width: 2.8; fill: none; opacity: 0; transform: scale(.5); transition: all .18s var(--ease); }
 .ob-opt.sel { background: var(--accent-soft); border-color: var(--accent-line); }
@@ -772,95 +794,113 @@ body {
 .ob-opt.sel .box svg { opacity: 1; transform: scale(1); }
 .ob-opt.sel .t { color: var(--accent-ink); }
 
-.time-pick { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 26px; }
-.time-pick .u { font-size: 36px; font-weight: 600; color: var(--ink-1); font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+.time-pick { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 24px; }
+.time-pick .u { font-size:32px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; letter-spacing: -.02em;
   padding: 8px 4px; min-width: 74px; text-align: center; border-radius: var(--r-sm); border: 1px solid var(--brd); background: var(--glass-thin); }
-.time-pick .sep { font-size: 26px; color: var(--ink-4); }
-.time-pick .ampm { font-size: 15px; font-weight: 600; color: var(--ink-3); align-self: flex-end; padding-bottom: 14px; }
+.time-pick .sep { font-size:24px; color: var(--text-disabled); }
+.time-pick .ampm { font-size:16px; font-weight: 600; color: var(--text-tertiary); align-self: flex-end; padding-bottom: 12px; }
 
-.ob-in { width: 100%; margin-top: 22px; padding: 14px 0; border: none; border-bottom: 1px solid var(--hair);
-  background: transparent; outline: none; font-family: inherit; font-size: 17px; font-weight: 500; color: var(--ink-1); letter-spacing: -.01em; }
-.ob-in::placeholder { color: var(--ink-4); font-weight: 400; }
+.ob-in { width: 100%; margin-top: 24px; padding: 12px 0; border: none; border-bottom: 1px solid var(--divider);
+  background: transparent; outline: none; font-family: inherit; font-size:20px; font-weight: 500; color: var(--text-primary); letter-spacing: -.01em; }
+.ob-in::placeholder { color: var(--text-disabled); font-weight: 400; }
 
-.chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 22px; }
-.chip { padding: 8px 14px; border-radius: 99px; border: 1px solid var(--brd); background: var(--glass-thin);
-  font-family: inherit; font-size: 13.5px; font-weight: 500; color: var(--ink-2); cursor: pointer; transition: all .18s var(--ease); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+.chip { padding: 8px 12px; border-radius: var(--r-pill); border: 1px solid var(--brd); background: var(--glass-thin);
+  font-family: inherit; font-size:14px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all .18s var(--ease); }
 .chip.sel { background: var(--accent-soft); border-color: var(--accent-line); color: var(--accent-ink); font-weight: 600; }
 
-.ob-foot { padding-top: 26px; flex-shrink: 0; display: flex; gap: 10px; align-items: center; }
+.ob-foot { padding-top: 24px; flex-shrink: 0; display: flex; gap: 12px; align-items: center; }
 .ob-foot .btn-p { flex: 1; height: 52px; }
-.ob-foot .btn-g { flex: none; padding: 0 20px; height: 52px; }
+.ob-foot .btn-g { flex: none; padding: 0 24px; height: 52px; }
 
-.ob-gen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 30px; }
+.ob-gen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 32px; }
 .spinner { width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid rgba(34,37,42,.1); border-top-color: var(--accent); animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.ob-gen .lbl { font-size: 15px; font-weight: 500; color: var(--ink-1); margin-top: 22px; }
-.ob-gen .sub { font-size: 13px; color: var(--ink-4); margin-top: 6px; line-height: 1.6; }
+.ob-gen .lbl { font-size:16px; font-weight: 500; color: var(--text-primary); margin-top: 24px; }
+.ob-gen .sub { font-size:14px; color: var(--text-disabled); margin-top: 8px; line-height: 1.6; }
 
 /* ═══════════ 深色模式 — 深色 Frosted Glass ═══════════ */
 .phone[data-mode="dark"] {
   background: #0D0F13;
-  --ink-1: #F1F3F6; --ink-2: #C9CED6; --ink-3: #8B919B; --ink-4: #6C727B;
+  --bg: #0D0F13;
   --accent: #5BAE82; --accent-ink: #82CBA4; --accent-soft: rgba(91,174,130,.17); --accent-line: rgba(91,174,130,.3);
   --danger: #D47878; --danger-soft: rgba(212,120,120,.14);
-  --glass: rgba(255,255,255,.055); --glass-2: rgba(255,255,255,.085); --glass-thin: rgba(255,255,255,.035);
-  --brd: rgba(255,255,255,.09); --brd-soft: rgba(255,255,255,.07);
-  --hair: rgba(255,255,255,.062);
-  --sh: 0 8px 32px rgba(0,0,0,.22);
+  --glass: rgba(255,255,255,0.04); --glass-2: rgba(255,255,255,0.07); --glass-thin: rgba(255,255,255,0.04);
+  --brd: rgba(255,255,255,0.07); --brd-soft: rgba(255,255,255,0.07);
+  /* 设计系统语义 token（深色，2026-09-08 定版）——P4 起组件逐步切换；文字=墨色 alpha 四档 */
+  --ink: #F1F3F6;
+  --text-primary: rgba(241, 243, 246, 1);
+  --text-secondary: rgba(241, 243, 246, 0.65);
+  --text-tertiary: rgba(241, 243, 246, 0.45);
+  --text-disabled: rgba(241, 243, 246, 0.30);
+  --surface-thin: rgba(255,255,255,0.04); --surface: rgba(255,255,255,0.07); --surface-strong: rgba(255,255,255,0.11);
+  --surface-solid: #16181D;
+  --border: rgba(255,255,255,0.11); --border-soft: rgba(255,255,255,0.07);
+  --divider: rgba(255,255,255,0.07);
+  --overlay: rgba(0,0,0,.52);
+  --accent-strong: #82CBA4;
+  --success: #5BAE82; --success-soft: rgba(91,174,130,.17);
+  --warning: #EDB268; --warning-soft: rgba(237,178,104,.16);
+  --danger-strong: #E29B9B;
+  --info: #7E96DF; --info-soft: rgba(126,150,223,.16);
+  --elev-surface: 0 8px 32px rgba(0,0,0,.22);
+  --elev-floating: 0 10px 34px rgba(0,0,0,.34);
+  --elev-modal: 0 32px 80px rgba(0,0,0,.5);
 }
 .phone[data-mode="dark"] .blob-1 { background: #1B2740; opacity: .5; }
 .phone[data-mode="dark"] .blob-2 { background: #241F3D; opacity: .44; }
 .phone[data-mode="dark"] .blob-3 { background: #16283A; opacity: .5; }
 .phone[data-mode="dark"] .blob-4 { background: #1A2436; opacity: .4; }
-.phone[data-mode="dark"] .tabbar { background: rgba(13,15,19,.62); border-top-color: rgba(255,255,255,.07); }
-.phone[data-mode="dark"] .fab { background: rgba(32,36,44,.72); border-color: rgba(255,255,255,.1); }
-.phone[data-mode="dark"] .fab svg { stroke: var(--ink-1); }
-.phone[data-mode="dark"] .sheet { background: rgba(23,26,32,.9); border-top-color: rgba(255,255,255,.1); }
+.phone[data-mode="dark"] .tabbar { background: rgba(13,15,19,.62); border-top-color: rgba(255,255,255,0.07); }
+.phone[data-mode="dark"] .fab { background: rgba(32,36,44,.72); border-color: rgba(255,255,255,0.11); }
+.phone[data-mode="dark"] .fab svg { stroke: var(--text-primary); }
+.phone[data-mode="dark"] .sheet { background: rgba(23,26,32,.9); border-top-color: rgba(255,255,255,0.11); }
 .phone[data-mode="dark"] .scrim { background: rgba(0,0,0,.44); }
 .phone[data-mode="dark"] .veil { background: rgba(13,15,19,.9); }
 .phone[data-mode="dark"] .overlay { background: rgba(13,15,19,.95); }
 .phone[data-mode="dark"] .btn-p { background: #F1F3F6; color: #0D0F13; }
 .phone[data-mode="dark"] .btn-p.acc { background: var(--accent); color: #fff; }
-.phone[data-mode="dark"] .btn-g { background: rgba(255,255,255,.07); color: var(--ink-2); }
+.phone[data-mode="dark"] .btn-g { background: rgba(255,255,255,0.07); color: var(--text-secondary); }
 .phone[data-mode="dark"] .btn-g.acc-t { color: var(--accent-ink); background: var(--accent-soft); }
-.phone[data-mode="dark"] .seg { background: rgba(255,255,255,.055); border-color: rgba(255,255,255,.08); }
-.phone[data-mode="dark"] .seg button.on { background: rgba(255,255,255,.14); color: var(--ink-1); }
-.phone[data-mode="dark"] .wd { background: rgba(255,255,255,.035); border-color: rgba(255,255,255,.07); }
-.phone[data-mode="dark"] .wd.today { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.16); }
-.phone[data-mode="dark"] .myday { background: linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.035)); border-color: rgba(255,255,255,.1); }
-.phone[data-mode="dark"] .domains span { background: rgba(255,255,255,.055); border-color: rgba(255,255,255,.09); }
-.phone[data-mode="dark"] .chain .node { background: rgba(255,255,255,.055); border-color: rgba(255,255,255,.09); }
-.phone[data-mode="dark"] .tl-check { border-color: rgba(255,255,255,.28); }
-  .phone[data-mode="dark"] .task { border-bottom-color: rgba(255,255,255,.062); }
-  .phone[data-mode="dark"] .task:first-child { border-top-color: rgba(255,255,255,.062); }
-  .phone[data-mode="dark"] .task .dot { border-color: rgba(255,255,255,.3); }
-  .phone[data-mode="dark"] .task.done .t { text-decoration-color: rgba(241,243,246,.42); }
-  .phone[data-mode="dark"] .item { border-bottom-color: rgba(255,255,255,.062); }
-  .phone[data-mode="dark"] .item:first-child { border-top-color: rgba(255,255,255,.062); }
-  .phone[data-mode="dark"] .habits { border-color: rgba(255,255,255,.062); }
-  .phone[data-mode="dark"] .habit-chip + .habit-chip { border-left-color: rgba(255,255,255,.062); }
-.phone[data-mode="dark"] .ob-opt .box { border-color: rgba(255,255,255,.3); }
+.phone[data-mode="dark"] .seg { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.07); }
+.phone[data-mode="dark"] .seg button.on { background: rgba(255,255,255,0.16); color: var(--text-primary); }
+.phone[data-mode="dark"] .wd { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.07); }
+.phone[data-mode="dark"] .wd.today { background: rgba(255,255,255,0.11); border-color: rgba(255,255,255,0.16); }
+.phone[data-mode="dark"] .myday { background: linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04)); border-color: rgba(255,255,255,0.11); }
+
+
+.phone[data-mode="dark"] .tl-check { border-color: rgba(255,255,255,0.34); }
+
+
+
+
+  .phone[data-mode="dark"] .item { border-bottom-color: rgba(255,255,255,0.07); }
+  .phone[data-mode="dark"] .item:first-child { border-top-color: rgba(255,255,255,0.07); }
+  .phone[data-mode="dark"] .habits { border-color: rgba(255,255,255,0.07); }
+  .phone[data-mode="dark"] .habit-chip + .habit-chip { border-left-color: rgba(255,255,255,0.07); }
+.phone[data-mode="dark"] .ob-opt .box { border-color: rgba(255,255,255,0.34); }
 .phone[data-mode="dark"] .tl-row.done .tl-title { text-decoration-color: rgba(241,243,246,.42); }
-.phone[data-mode="dark"] .task.done .t { text-decoration-color: rgba(241,243,246,.42); }
-.phone[data-mode="dark"] .rhythm .bar { background: rgba(255,255,255,.09); }
-.phone[data-mode="dark"] .grid-dots i { background: rgba(255,255,255,.08); }
-.phone[data-mode="dark"] .ob-in { border-bottom-color: rgba(255,255,255,.12); }
-.phone[data-mode="dark"] .grab { background: rgba(255,255,255,.18); }
+
+
+.phone[data-mode="dark"] .grid-dots i { background: rgba(255,255,255,0.07); }
+.phone[data-mode="dark"] .pbar .track { background: rgba(255,255,255,0.07); }
+.phone[data-mode="dark"] .ob-in { border-bottom-color: rgba(255,255,255,0.11); }
+.phone[data-mode="dark"] .grab { background: rgba(255,255,255,0.16); }
 .phone[data-mode="dark"] .panel-bar { background: linear-gradient(to bottom, rgba(13,15,19,.96) 60%, rgba(13,15,19,0)); }
 .phone[data-mode="dark"] .panel { background: rgba(13,15,19,.94); }
-.phone[data-mode="dark"] .skel { background: linear-gradient(90deg, rgba(255,255,255,.05) 25%, rgba(255,255,255,.09) 37%, rgba(255,255,255,.05) 63%); background-size: 400% 100%; }
-.phone[data-mode="dark"] .ob-dots i { background: rgba(255,255,255,.16); }
-.phone[data-mode="dark"] .ob-dots i.on { background: var(--ink-1); }
+.phone[data-mode="dark"] .skel { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.07) 37%, rgba(255,255,255,0.04) 63%); background-size: 400% 100%; }
+.phone[data-mode="dark"] .ob-dots i { background: rgba(255,255,255,0.16); }
+.phone[data-mode="dark"] .ob-dots i.on { background: var(--text-primary); }
 /* Plan 快速捕获（M1：Inbox 的主动入口） */
-.cap-row { margin: 12px 20px 0; }
-.cap-in { width: 100%; height: 40px; border-radius: 12px; border: 1px solid rgba(255,255,255,.72);
-  background: rgba(255,255,255,.5); backdrop-filter: blur(26px); -webkit-backdrop-filter: blur(26px);
-  padding: 0 14px; font-size: 13.5px; color: var(--ink-1); outline: none;
+.cap-row { margin: 12px 24px 0; }
+.cap-in { width: 100%; height: 40px; border-radius: var(--r-sm); border: 1px solid rgba(255,255,255,0.72);
+  background: rgba(255,255,255,0.5); backdrop-filter: blur(26px); -webkit-backdrop-filter: blur(26px);
+  padding: 0 12px; font-size:14px; color: var(--text-primary); outline: none;
   transition: border-color var(--dur-2) var(--ease), background var(--dur-2) var(--ease); }
-.cap-in::placeholder { color: var(--ink-3); }
-.cap-in:focus { border-color: rgba(91,174,130,.55); background: rgba(255,255,255,.62); }
-.phone[data-mode="dark"] .cap-in { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); }
-.phone[data-mode="dark"] .cap-in:focus { background: rgba(255,255,255,.085); }
+.cap-in::placeholder { color: var(--text-tertiary); }
+.cap-in:focus { border-color: rgba(91,174,130,.55); background: rgba(255,255,255,0.68); }
+.phone[data-mode="dark"] .cap-in { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.11); }
+.phone[data-mode="dark"] .cap-in:focus { background: rgba(255,255,255,0.07); }
 </style>
 </head>
 <body data-page-node-id="MCSZqaEXfFQnKMIEG9CKVM">
@@ -903,7 +943,7 @@ body {
             <input class="auth-input" id="auth-account" type="text" inputmode="email" autocomplete="username" placeholder="用户名或邮箱" />
           </div>
 
-          <label class="auth-label" for="auth-pwd" style="margin-top:26px">密码</label>
+          <label class="auth-label" for="auth-pwd" style="margin-top:24px">密码</label>
           <div class="auth-underline has-eye">
             <input class="auth-input" id="auth-pwd" type="password" autocomplete="current-password" placeholder="••••••••" />
             <button type="button" class="auth-eye" id="auth-eye" aria-label="显示或隐藏密码">
@@ -945,12 +985,12 @@ body {
             <input class="auth-input" id="auth-reg-email" type="email" autocomplete="email" placeholder="you@example.com" />
           </div>
 
-          <label class="auth-label" for="auth-reg-username" style="margin-top:26px">用户名</label>
+          <label class="auth-label" for="auth-reg-username" style="margin-top:24px">用户名</label>
           <div class="auth-underline">
             <input class="auth-input" id="auth-reg-username" type="text" autocomplete="username" placeholder="仅字母、数字、下划线" />
           </div>
 
-          <label class="auth-label" for="auth-reg-pwd" style="margin-top:26px">密码</label>
+          <label class="auth-label" for="auth-reg-pwd" style="margin-top:24px">密码</label>
           <div class="auth-underline">
             <input class="auth-input" id="auth-reg-pwd" type="password" autocomplete="new-password" placeholder="至少 8 位" />
           </div>
@@ -1027,7 +1067,7 @@ body {
 
     <!-- ══════════════════════ PLAN ══════════════════════ -->
     <section class="screen" data-screen="plan" data-page-node-id="hdg9UwUDw9MfhEXebOvKVi">
-      <div class="seg" id="plan-seg" style="margin-top:6px" data-page-node-id="8KfphmPmwoIWs809Uk3vWz">
+      <div class="seg" id="plan-seg" style="margin-top:8px" data-page-node-id="8KfphmPmwoIWs809Uk3vWz">
         <button class="on" data-seg="inbox" data-page-node-id="dbqw21wT2VBurTHrsE77TK">收集箱</button><button data-seg="today" data-page-node-id="FgkcGyjiYIm5YC4RxCofxL">今天</button><button data-seg="scheduled" data-page-node-id="7YJ3keB5fqGrTo61qW1N8S">已排</button>
       </div>
 
@@ -1061,34 +1101,23 @@ body {
         <div class="sub-note" data-page-node-id="xeKkj5SChmt8L0Z6RpLPLA">长期方向、目标、Routines 与习惯。</div>
       </div>
 
-      <div class="direction" data-push="direction" data-page-node-id="GpWbDRpNIiRlEhE2kL32Z5">
+      <div class="direction" data-page-node-id="GpWbDRpNIiRlEhE2kL32Z5">
         <div class="eyebrow" data-page-node-id="GFub9IicIuVTgUyU3r4apF">Direction</div>
         <div class="state" id="dir-state" data-page-node-id="QGVn6wwdBrMdG9JyEnAQSN">I want more freedom<br data-page-node-id="ODjNygaNgYBmfCLMagJ1kB"/>and more choices.</div>
-        <div class="domains" id="dir-domains" data-page-node-id="zp7dVeV7ngetm6fxj7jr0Z">
-          <span data-page-node-id="MGGZhuiHtwZiGC1y8tKsRm">Career</span><span data-page-node-id="MOD0wSt8bA5mHKPXdyvkfX">Income</span><span data-page-node-id="3FiGvTysBXxnw1PnhXOVSt">Health</span><span data-page-node-id="mzJtctMXv0URU4I1brmHeh">English</span><span data-page-node-id="e7RCIMbf5wepfTNW8HSwFu">Travel</span><span data-page-node-id="W7S8aQxrBAU8FlCeZGHEEy">Knowledge</span>
-        </div>
-        <div class="chain" data-page-node-id="6PYVN9CTJciZRzB6S6Nn3u">
-          <span class="node on" data-page-node-id="a6mDAP7vhODvrdnfq0QAOr">Direction</span><span class="arr" data-page-node-id="PLrKlc81mHDyqjV2AesBub">→</span>
-          <span class="node on" data-page-node-id="FdnB9DRvzBcFK6yOEGQnvW">Goals</span><span class="arr" data-page-node-id="o9UeM3F8LzCTnFeRPm1VkO">→</span>
-          <span class="node on" data-page-node-id="e87NrezlvJRKEQUxaHVmdM">Routines</span><span class="arr" data-page-node-id="TbdIqBuldnQdERfwtFH52b">→</span>
-          <span class="node" data-page-node-id="ehcEW4EOQZ0vCIQ5TZILgX">Today</span>
-        </div>
       </div>
 
-      <div class="sec" data-page-node-id="e4RrVQf61HbzG34aYHGKlT"><h2 data-page-node-id="hd4rHGiFKjmY6IUCMAEkn8">Goals</h2><span class="n" data-page-node-id="ep6U5VtPVfRwXH334VRAzC">当前焦点</span></div>
+      <div class="sec" data-page-node-id="e4RrVQf61HbzG34aYHGKlT"><h2 data-page-node-id="hd4rHGiFKjmY6IUCMAEkn8">目标</h2><span class="n" data-page-node-id="ep6U5VtPVfRwXH334VRAzC">当前焦点</span></div>
       <div id="me-goals" data-page-node-id="HTDwtOVnaIKp84rGJ8QOsP"></div>
 
-      <div class="sec" data-page-node-id="dXZLQz0G7AiDbVGygf0Kym"><h2 data-page-node-id="KtPI4LUUCZ3C3WJUb8ewpv">Routines &amp; Habits</h2><span class="n" data-page-node-id="FhGxaeNLVAoEmcDmZmms0i">5</span></div>
+      <div class="sec" data-page-node-id="dXZLQz0G7AiDbVGygf0Kym"><h2 data-page-node-id="KtPI4LUUCZ3C3WJUb8ewpv">例程与习惯</h2><span class="n" id="me-routines-n" data-page-node-id="FhGxaeNLVAoEmcDmZmms0i">5</span></div>
       <div id="me-routines" data-page-node-id="zP9D3jn6GAbasQLhk68dcE"></div>
 
-      <div class="sec" id="me-health-sec" data-page-node-id="VkgUsZHujBALtVH1AN1H5S"><h2 data-page-node-id="43F7rilqyVDK1LRyO0DsG0">Health</h2><span class="n" id="me-health-label" data-page-node-id="ORWzxVnK2Y8sedtBK0FcSW">未连接</span></div>
+      <div class="sec" id="me-health-sec" data-page-node-id="VkgUsZHujBALtVH1AN1H5S"><h2 data-page-node-id="43F7rilqyVDK1LRyO0DsG0">健康</h2><span class="n" id="me-health-label" data-page-node-id="ORWzxVnK2Y8sedtBK0FcSW">未连接</span></div>
       <div id="me-health" data-page-node-id="CDwJxNFbMiJhMN7WLmhyN2"></div>
 
-      <div class="sec" data-page-node-id="jWHkEG6Tt0UMF4UvEY8aCC"><h2 data-page-node-id="lBUGRNLEMhD6dnEJ2zI5pH">System</h2></div>
-      <div class="glass" style="padding:2px 18px" data-page-node-id="XdV0jGCd1KCYg6pP5a6bsC">
-        <div class="row" data-push="weekly" data-page-node-id="Pfh0DEIfqXAKhgNNUPDZSj"><span class="t" data-page-node-id="ctK7flofx4YOmamy33JAJs">Weekly Review</span><span class="d" data-page-node-id="n2JirOY25z8FN7WqbVIKL8">本周待写</span><span class="chev" data-page-node-id="stgC7rvcBOAYMjphu8NNWM"></span></div>
-        <div class="row" data-push="learning" data-page-node-id="2GfIVBTJ9nbpZdZOxvBPaK"><span class="t" data-page-node-id="nAAZQx4Mu0ECtNVigCEhnh">Learning</span><span class="d" data-page-node-id="6nflhonFRgQvoNX54HGVAB">在学 · 4h 20m / 周</span><span class="chev" data-page-node-id="32PNmJbEoE8Ip34TCGlXmQ"></span></div>
-        <div class="row" data-push="journal" data-page-node-id="u5taY8EHC9BHoVsxpnjP26"><span class="t" data-page-node-id="vgxJsSkovC8vC6Uz5Yq2ZN">Journal</span><span class="d" data-page-node-id="9pXL78SZITVgIn3cq4fmQy">回顾 · 2 条</span><span class="chev" data-page-node-id="nnJPfTCPMU6GyNlysgPqgI"></span></div>
+      <div class="sec" data-page-node-id="jWHkEG6Tt0UMF4UvEY8aCC"><h2 data-page-node-id="lBUGRNLEMhD6dnEJ2zI5pH">系统</h2></div>
+      <div class="glass" style="padding:4px 16px" data-page-node-id="XdV0jGCd1KCYg6pP5a6bsC">
+        <div class="row" data-push="weekly" data-page-node-id="Pfh0DEIfqXAKhgNNUPDZSj"><span class="t" data-page-node-id="ctK7flofx4YOmamy33JAJs">Weekly Review</span><span class="d" id="me-weekly-sub" data-page-node-id="n2JirOY25z8FN7WqbVIKL8">本周待写</span><span class="chev" data-page-node-id="stgC7rvcBOAYMjphu8NNWM"></span></div>
         <div class="row" data-push="health-connect" data-page-node-id="1z8KYcP1jT5Zwg7uX2gcAu"><span class="t" data-page-node-id="juvzsGmFJrf1WdWa8pygFC">Health &amp; Devices</span><span class="d" id="me-hd-sub" data-page-node-id="p9eB8D1ivR9q2dl6MHmJa1">连接数据源</span><span class="chev" data-page-node-id="PFSyusbXtVWFzbCHcv8rIg"></span></div>
         <div class="row" data-push="settings" data-page-node-id="btMl2lgnXNICs5Kb71EIfG"><span class="t" data-page-node-id="3CwFD9rKsfAAtPYpFTxcgM">Preferences</span><span class="d" data-page-node-id="80w5j4Tc8trLIr0lpPCjF9">外观 · 通知 · 日程</span><span class="chev" data-page-node-id="hoqlLQMpWgksSmNeqDESOL"></span></div>
         
@@ -1099,43 +1128,6 @@ body {
 
     <!-- ══════════════════════ 次级页面 ══════════════════════ -->
 
-    <!-- Direction -->
-    <section class="panel" data-panel="direction" data-page-node-id="Lc8moH6KefRPyidPmW9AGH">
-      <div class="panel-bar" data-page-node-id="d4dKyN8nvn6wGUmRQAqaQj"><button class="back" data-back data-page-node-id="RqNkvg8mcn3pN1FcLBnNoe">
-        <svg viewBox="0 0 24 24" data-page-node-id="k1FW2J24HG7TOwWBy6U1JN"><path d="M15 5l-7 7 7 7" data-page-node-id="zgQiODhb4QtGApSAKLCLun"/></svg>Me</button>
-      </div>
-      <div class="eyebrow" data-page-node-id="w6ZPEnK2ZwEiHnTtYnKaAp">Direction</div>
-      <div class="t-panel" style="margin-top:8px" data-page-node-id="3NVcD5ZX2C2oK5wHaQprLO">Where are you going?</div>
-      <div class="t-sub" style="margin-top:10px" data-page-node-id="5liX0aihkutxn3YiEh4yhN">不是愿景板，也不是鸡血。只是一句话，用来在你要放弃一项任务时判断它是否还值得。</div>
-
-      <div class="glass" style="padding:20px;margin-top:22px" data-page-node-id="lcCMjoS1FBa9DCf9Ai9pex">
-        <div class="eyebrow" style="color:var(--accent-ink)" data-page-node-id="wIucpBVsigWiOquVZPfvXi">你的方向</div>
-        <div class="t-card" style="margin-top:10px" data-page-node-id="oluj59hESWvj90YYbWRwLj">I want more freedom and more choices.</div>
-        <div class="t-sub" style="margin-top:8px" data-user data-page-node-id="xqDrDZad4YF0GkCGtZGwvs">我想要更大的自由，和更多的选择权。</div>
-        <div class="domains" style="margin-top:16px" data-page-node-id="MaXC3OMuD6SNgWKOaySaGL">
-          <span data-page-node-id="FpTSlx9IFjANfJDWHvDkVI">Career</span><span data-page-node-id="pFDDG8ISQtbsBtglhzoyUA">Income</span><span data-page-node-id="srRBFJ0EyvciTfiEcnYSr6">Health</span><span data-page-node-id="svEdKjUFpnOHMXZDy6VJEi">English</span><span data-page-node-id="c9J4weSpIe53ExM6xtjJFG">Travel</span><span data-page-node-id="TuNKVF1aA2SR50bN8vkTih">Knowledge</span>
-        </div>
-      </div>
-
-      <div class="sec" data-page-node-id="MJLsO2wBP2xdJ7vJpt5VOG"><h2 data-page-node-id="COLn2FKHWnoHuzS5fC0ZGK">这条链路是否成立</h2></div>
-      <div class="glass" style="padding:18px" data-page-node-id="AJVCM3lVcMxLivC8IWjmdk">
-        <div class="metric" data-page-node-id="FkZnKrA3TgUp3Rks64KLHX"><span class="m" data-page-node-id="m2kLhy63URYTVX6M4COBG0">Direction → Goals</span><span class="v" data-page-node-id="M01oWWyMYxT0LjtD6jQTUs"><b data-page-node-id="cV6fhuQ8dhOd7pJ9gY4AKw">6</b> 个目标已关联</span></div>
-        <div class="metric" data-page-node-id="YZUoBfF3xCRwAMGPYqdHsz"><span class="m" data-page-node-id="UBJzxJnNaItvpZR7pO9zM0">Goals → Routines</span><span class="v" data-page-node-id="sea6zPpscgAhMdaB70RyEj"><b data-page-node-id="oT8NJYG7BZ5FluhwC2lk1f">4</b> 条 Routine 在跑</span></div>
-        <div class="metric" data-page-node-id="XVtHFWBFQUrUYnksjcDM2Z"><span class="m" data-page-node-id="PAHXIKJnIU6cG21Zj4pB8g">Routines → Tasks</span><span class="v" data-page-node-id="DKW6xYeTTizBwYYmDKIPbM"><b data-page-node-id="fCQ7LcMZWjDERQ3nzO1Yow">本周 31</b> 项</span></div>
-        <div class="metric" data-page-node-id="EKkavkn4OkIPBprZZEOLln"><span class="m" data-page-node-id="3pGXPcmifyjp6yZrsB3wPc">无关联的任务</span><span class="v" data-page-node-id="5vCgSNYKuB8GyX1J8aizZD">2 项 · 值得清理</span></div>
-      </div>
-
-      <div class="insight" data-page-node-id="oE81Ne5RdqZy1eGZJLVcPU">
-        <div class="q" data-page-node-id="Gs5OrPcadHP1iNRY4eBXP9">有 2 项任务没有挂在任何 Goal 上。</div>
-        <div class="d" data-page-node-id="P4k8DWeSknuM8otGx3E2eX">它们不必然是错的，但也无法回答「我为什么现在做这个」。要不要现在归位，还是先放着？</div>
-        <div class="btn-row" style="margin-top:14px" data-page-node-id="cdQ2U8ZnMg0fI957H24vsk">
-          <button class="btn btn-g btn-sm acc-t" style="flex:1" data-page-node-id="egI3KAlyrFWrAqdEt0mzZH">查看这 2 项</button>
-          <button class="btn btn-g btn-sm" style="flex:1" data-page-node-id="j8q5BobA734hXRDTC8LWZo">先放着</button>
-        </div>
-      </div>
-      <div style="height:24px" data-page-node-id="0YPERzEN6YS5blpjXHU0I9"></div>
-    </section>
-
     <!-- Goal Detail -->
     <section class="panel" data-panel="goal" data-page-node-id="r83AmezUUkeULYw7zCF9kZ">
       <div class="panel-bar" data-page-node-id="T0dhiLYjA4aSWnHLYb2EIk"><button class="back" data-back data-page-node-id="PfWJZSYwCehglcn8TrjOAs">
@@ -1145,94 +1137,31 @@ body {
       <div class="t-panel" style="margin-top:8px" id="gd-title" data-user data-page-node-id="hxMjruxTKWLHzZSf5vEY2u">Learn automotive engineering systems</div>
       <div class="t-sub" style="margin-top:8px" id="gd-note" data-page-node-id="kldIOWlfjBjZGtCkV2h80W">只展开当前层级。更长的周期折叠在后面。</div>
 
-      <div class="glass" style="padding:4px 18px;margin-top:22px" id="gd-ladder" data-user data-page-node-id="7ysVPoFW2Y56YsoxhTsCUM"></div>
+      <div class="glass" style="padding:4px 16px;margin-top:24px" id="gd-ladder" data-user data-page-node-id="7ysVPoFW2Y56YsoxhTsCUM"></div>
 
-      <div class="sec" data-page-node-id="VaBOlwgBiagnDRCu4qITBs"><h2 data-page-node-id="ej1vEoly3K0O2kG4pMTAj3">Progress</h2><span class="n" id="gd-pct" data-page-node-id="xA24PqerP8z6IZPnTw6LDi">62%</span></div>
-      <div class="prog" data-page-node-id="cZIiOyXrgYUShpR8h2iOBT"><div class="bar" style="flex:1;height:5px" data-page-node-id="JJmvPZAZR97bzl03llBDSB"><i id="gd-bar" style="width:62%" data-page-node-id="5OcZrA73vMt589dm8iWUXE"></i></div></div>
+      <div class="sec" data-page-node-id="VaBOlwgBiagnDRCu4qITBs"><h2 data-page-node-id="ej1vEoly3K0O2kG4pMTAj3">进展</h2><span class="n" id="gd-pct" data-page-node-id="xA24PqerP8z6IZPnTw6LDi">62%</span></div>
+      <div class="pbar" style="margin-top:12px" data-page-node-id="cZIiOyXrgYUShpR8h2iOBT"><span class="track" data-page-node-id="JJmvPZAZR97bzl03llBDSB"><i id="gd-bar" style="width:62%" data-page-node-id="5OcZrA73vMt589dm8iWUXE"></i></span></div>
 
-      <div class="sec" data-page-node-id="kUDA7zWcsdxihESuUVl5Ly"><h2 data-page-node-id="bTmPS17esuRm2PqVePWQHc">Current Focus</h2></div>
+      <div class="sec" data-page-node-id="kUDA7zWcsdxihESuUVl5Ly"><h2 data-page-node-id="bTmPS17esuRm2PqVePWQHc">当前焦点</h2></div>
       <div class="insight" style="margin-top:0" data-page-node-id="xqS9FvFsrF4JR9FaKAroAU">
         <div class="q" id="gd-focus" data-user data-page-node-id="pmAtjqopVZqwWFGisuMfZA">APQP / PPAP 流程</div>
         <div class="d" id="gd-next" data-user data-page-node-id="hXq48jKzupyn2IxQdm7gWO">Next step：读完 APQP 第 2 章，输出一页流程对照表</div>
       </div>
 
-      <div class="sec" data-page-node-id="5wUZ7nul2DlT3ZD16FrWWB"><h2 data-page-node-id="t7uXAED05JbNfQu55BVua9">Associated Routines</h2><span class="n" data-page-node-id="IVIMVfjRtPuNHxGLGJIYGm">2</span></div>
-      <div class="glass" style="padding:2px 18px" data-page-node-id="a4q0AXr7RnEETTdOGSUOw9">
+      <div class="sec" data-page-node-id="5wUZ7nul2DlT3ZD16FrWWB"><h2 data-page-node-id="t7uXAED05JbNfQu55BVua9">关联例程</h2><span class="n" data-page-node-id="IVIMVfjRtPuNHxGLGJIYGm">2</span></div>
+      <div class="glass" style="padding:4px 16px" data-page-node-id="a4q0AXr7RnEETTdOGSUOw9">
         <div class="row" data-page-node-id="LFEzGFUmBwSvWqTp5kFxjL"><span class="t" data-page-node-id="HCPPzS6dAL7BtbtoPkJFO8">Tuesday Learning</span><span class="d" data-page-node-id="6qg6xD4cGaAfwaeRpjv5j8">每周二 22:00</span><span class="chev" data-page-node-id="2RSzscFG6L7Fl2A3Q8XC3T"></span></div>
         <div class="row" data-page-node-id="5l0xmYhXDmmc8SkU4iqxUG"><span class="t" data-page-node-id="2czdgx4Ty5sjDNKemJvmkG">Morning Reading</span><span class="d" data-page-node-id="6JiDexAWChEdGh7750QWjZ">每天 07:20 · 15 min</span><span class="chev" data-page-node-id="AWSvhRCkwE19Fb3r8OUORs"></span></div>
       </div>
 
-      <div class="sec" data-page-node-id="TWZtohCCfsN7KWmyjoBBgd"><h2 data-page-node-id="ZebCrlvvev6vuQvtdkQ7m7">Associated Tasks</h2><span class="n" data-page-node-id="sWSoswtgd1HT3wJSclPcvp">本周 4 项</span></div>
-      <div class="glass" style="padding:2px 18px" data-user data-page-node-id="hdV0XfvqERy2VPebeFjIQy">
+      <div class="sec" data-page-node-id="TWZtohCCfsN7KWmyjoBBgd"><h2 data-page-node-id="ZebCrlvvev6vuQvtdkQ7m7">关联任务</h2><span class="n" data-page-node-id="sWSoswtgd1HT3wJSclPcvp">本周 4 项</span></div>
+      <div class="glass" style="padding:4px 16px" data-user data-page-node-id="hdV0XfvqERy2VPebeFjIQy">
         <div class="row" data-page-node-id="ER2UK8MlZZYYXL4OLQRppK"><span class="t" data-page-node-id="Cpf2GBdd58U220pPwqClmz">Learn Product Design</span><span class="d" data-page-node-id="iW7TOOOncVUtZ3K5WLNlMe">今天 22:00</span><span class="chev" data-page-node-id="gLHKD7xvJGPwyRDEmUUqz3"></span></div>
         <div class="row" data-page-node-id="TGQbXBpXQ4Y3GBhCXFrddD"><span class="t" data-page-node-id="TYVZ88khNiZmoZZwfuKCz4">APQP 第 2 章</span><span class="d" data-page-node-id="19aCaX7Jd0qsfqq1eXLBm6">周四 22:00</span><span class="chev" data-page-node-id="8HxUPd4ggzekupQX3Qf37H"></span></div>
         <div class="row" data-page-node-id="mSubtkapvqQhj1QOEZJqrK"><span class="t" data-page-node-id="la7IrJMLaI3tucKAOx3Ac7">整理 Gentherm 资料</span><span class="d" data-page-node-id="3tijqxdvHrT0FK98PvkLRB">周六 15:30</span><span class="chev" data-page-node-id="QQdpRNvvLqSRFfIJ8jnQZU"></span></div>
         <div class="row" data-page-node-id="N7htR31F27ZeWNFAvkM6lI"><span class="t" data-page-node-id="3MT5fW1k0g2lyPRgadvpRA">输出流程对照表</span><span class="d" data-page-node-id="Rc5LZFsKPbEHyt4k0qOKwX">周日 20:00</span><span class="chev" data-page-node-id="NH0Uxm3pPG3Gt3zp0Lt14n"></span></div>
       </div>
       <div style="height:24px" data-page-node-id="EE0JQe1AfESz9ZFQsGoUdA"></div>
-    </section>
-
-    <!-- Routine Detail -->
-    <section class="panel" data-panel="routine" data-page-node-id="guRhE6kHfAjZj22VVYH8RU">
-      <div class="panel-bar" data-page-node-id="c0CLpq6tNxyOj9Wco1gNaq"><button class="back" data-back data-page-node-id="kusN1uDUsrKZhc9cgugNt3">
-        <svg viewBox="0 0 24 24" data-page-node-id="BcAZ8awpN9TtJAp71nQT4b"><path d="M15 5l-7 7 7 7" data-page-node-id="TP2sDSoimymbVQK6eAI0Lt"/></svg>Me</button>
-      </div>
-      <div class="eyebrow" data-page-node-id="z5cqFI05nY0Osx87cNsXRe">Routine</div>
-      <div class="t-panel" style="margin-top:8px" data-page-node-id="mm9khDz4IDqyqfWhzeKm2H">Tuesday Learning</div>
-      <div class="t-sub" style="margin-top:8px" data-page-node-id="KsHGfxirNmC8ojm1qUuDfk">每周重复出现的生活结构。修改一次，未来的 Task 跟着变。</div>
-
-      <div class="glass" style="padding:4px 18px;margin-top:22px" data-page-node-id="SyF9u2sBVbrfADlMOH7wOT">
-        <div class="metric" data-page-node-id="eCnKcvTNaKPXkn9n6X17L3"><span class="m" data-page-node-id="ceFVwqZucM6wIvF5Ljh17O">重复</span><span class="v" data-page-node-id="pPXh7JEmJQHhJaHQ6JNwck"><b data-page-node-id="SecQhkPfTjbCjuRAQ8vmWE">每周二</b></span></div>
-        <div class="metric" data-page-node-id="2kkBuiGNonSct9XcYMA9P0"><span class="m" data-page-node-id="wVwkMVSHHmrdDytKoQ9pJL">时间</span><span class="v" data-page-node-id="on6buRYiWbQzG3tYNQemsc"><b data-page-node-id="RRJYbSHG21Ek8PwO8BMGAt">22:00</b> · 60 min</span></div>
-        <div class="metric" data-page-node-id="4qAtO8GEZBxSSG7OJnWhkC"><span class="m" data-page-node-id="NEhvyoXyqAeFIJjmDzsEBN">关联 Goal</span><span class="v" data-page-node-id="ecRscyM1BiUWg5kPKkH514">Career</span></div>
-        <div class="metric" data-page-node-id="DGkPBRjtlz3lNYiXE4qCM8"><span class="m" data-page-node-id="jEwwCCaU4WCQGWc4VDGIup">命中率</span><span class="v" data-page-node-id="AEpZbKHmTo1VRnF39LGhal"><b data-page-node-id="swqH6CFFMoiucy1omS51ha">近 8 周 6 次</b></span></div>
-      </div>
-
-      <div class="sec" data-page-node-id="FSV9dVUn4jcRnSGXjYGytZ"><h2 data-page-node-id="QyjcHeVMBtXfs89yBNNd0f">Routine Items</h2><span class="n" data-page-node-id="hcw0TIdN5tuNV7wfWgsVBv">4</span></div>
-      <div class="glass" style="padding:2px 18px" data-user data-page-node-id="fJTCB5VadWI39ssnyNT7V0">
-        <div class="md-row" data-page-node-id="W8rZMKlB2kyynmRAwMsHZ0"><span class="tm" data-page-node-id="MliXCkhBVCzRkDUBhav9HF">22:00</span><div data-page-node-id="vPsAWSjMUnl6wDDOEWx6gF"><div class="ti" data-page-node-id="H0kfsZemsQ57Hmiy3sCKOF">Product Design</div><div class="src" data-page-node-id="8VdNUfwGkGZGqvh0dAHjjx">阅读 + 笔记</div></div></div>
-        <div class="md-row" data-page-node-id="okX0CWXsCgOR5aN42mTNHJ"><span class="tm" data-page-node-id="TZNNxAfoYSN9mn0sFJtsSL">22:30</span><div data-page-node-id="KsWhJLFAWhAySmoz9dlFtw"><div class="ti" data-page-node-id="mXIDOGSBBNisbW9WvktdtB">Case 拆解</div><div class="src" data-page-node-id="ykmLgUgUR0JAvIhxqZ9Zxm">每周一个产品</div></div></div>
-        <div class="md-row" data-page-node-id="fJE2T1yO7j1DqfQFNk0vwk"><span class="tm" data-page-node-id="n5T6Rc8FTY3Zk88r4Qyjr9">22:50</span><div data-page-node-id="WAGtrN3AYO3DC92fBlbFGI"><div class="ti" data-page-node-id="96Gy5jBrSqU4ihCeCgBfhd">输出一页总结</div><div class="src" data-page-node-id="0I4wvUO9b0jcziFXrElq15">必须产出</div></div></div>
-        <div class="md-row" data-page-node-id="GMm2W3Bk8IoIc4MaeFbFcx"><span class="tm" data-page-node-id="otyAvhIrmUI50K2AxDM8kU">23:10</span><div data-page-node-id="ZJICUDsxNDh6rhrmN3R9mL"><div class="ti" data-page-node-id="C4U3w5sWnpTmbLiNm15xY1">准备睡觉</div><div class="src" data-page-node-id="tAxS0yIubSDDDXTQOmjMTO">缓冲</div></div></div>
-      </div>
-
-      <div class="sec" data-page-node-id="QFhwuKnMNfFfE06oH6o9CQ"><h2 data-page-node-id="br0BMd52z7bmV50dn2zqu2">操作</h2></div>
-      <div class="btn-row" data-page-node-id="MIzW8EpZSjgLs6HpveUP4X">
-        <button class="btn btn-g" style="flex:1" data-page-node-id="H5dqt9UkCiyLQ7bIa8NGYp">跳过</button>
-        <button class="btn btn-g" style="flex:1" data-page-node-id="olxX8cVBlqxlTAf5bIF8js">Reschedule</button>
-        <button class="btn btn-g" style="flex:1" data-page-node-id="qkzCRosDF4Pv9plBloyfeT">Duplicate</button>
-      </div>
-      <div style="text-align:center" data-page-node-id="dBN15cgH4emmBA6TL9IvXC"><button class="btn btn-d" data-page-node-id="fpfxsFQD8MfAMG2byY2oaA">Delete Routine</button></div>
-    </section>
-
-    <!-- Habit Detail -->
-    <section class="panel" data-panel="habit" data-page-node-id="3WAUs8fRG44KfAx9nk4PuE">
-      <div class="panel-bar" data-page-node-id="5b0rPgfFawdqRDYxjcIAMr"><button class="back" data-back data-page-node-id="JroD863gCaOiJadmxtFeT8">
-        <svg viewBox="0 0 24 24" data-page-node-id="WT7MCmwXSdgRFsvk9k7RGH"><path d="M15 5l-7 7 7 7" data-page-node-id="JNhvKPObQGin437xt0Gb4w"/></svg>Me</button>
-      </div>
-      <div class="eyebrow" data-page-node-id="0S2fhrjyHzqyU5CAFiDQlp">Habit</div>
-      <div class="t-panel" style="margin-top:8px" data-page-node-id="QL9ekDUWejSYQuOAkhfPqe">Run</div>
-
-      <div class="glass" style="padding:4px 18px;margin-top:22px" data-page-node-id="feg7MnarILpMbGk0MT96kU">
-        <div class="metric" data-page-node-id="UMQiMLbLfbNxsmqFAWSffA"><span class="m" data-page-node-id="HeFlQFe1qtYPTnKfDu9OQv">Consistency</span><span class="v" data-page-node-id="d6vPwebsoGNghFE3rXkX0I"><b data-page-node-id="OTDECjVGoogL5xJi4A3Rp5">84%</b></span></div>
-        <div class="metric" data-page-node-id="4KRAi1TKRfWrJxn9csyR0e"><span class="m" data-page-node-id="MRiQehWL8XYTCM1lp59qLb">Frequency</span><span class="v" data-page-node-id="4FhKVW95OIJTUvFQkE4jvz">Mon / Wed / Fri</span></div>
-        <div class="metric" data-page-node-id="7aqoc0jkigfrIvXnxu6Wqp"><span class="m" data-page-node-id="01OSpuUHgiHWOIOMHCbPbI">Reminder</span><span class="v" data-page-node-id="lXGPBzzQrXvH03hsLYezjs">20:00</span></div>
-        <div class="metric" data-page-node-id="ozGy08DWSdmhOD1xpnFjWk"><span class="m" data-page-node-id="0braNpN9bgkCsY4uYtGakX">Current run</span><span class="v" data-page-node-id="o5DVXrIehqbHOAs5d7YLV9"><b data-page-node-id="2AaiPPGOUyxGSYgR09aD2N">3 周</b></span></div>
-      </div>
-
-      <div class="sec" data-page-node-id="NYDr32RCrTdoU2wCW0Ayo2"><h2 data-page-node-id="NOH0yeXyQ3WtBqOlBTRvgE">Calendar</h2><span class="n" data-page-node-id="U8JaCNaqTMsKBogLWBctJx">近 10 周</span></div>
-      <div class="grid-dots" id="habit-dots" data-page-node-id="Comb1QmTFdO8LoLIAH51vm"></div>
-      <div class="cal-legend"><span><i style="background:var(--accent)"></i>全部完成</span><span><i style="background:#E8A13D"></i>部分完成</span><span><i style="background:#E0655A"></i>缺席</span><span><i style="background:var(--urgent)"></i>有紧急计划</span></div>
-
-      <div class="insight" style="margin-top:22px" data-page-node-id="1FIMGJVJBYtTAWZkGPJcjc">
-        <div class="q" data-page-node-id="rSyzRRPZ1gbNK6CtTxrTZJ">周三的执行率明显低于周一和周五。</div>
-        <div class="d" data-page-node-id="tbzkSGcgTG9jRkGbD1a40h">如果把周三移到周四 20:15，命中率预计从 62% 到 88%。</div>
-        <div class="btn-row" style="margin-top:14px" data-page-node-id="Lq6Mbu8vrJyvcgZMRXfW0G">
-          <button class="btn btn-g btn-sm acc-t" style="flex:1.3" data-page-node-id="FdJirUahwrJLlS68Twuzri">移到周四</button>
-          <button class="btn btn-g btn-sm" style="flex:1" data-page-node-id="ey5L2MAMUKS8hA9OdCvLH8">保持现状</button>
-        </div>
-      </div>
-      <div style="height:24px" data-page-node-id="SR23fauRJGlgF4rrwXWIVN"></div>
     </section>
 
     <!-- Weekly Review -->
@@ -1244,24 +1173,24 @@ body {
       <div class="t-panel" style="margin-top:8px" data-page-node-id="1IcjABN8ewfDbRmvVPiL1a">这一周</div>
       <div class="t-sub" style="margin-top:8px" data-page-node-id="KJgD8vp7jWneYqs38wFfN9">每周只问三个问题。不做日记系统。</div>
 
-      <div class="glass" style="padding:20px;margin-top:22px" data-page-node-id="WqaQS4Gl9JujMtEFhIWFkD">
+      <div class="glass" style="padding:24px;margin-top:24px" data-page-node-id="WqaQS4Gl9JujMtEFhIWFkD">
         <div class="t-body" data-page-node-id="xh2pNNwpQJzBc5rvP5TDlq">哪些做得不错？</div>
-        <input class="field" placeholder="这周做成了什么…" data-page-node-id="ifHUlzhYnwPS2zhdudvkEb" />
+        <input class="field" id="wr-good" placeholder="这周做成了什么…" data-page-node-id="ifHUlzhYnwPS2zhdudvkEb" />
       </div>
-      <div class="glass" style="padding:20px;margin-top:10px" data-page-node-id="lfylfBEO6s7JEl5jCB1ywS">
+      <div class="glass" style="padding:24px;margin-top:12px" data-page-node-id="lfylfBEO6s7JEl5jCB1ywS">
         <div class="t-body" data-page-node-id="F52BfHzDJfuwuAgcJsheqf">什么消耗了时间？</div>
-        <input class="field" placeholder="什么消耗了你…" data-page-node-id="39QCKzczMAfMGGd2AyJOMG" />
+        <input class="field" id="wr-drain" placeholder="什么消耗了你…" data-page-node-id="39QCKzczMAfMGGd2AyJOMG" />
       </div>
 
-      <div class="glass" style="padding:20px;margin-top:18px;border-color:var(--accent-line);background:var(--accent-soft)" data-page-node-id="5thNK5dLDgN3fI5wry271A">
+      <div class="glass" style="padding:24px;margin-top:16px;border-color:var(--accent-line);background:var(--accent-soft)" data-page-node-id="5thNK5dLDgN3fI5wry271A">
         <div class="eyebrow" style="color:var(--accent-ink)" data-page-node-id="sMO3fZj2SkCTmKKRPdAQ2S">最重要的一个</div>
         <div class="t-body" style="margin-top:8px" data-page-node-id="dAXmVnNrhEFc0ObhRcbtuh">下周想改进的一件事。</div>
         <input class="field" id="review-one" placeholder="下周只改这一件事…" data-page-node-id="jZbjx9oyIh0799AQpfFeKr" />
-        <div class="t-cap" style="margin-top:10px" data-page-node-id="0GJUBhLY9gMMuXJSBMa2yA">写完之后，它会变成下周 Today 里的一条轻量提醒。</div>
+        <div class="t-cap" style="margin-top:12px" data-page-node-id="0GJUBhLY9gMMuXJSBMa2yA">写完之后，它会变成下周 Today 里的一条轻量提醒。</div>
       </div>
 
       <div class="btn-row" style="margin-top:24px" data-page-node-id="BMSosE9716qlrAR44IlsEd">
-        <button class="btn btn-p" style="flex:1" data-back data-page-node-id="1xGx2cOHsABb1jUDHDRD6B">保存并关闭</button>
+        <button class="btn btn-p" style="flex:1" id="wr-save" data-page-node-id="1xGx2cOHsABb1jUDHDRD6B">保存并关闭</button>
       </div>
       <div style="height:24px" data-page-node-id="4asdrA2gAwHNsrFGNIKoqj"></div>
     </section>
@@ -1284,81 +1213,9 @@ body {
         <button data-lang="zh" class="on">中文</button><button data-lang="en">English</button>
       </div>
 
-      <div class="sec" data-page-node-id="OXT5DZ1CJu517d9xN6H675"><h2 data-page-node-id="R10T9ndmxtqHegf4UCDl6z">日程</h2></div>
-      <div class="glass" style="padding:2px 18px" data-page-node-id="7R9DvuzZB7pD46Zu3vvxUg">
-        <div class="row" data-page-node-id="7E1ST5W6PT6L2o8QFupumg"><span class="t" data-page-node-id="7J15gjPDO8dTRDm9pgGwn2">起床</span><span class="d" data-page-node-id="ft6zfV6iLvkrC0fIlorL9i">06:50</span><span class="chev" data-page-node-id="VVaaaBgw65ydAQid1Z8VeZ"></span></div>
-        <div class="row" data-page-node-id="6q0L7ClVzmJVPQblUCMG5r"><span class="t" data-page-node-id="1XEt3R3qXbpwr40y9BCydR">工作时间</span><span class="d" data-page-node-id="dcqhABWOBBhfzXSL3GaAgW">07:30 – 18:30</span><span class="chev" data-page-node-id="IxJUEsNJIJmpYORWAOA6bS"></span></div>
-        <div class="row" data-page-node-id="EeKZWgqfpwDp1RNonR6zWH"><span class="t" data-page-node-id="uHNUatwNr8NsqMU8ts8wmG">睡觉</span><span class="d" data-page-node-id="ltTMDdz4Eyj4sqjqQpXYCU">23:20</span><span class="chev" data-page-node-id="Ph0UGnBR7rZGz1MyGxAJPd"></span></div>
-      </div>
-
-      <div class="sec" data-page-node-id="BROxwxr6bmNnmDBPKBznpu"><h2 data-page-node-id="RGhlCBbzOMCHtsb96BvFP2">规划偏好</h2></div>
-      <div class="glass" style="padding:2px 18px" data-page-node-id="Sss9jV8B3BNVqaITdv7Lsh">
-        <div class="row" data-page-node-id="4UlVjGQNtNivPgxvbOOcAy"><span class="t" data-page-node-id="i5D2e8wYUF9sj8lrRED4SX">每日 Main Task 上限</span><span class="d" data-page-node-id="YniLGcyCs6GZOBNgRCqWQ3">3</span><span class="chev" data-page-node-id="5T8BJwSJd7QLxpNUVaFfFF"></span></div>
-        <div class="row" data-page-node-id="Ivm52yYCHSnJevV91LilG9"><span class="t" data-page-node-id="fOtCHMPxX2TkEdTuSiGnvS">运动时段</span><span class="d" data-page-node-id="C01jpouaTLHKZTtUUEZF1X">20:00 – 21:00</span><span class="chev" data-page-node-id="ePLQowtexGS1aFJt2OWdkV"></span></div>
-        <div class="row" data-page-node-id="YU5iRrSlnZiuKUc8pwEFcS"><span class="t" data-page-node-id="eNtlQorGaXuxLG5H98bIw8">学习时段</span><span class="d" data-page-node-id="8ZvXTCk0PhXgUEhGSoLeCB">22:00 – 23:00</span><span class="chev" data-page-node-id="ZJiFDhIxXZrjpBWXbEGvCY"></span></div>
-        <div class="row" data-page-node-id="BPQF0TfKl4eHcpL5w8M0e5"><span class="t" data-page-node-id="T4BfCy62XCUfSYFB2AnIHG">负载提醒</span><span class="d" data-page-node-id="0JWLqsmcdq0P0ReB5VS3Yz">开启</span><span class="chev" data-page-node-id="oiKUULypO2k25jlYxG2Vik"></span></div>
-      </div>
-
-      <div class="sec" data-page-node-id="TzGCFWv8UxnTNRgEekFhcw"><h2 data-page-node-id="oP0UnRJHQCOsRv7Nhv1RFz">通知</h2></div>
-      <div class="glass" style="padding:2px 18px" data-page-node-id="7Ith2o17qOjqSi0UqE5F9v">
-        <div class="row" data-page-node-id="Z1w6nuJpebiC0HH9hvpWiR"><span class="t" data-page-node-id="iaCt0F3CZoiGuOxFpEDvtQ">重要任务</span><span class="d" data-page-node-id="AhB2St2yJXnE0DWjXm7wjr">开启</span><span class="chev" data-page-node-id="Y3LQgsWRKyoeWByCg0glX8"></span></div>
-        <div class="row" data-page-node-id="Lfi4AlnDGZ0lDENPXKTrl1"><span class="t" data-page-node-id="g7lcTjKwtC1BRLHTRldmts">Routine 提醒</span><span class="d" data-page-node-id="c36oTmIDxQZ9PJXGBKu4JE">开启</span><span class="chev" data-page-node-id="vBqkr0sRfA9UUiIEvLSyzW"></span></div>
-        <div class="row" data-page-node-id="8ZM5efGUjPkHhdwt6trTuh"><span class="t" data-page-node-id="zbu3J49UFtnZ6n21ZxnnP0">规划建议</span><span class="d" data-page-node-id="gKfW6lTor199iKxlnIO25F">每天 1 次 · 20:30</span><span class="chev" data-page-node-id="WzBCnx1xM8L2soeQzeXHYJ"></span></div>
-      </div>
       <div class="t-cap" style="margin-top:12px" data-page-node-id="sUdCgGOrJMsdU0oHUSo7qT">每小时提醒、焦虑式文案、连续天数警告 —— 都不会出现。</div>
 
-      <div class="sec" data-page-node-id="dz1G97yGEimTcWFEVxxjbq"><h2 data-page-node-id="8XLaqEnTxjr0IdruAdjFLy">数据</h2></div>
-      <div class="glass" style="padding:2px 18px" data-page-node-id="c9uhqEamgWwZZfkDj78EDX">
-        <div class="row" data-page-node-id="Nl1GtLtQfhAAroFFDotJ0k"><span class="t" data-page-node-id="hn5QvReXoS36F7Jf7Wg5p0">导出</span><span class="d" data-page-node-id="F9PUkbWwd4PHgyKx0oGa8U">JSON / CSV</span><span class="chev" data-page-node-id="EWfhf6niM8ehUsxN8aMDOc"></span></div>
-        <div class="row" data-page-node-id="PUkY3IaqOg7NbNOT8vto7i"><span class="t" data-page-node-id="AV7xCwIdQAIXq1jlcpm0dk">同步</span><span class="d" data-page-node-id="GTgX2cKhNjGcsHVr0h2H6m">本地优先</span><span class="chev" data-page-node-id="QBF5A7WX1CENY6UVqO65Rg"></span></div>
-      </div>
       <div style="height:24px" data-page-node-id="vOIoSikzphm1GPdJiKTU9X"></div>
-    </section>
-
-    <!-- Learning -->
-    <section class="panel" data-panel="learning" data-page-node-id="SSXEHSNs1AtruqN3G7Horv">
-      <div class="panel-bar" data-page-node-id="HuE2Vy6XVQrUlXPYzRugeo"><button class="back" data-back data-page-node-id="elZeqJTZptOmwTct0sIQFV">
-        <svg viewBox="0 0 24 24" data-page-node-id="6ilOuf3WsyeF8IoMVLI3ls"><path d="M15 5l-7 7 7 7" data-page-node-id="noC0Jsnaln5GsBkQ0xqSIO"/></svg>Me</button></div>
-      <div class="eyebrow" data-page-node-id="zP5CezlQHkkMDRXqD3Itgo">Learning</div>
-      <div class="t-panel" style="margin-top:8px" data-page-node-id="7WWXANLEtVwhCKmgtxFQRw">在学</div>
-      <div class="t-sub" style="margin-top:8px" data-page-node-id="3OI2uaeZ9GZGWL4jA3HBQ0">不是「课程清单」。是现在真正花时间在学的几件事。</div>
-
-      <div class="glass" style="padding:2px 18px;margin-top:22px" data-page-node-id="AQCNOXeRsosNqIfAW2rio1">
-        <div class="metric" data-page-node-id="X5tOBdLnzLpRwAeqCsESn6"><span class="m" data-page-node-id="LOyMXk3B287xmNRJTdUFdV">本周时长</span><span class="v" data-page-node-id="oG4YhPXAsddDva6cOh7rz8"><b data-page-node-id="fmGFa7dWcHlaDnKHDKROC5">4h 20m</b></span></div>
-        <div class="metric" data-page-node-id="QwAaglpi8Ez7idHE0WUSRv"><span class="m" data-page-node-id="IK5yUBx3MzNWl8Clt7MDlr">本月时长</span><span class="v" data-page-node-id="fgOfsAfrCiNHTyWizPDFAc"><b data-page-node-id="FlSz3d0qQZoEz0wWVbBwnx">18h 40m</b></span></div>
-        <div class="metric" data-page-node-id="Crhaf3lYg7EERFIQeb8MkP"><span class="m" data-page-node-id="58C4DhApTDtcyyjuHoCjmD">关联 Goal</span><span class="v" data-page-node-id="E32RpbO4wB3Dq6hOLEjREg">Career</span></div>
-      </div>
-
-      <div class="sec" data-page-node-id="JDMOGqAvypNuyfDPYkK5Cu"><h2 data-page-node-id="RhWUkiBn1tmCGhGIlzc8gM">主题</h2><span class="n" data-page-node-id="08MeNv59H5g8OiwGavOKgG">3</span></div>
-      <div id="learn-list" data-page-node-id="B5sGze80QUvucXZNHleceH"></div>
-
-      <div class="insight" style="margin-top:22px" data-page-node-id="aYdnIb6vKw6ly2e8lLWqAF">
-        <div class="q" data-page-node-id="eujKBiUFnHsQ6TgpQtWDQK">学完之后没有任何输出。</div>
-        <div class="d" data-page-node-id="sS5pGrgCYjWt21tV92g1Wd">Learning 不需要产出文章，但需要能用自己的话讲一遍。每条主题配一行笔记。</div>
-      </div>
-      <div style="height:24px" data-page-node-id="E0dF857SSaIKS34dVzgfj9"></div>
-    </section>
-
-    <!-- Journal -->
-    <section class="panel" data-panel="journal" data-page-node-id="05LQUE0sNuKktsE0AZzDyH">
-      <div class="panel-bar" data-page-node-id="s7esGubH2pf7noWATFKGto"><button class="back" data-back data-page-node-id="cCHBWGgYdzBTEET8QK6smp">
-        <svg viewBox="0 0 24 24" data-page-node-id="geP2eQ3TfhCSf3wlr6IO3M"><path d="M15 5l-7 7 7 7" data-page-node-id="GBVowOrLbFbKClDuLgVZ5u"/></svg>Me</button></div>
-      <div class="eyebrow" data-page-node-id="GAsXuLdrdhGb6z7jMH73Ut">Journal</div>
-      <div class="t-panel" style="margin-top:8px" data-page-node-id="3Bu18yqbnYb3Fvq9aSHCsW">回顾</div>
-      <div class="t-sub" style="margin-top:8px" data-page-node-id="cio4jAJGDpdhJfGB0Gy82C">每周不超过 3 句。这里只是它留下的痕迹。</div>
-
-      <div class="sec tight" data-page-node-id="R2h0e4fz0oIKGCsaKarbeP"><h2 data-page-node-id="79bN1I1BtmOIUZYDUeEPkj">本周</h2><span class="n" data-page-node-id="XL7arBlm9falxEQWy7VLdt">1 条</span></div>
-      <div class="glass" style="padding:18px 20px" data-user data-page-node-id="iBTwFFdzTPE3rBMxEAG0mu">
-        <div class="t-cap" data-page-node-id="YDafHX3qUG3K54QrgJj4zA">9.1 – 9.6</div>
-        <div class="t-body" style="margin-top:8px" data-page-node-id="rXgmXXhfklF4kro3D1srFz">跑步这件事一旦跳过就断了几天。今天开始把它重新放回 Mon/Wed/Fri，不再换。</div>
-      </div>
-
-      <div class="sec" data-page-node-id="g8hm9qEktCIc2Ck5KcmTnW"><h2 data-page-node-id="JDDZBtCI5GY5D59D9UmwZm">上周</h2><span class="n" data-page-node-id="qchsC82S9R9OpOq7dXug6A">1 条</span></div>
-      <div class="glass" style="padding:18px 20px" data-user data-page-node-id="CneiIkc3ND4NAaep7dvjau">
-        <div class="t-cap" data-page-node-id="qIhjSrQwLZtHhfbTf3wi5E">8.25 – 8.31</div>
-        <div class="t-body" style="margin-top:8px" data-page-node-id="0atGdPMrgpRGJ0Zlq0YD04">周四的 Main 排了 4 项，2 项挤掉了。下周回到 3 项。</div>
-      </div>
-      <div style="height:24px" data-page-node-id="44qZxmhxDrccjCfeXv4C2b"></div>
     </section>
 
     <!-- Health & Devices：数据源管理 -->
@@ -1373,14 +1230,14 @@ body {
       <div id="hc-list" data-page-node-id="ZAsGpukuEGiy6by1FCWf9k"></div>
 
       <div class="sec" data-page-node-id="1cVE9DasAu8LISdpnVr9dc"><h2 data-page-node-id="srUTAF1mvbNine0PuvpvLP">同步范围</h2><span class="n" data-page-node-id="RQxuuWJ8gyyIKwDUptdt7a">只读</span></div>
-      <div class="glass" style="padding:2px 18px" data-page-node-id="RhGzS2S4lk9cw2vAogCgcg">
+      <div class="glass" style="padding:4px 16px" data-page-node-id="RhGzS2S4lk9cw2vAogCgcg">
         <div class="row" data-page-node-id="pFhD1s8MGE0Xrvo3voj4Jj"><span class="t" data-page-node-id="sL8hTLQvd7ENL2K3yfIFQp">睡眠分析</span><span class="d" data-page-node-id="DaGlPbQHkFYCwC203SgbuO">用于调整当天强度</span><span class="chev" data-page-node-id="6RMnYKKOGE99nSUG7VLDE8"></span></div>
         <div class="row" data-page-node-id="0wcGGu4F7hfPastmqNEMBl"><span class="t" data-page-node-id="BTFEuvjoEOkur1CLuJU2Sv">心率 / HRV</span><span class="d" data-page-node-id="9cQ6ahoUYy7sJ5lcHsPtdG">判断恢复状态</span><span class="chev" data-page-node-id="1RPjm7llrmCSc2W5ZDPewO"></span></div>
         <div class="row" data-page-node-id="FhYDscUedcwg6OYQjo0AqB"><span class="t" data-page-node-id="roJLsD6v669VWzNY040RHU">体能训练</span><span class="d" data-page-node-id="wf2f6tC3XOzoeVh2zQNWcp">计入每周运动量</span><span class="chev" data-page-node-id="24m9OeDYoF4bYOTtdoxKUC"></span></div>
         <div class="row" data-page-node-id="ncFB1my6poHeR1Kr4Gi4ZV"><span class="t" data-page-node-id="vTwAXiKH1swPE5nFDlIAsI">步数</span><span class="d" data-page-node-id="Dci4yCDRRE3mWSKshQPl9Z">日常活动参考</span><span class="chev" data-page-node-id="HbJll75Ygr8oSjQsbVTGzj"></span></div>
       </div>
 
-      <div class="insight" style="margin-top:22px" data-page-node-id="dyeeDU7cO6chxkNW2FnNc4">
+      <div class="insight" style="margin-top:24px" data-page-node-id="dyeeDU7cO6chxkNW2FnNc4">
         <div class="q" data-page-node-id="oLAHx6oHKSF5rsxBucTGCn">数据留在你的设备上。</div>
         <div class="d" data-page-node-id="1YHwxkUHCrWztMc2GSQSEl">Epoch 只在本地读取并计算，不会上传健康数据，也不会用于广告或画像。断开连接后，已读取的数据会被清除。</div>
       </div>
@@ -1420,8 +1277,8 @@ body {
     <div class="grab"></div>
     <div class="eyebrow" id="td-when2">事件</div>
     <input class="td-title-in" id="td-title-in" placeholder="这件事是…" />
-    <div class="chip-row" id="td-types" style="margin-top:14px"></div>
-    <div class="td-form-grid" style="margin-top:18px">
+    <div class="chip-row" id="td-types" style="margin-top:12px"></div>
+    <div class="td-form-grid" style="margin-top:16px">
       <div class="td-f"><label>开始时间</label><input type="time" id="td-time-in" /></div>
       <div class="td-f"><label>日期</label><input type="date" id="td-date-in" /></div>
       <div class="td-f"><label>时长（分钟）</label><input type="number" id="td-dur-in" min="5" step="5" inputmode="numeric" placeholder="如 40" /></div>
@@ -1429,11 +1286,11 @@ body {
       <div class="td-f"><label>来自 Routine</label><select id="td-routine-in"></select></div>
     </div>
     <textarea class="td-notes-in" id="td-notes-in" rows="2" placeholder="备注…（跑后拉伸、带伞、只写一页）" style="margin-top:16px"></textarea>
-    <div class="btn-row" style="margin-top:18px">
+    <div class="btn-row" style="margin-top:16px">
       <button class="btn btn-p" style="flex:1.5" id="td-save">保存</button>
       <button class="btn btn-g" style="flex:1" id="td-complete">完成</button>
     </div>
-    <div class="btn-row" id="td-actions" style="margin-top:10px">
+    <div class="btn-row" id="td-actions" style="margin-top:12px">
       <button class="btn btn-g btn-sm" style="flex:1" id="td-focus">专注</button>
       <button class="btn btn-g btn-sm" style="flex:1" id="td-resched">改期</button>
       <button class="btn btn-g btn-sm" style="flex:1" id="td-skip">跳过</button>
@@ -1445,11 +1302,11 @@ body {
   <div class="sheet" id="sheet-myday" data-page-node-id="FnqONq6L5XymKn8t1qyGPh">
     <div class="grab" data-page-node-id="GbTq2iaLAAAHfvY3NasIbh"></div>
     <div class="eyebrow" data-page-node-id="3KFxlQBoi8UaUGzn4MTtQ1">Plan My Day</div>
-    <div class="t-panel" style="margin-top:6px" data-page-node-id="qZCSLfjwJci0LQpjIDgwoI">建议日程</div>
-    <div class="t-sub" style="margin-top:5px" data-page-node-id="IGNDwoEHKF5mi3k4Z3nghI">基于你的 Routines、固定工作时间与今天的空档。</div>
+    <div class="t-panel" style="margin-top:8px" data-page-node-id="qZCSLfjwJci0LQpjIDgwoI">建议日程</div>
+    <div class="t-sub" style="margin-top:4px" data-page-node-id="IGNDwoEHKF5mi3k4Z3nghI">基于你的 Routines、固定工作时间与今天的空档。</div>
     <div style="margin-top:16px" id="md-list" data-user data-page-node-id="k0LF6Nu74GGRpDLH4OkPre"></div>
     <div class="md-note" id="md-note" data-page-node-id="mgPSDCcIoWI7I0TsC68Md3">接受后，这会替换今天的时间轴。被移走的任务会回到 Inbox，不会消失。</div>
-    <div class="btn-row" style="margin-top:20px" data-page-node-id="6LccgpPCVvVoGnyR88U8Co">
+    <div class="btn-row" style="margin-top:24px" data-page-node-id="6LccgpPCVvVoGnyR88U8Co">
       <button class="btn btn-p" style="flex:1.4" id="md-accept" data-page-node-id="fLSc8V1KFRRtiTRtinrymO">接受</button>
       <button class="btn btn-g" style="flex:1" id="md-adjust" data-page-node-id="ImK83ysKnEm8rWJF1OI9bo">调整</button>
     </div>
@@ -1459,10 +1316,10 @@ body {
   <div class="sheet" id="sheet-rs" data-page-node-id="3NcenO2nP5sIAjMcjmo9mr">
     <div class="grab" data-page-node-id="gMNdNzfXNlUnb7eic8YG6L"></div>
     <div class="eyebrow" data-page-node-id="NmUkZ4G9YXEoaZ7Ielz4iU">Reschedule</div>
-    <div class="t-panel" style="margin-top:6px" id="rs-title" data-user data-page-node-id="zoupEdoyWKyeTg8CEfGVPf">移到什么时候？</div>
-    <div class="t-sub" style="margin-top:5px" data-page-node-id="gCuROxzj8zB0jiKfGaC8gH">选择一个日期。事情会出现在那天的 Today 里。</div>
-    <div style="margin-top:18px" id="rs-list" data-page-node-id="wpFrvG1axpwNwqMoFQIaR1"></div>
-    <div class="btn-row" style="margin-top:20px" data-page-node-id="I4uMDNEEozRMl7ziBAc8it">
+    <div class="t-panel" style="margin-top:8px" id="rs-title" data-user data-page-node-id="zoupEdoyWKyeTg8CEfGVPf">移到什么时候？</div>
+    <div class="t-sub" style="margin-top:4px" data-page-node-id="gCuROxzj8zB0jiKfGaC8gH">选择一个日期。事情会出现在那天的 Today 里。</div>
+    <div style="margin-top:16px" id="rs-list" data-page-node-id="wpFrvG1axpwNwqMoFQIaR1"></div>
+    <div class="btn-row" style="margin-top:24px" data-page-node-id="I4uMDNEEozRMl7ziBAc8it">
       <button class="btn btn-g" style="flex:1" data-close-sheet data-page-node-id="cdWn20it4fGkIhE2RQeDVY">取消</button>
     </div>
   </div>
@@ -1471,16 +1328,16 @@ body {
   <div class="sheet" id="sheet-health-auth" data-page-node-id="9lIkujNMtfGLxvzGj6Dbfh">
     <div class="grab" data-page-node-id="Lxhr1lojggeEl2pxIt47rD"></div>
     <div class="eyebrow" data-page-node-id="msbdeKKHVAOJ8b5YMGhtC7">Apple 健康</div>
-    <div class="t-panel" style="margin-top:6px" data-page-node-id="uODFjggGe50WaARn4acSua">允许「Epoch」读取</div>
-    <div class="t-sub" style="margin-top:5px" data-page-node-id="1M2QeppHOvsdVJWRPRCmzc">只读取，不写入。你可以随时在系统健康 App 里关闭。</div>
-    <div class="glass" style="padding:2px 18px;margin-top:18px" id="auth-scopes" data-page-node-id="JBNLLDfa1m5cZziL5NIW2h">
+    <div class="t-panel" style="margin-top:8px" data-page-node-id="uODFjggGe50WaARn4acSua">允许「Epoch」读取</div>
+    <div class="t-sub" style="margin-top:4px" data-page-node-id="1M2QeppHOvsdVJWRPRCmzc">只读取，不写入。你可以随时在系统健康 App 里关闭。</div>
+    <div class="glass" style="padding:4px 16px;margin-top:16px" id="auth-scopes" data-page-node-id="JBNLLDfa1m5cZziL5NIW2h">
       <div class="row" data-page-node-id="FXxwzAdouRQvRAHextn3ZW"><span class="t" data-page-node-id="NylzWzkL1VE2QPFg0lvHo6">睡眠分析</span><span class="d" data-page-node-id="RtgyECDVH7U3yD9k3WsvIr">调整当天强度</span><span class="chev" data-page-node-id="QV23FsXdH0R0cMQ8zlNpY8"></span></div>
       <div class="row" data-page-node-id="L6Y0OSF8eMxknDV0VEofxt"><span class="t" data-page-node-id="7f6qwXwyqqq6pWKww2fZJ2">心率 / HRV</span><span class="d" data-page-node-id="eVsrUL62kf5XGx4RUqPuao">判断恢复状态</span><span class="chev" data-page-node-id="gaJbnrexxzy6bwZHQwBnLI"></span></div>
       <div class="row" data-page-node-id="VzhYpHt4OepihiEiP5YKsd"><span class="t" data-page-node-id="0meptDexud2aQKU7Yxwjz2">体能训练</span><span class="d" data-page-node-id="mQTqO8HOSlAUyhDg0pGJak">计入每周运动量</span><span class="chev" data-page-node-id="8Ja7YLqQ2HssItEKhGUpNe"></span></div>
       <div class="row" data-page-node-id="7RE0wRxgfs6NtVajnmkQHV"><span class="t" data-page-node-id="CDTJZ3AOz5YYwPZwbJHvgK">步数</span><span class="d" data-page-node-id="Ihk0jBEzLAMvWRmksCCoKc">日常活动参考</span><span class="chev" data-page-node-id="4qzT3hyap3iw3dax7glwg4"></span></div>
     </div>
-    <div class="t-cap" style="margin-top:14px" data-page-node-id="d6BTTyCKjJsXa6X0Qn6org">数据留在设备上，本地处理。不会上传，不会用于广告。</div>
-    <div class="btn-row" style="margin-top:18px" data-page-node-id="nTaEFpNPrEKl49hBVSHGJt">
+    <div class="t-cap" style="margin-top:12px" data-page-node-id="d6BTTyCKjJsXa6X0Qn6org">数据留在设备上，本地处理。不会上传，不会用于广告。</div>
+    <div class="btn-row" style="margin-top:16px" data-page-node-id="nTaEFpNPrEKl49hBVSHGJt">
       <button class="btn btn-g" style="flex:1" id="auth-deny" data-page-node-id="snibJw6BgeEUnVVLt0zOaj">不允许</button>
       <button class="btn btn-p" style="flex:1.4" id="auth-allow" data-page-node-id="eDrEKwOsLrAjfmPE0BMqHC">允许</button>
     </div>
@@ -1489,10 +1346,10 @@ body {
   <!-- 同步中 -->
   <div class="sheet" id="sheet-syncing" data-page-node-id="vAfuhwb8e3d9SdrfGTuikv">
     <div class="grab" data-page-node-id="zKEDPKVDjfzphnL9EeL36q"></div>
-    <div style="display:flex;flex-direction:column;align-items:center;padding:22px 0 8px" data-page-node-id="V29CRx8HFpHIPTsxpGLxqT">
+    <div style="display:flex;flex-direction:column;align-items:center;padding:24px 0 8px" data-page-node-id="V29CRx8HFpHIPTsxpGLxqT">
       <div class="spinner" data-page-node-id="iDTT0YyLrpWhibt0zHnf9s"></div>
-      <div class="ob-gen-lbl" style="font-size:15px;font-weight:500;color:var(--ink-1);margin-top:20px" data-page-node-id="u4W8AaN4by0LqHmQ6CW1je">正在同步…</div>
-      <div class="t-cap" style="margin-top:6px;text-align:center" data-page-node-id="6n0NAPra8GpTnQRj51cVqn">读取近 14 天的睡眠、心率与运动记录。<br data-page-node-id="CJ8ZfEwKucnnCJAnqTDsWD"/>同步在本地完成。</div>
+      <div class="ob-gen-lbl" style="font-size:16px;font-weight:500;color:var(--text-primary);margin-top:24px" data-page-node-id="u4W8AaN4by0LqHmQ6CW1je">正在同步…</div>
+      <div class="t-cap" style="margin-top:8px;text-align:center" data-page-node-id="6n0NAPra8GpTnQRj51cVqn">读取近 14 天的睡眠、心率与运动记录。<br data-page-node-id="CJ8ZfEwKucnnCJAnqTDsWD"/>同步在本地完成。</div>
     </div>
   </div>
 
@@ -1551,6 +1408,8 @@ const state = {
     { id:'i3', title:'Make A5L campaign',      hint:'未安排' },
     { id:'i4', title:'Sort export documents',  hint:'未安排' },
   ],
+  /* 周回顾（Weekly Review 真保存）：{ week:'YYYY-MM-DD(周一)', good, drain, one, at } */
+  review: null,
   /* M1：week/upcoming/unscheduled 已删除——排期只有唯一事实来源 tasks.date，
      Plan 的「已排」视图由 date 派生，不再是独立存储 */
   goals: [
@@ -1665,17 +1524,13 @@ const I18N = {
     'prog.completion':'完成率','prog.consistency':'一致性','prog.last30':'近 30 天',
     'prog.planned':'31 项计划中完成了 24 项。','prog.monthdays':'30 天中有 24 天完成了当天的重点。',
     'm.learning':'学习','m.exercise':'运动','m.habits':'习惯','m.sleep':'睡眠','m.hrv':'HRV','m.avg':'平均',
-    'rhythm.title':'7 天节奏','rhythm.note':'每日完成节奏',
     'dots.note':'每一格是一天。颜色深浅代表完成比例，不做连续天数。',
     'insight.week.q':'周四和周六明显低于其他日子。',
     'insight.week.d':'这两天都排了 4 项重点任务。把上限调回 3 项，先试一周。',
     'insight.week.a':'调整上限','insight.keep':'保持现状',
     'insight.month.q':'睡眠比上月少了 22 分钟，主要丢在周五和周六。',
     'insight.month.d':'这两天的完成率也是全月最低。问题可能不是自律，而是日程本身排得太满。',
-    'reflect.title':'回顾','reflect.q':'下周只改进一件事。','reflect.ph':'只写一件事…',
-    'reflect.note':'写完之后，它会变成下周 Today 里的一条轻量提醒。',
     'me.title':'我的系统','me.sub':'长期方向、目标、Routines 与习惯。',
-    'sec.goals':'目标','sec.goals.note':'当前焦点','sec.routines':'Routines 与习惯','sec.health':'健康','sec.system':'系统',
     'me.focus':'当前焦点：','me.language':'语言',
     'me.weekly.sub':'本周待写','me.learning.sub':'在学 · 4h 20m / 周','me.journal.sub':'回顾 · 2 条',
     'me.hd.connect':'连接数据源','me.prefs.sub':'外观 · 通知 · 日程',
@@ -1692,7 +1547,6 @@ const I18N = {
     'sug.heavy.d':'还有 {n} 项未完成。可以把一件移回 Inbox，不会删除。',
     'sug.energy.d':'{s}？降低强度也算完成。','sug.inbox.q':'收集箱有 {n} 条没安排。',
     'sug.inbox.d':'先收集是对的，但放久了会变成心理负担。去挑一件安排掉。',
-    'prog.today.line':'{total} 项计划中完成了 {done} 项 · Main {md}/{mt}。',
     'en.r.sleep':'昨晚 {a}，比平时少 {b}','en.r.hrv':'HRV 连续 {n} 天下降','en.r.good':'身体状态不错',
     'toast.newname':'先起个名字','md.reason.join':'，','toast.newday':'新的一天，时间轴已重置','toast.adjustplan':'可以在 Plan 里逐项调整',
     'qa.kicker':'快速记录','qa.ph':'想做什么？先记下来…',
@@ -1734,24 +1588,6 @@ const I18N = {
     'health.adapt':'按建议调整今天','health.keep':'保持原计划',
     'health.ok.q':'身体状态在正常范围。','health.ok.d':'照常就好。出现持续异常时，这里才会说话。',
     'health.from':'数据来自 {src} · {when}同步 · 本地处理，不上传。',
-    'dir.kicker':'Direction','dir.title':'Where are you going?',
-    'dir.sub':'不是愿景板，也不是鸡血。只是一句话，用来在你要放弃一项任务时判断它是否还值得。',
-    'dir.yours':'你的方向','dir.chain':'这条链路是否成立',
-    'dir.m1':'Direction → Goals','dir.m1.v':'6 个目标已关联','dir.m2':'Goals → Routines','dir.m2.v':'4 条 Routine 在跑',
-    'dir.m3':'Routines → Tasks','dir.m3.v':'本周 31 项','dir.m4':'无关联的任务','dir.m4.v':'2 项 · 值得清理',
-    'dir.insight.q':'有 2 项任务没有挂在任何 Goal 上。',
-    'dir.insight.d':'它们不必然是错的，但也无法回答「我为什么现在做这个」。要不要现在归位，还是先放着？',
-    'dir.insight.a1':'查看这 2 项','dir.insight.a2':'先放着',
-    'gd.note':'只展开当前层级。更长的周期折叠在后面。',
-    'gd.progress':'进展','gd.focus':'当前焦点','gd.routines':'关联 Routines','gd.tasks':'关联任务','gd.tasks.note':'本周 4 项','gd.next':'下一步：',
-    'rt.kicker':'Routine','rt.sub':'每周重复出现的生活结构。修改一次，未来的 Task 跟着变。',
-    'rt.repeat':'重复','rt.repeat.v':'每周二','rt.time':'时间','rt.goal':'关联 Goal','rt.hit':'命中率','rt.hit.v':'近 8 周 6 次',
-    'rt.items':'Routine Items','rt.ops':'操作',
-    'hb.kicker':'Habit','hb.last10':'近 10 周',
-    'hb.note':'不统计连续天数，不做排行榜。只看节奏是否稳定。',
-    'hb.insight.q':'周三的执行率明显低于周一和周五。',
-    'hb.insight.d':'如果把周三移到周四 20:15，命中率预计从 62% 到 88%。',
-    'hb.move':'移到周四','hb.keep':'保持现状',
     'wr.kicker':'Reflection','wr.title':'这一周','wr.sub':'每周只问三个问题。不做日记系统。',
     'wr.q1.ph':'这周做成了什么…','wr.q2.ph':'什么消耗了你…',
     'wr.q3.kicker':'最重要的一个','wr.q3.ph':'下周只改这一件事…',
@@ -1760,8 +1596,6 @@ const I18N = {
     'ln.week':'本周时长','ln.month':'本月时长','ln.goal':'关联 Goal','ln.topics':'主题',
     'ln.insight.q':'学完之后没有任何输出。',
     'ln.insight.d':'Learning 不需要产出文章，但需要能用自己的话讲一遍。每条主题配一行笔记。',
-    'jn.title':'回顾','jn.sub':'每周不超过 3 句。这里只是它留下的痕迹。',
-    'jn.thisweek':'本周','jn.lastweek':'上周','jn.count':'1 条',
     'st.title':'设置','st.appearance':'外观','st.appearance.note':'Soft Glass / Dark Frosted',
     'st.schedule':'日程','st.planning':'规划偏好','st.notifications':'通知','st.data':'数据','st.language':'语言',
     'st.wake':'起床','st.work':'工作时间','st.sleep':'睡觉',
@@ -1771,7 +1605,7 @@ const I18N = {
     'st.export':'导出','st.sync':'同步','st.sync.v':'本地优先',
     'ob.skip':'跳过','ob.back':'上一步','ob.next':'继续','ob.start':'开始','ob.enter':'进入 Today',
     'ob.welcome.q':'Shape your time.<br/>Shape yourself.',
-    'ob.welcome.d':'Epoch 不是待办清单，也不是习惯打卡。<br/>它只帮你回答两个问题：<b style="color:var(--ink-1);font-weight:600">今天该做什么</b>，以及 <b style="color:var(--ink-1);font-weight:600">为什么</b>。',
+    'ob.welcome.d':'Epoch 不是待办清单，也不是习惯打卡。<br/>它只帮你回答两个问题：<b style="color:var(--text-primary);font-weight:600">今天该做什么</b>，以及 <b style="color:var(--text-primary);font-weight:600">为什么</b>。',
     'ob.welcome.1.t':'从一套默认作息开始','ob.welcome.1.d':'推荐 · 之后可以改。大约 50 秒就能得到今天。',
     'ob.welcome.2.t':'我自己设置','ob.welcome.2.d':'工作时间、起床与睡觉时间都手动填。',
     'ob.sched.q':'你的一天大概怎么过？','ob.sched.d':'只需要三个时间点。之后系统会围绕它们安排，不会往里塞东西。',
@@ -1785,8 +1619,6 @@ const I18N = {
     'ob.dir.ph':'例如：我想要更大的自由和更多的选择权。','ob.dir.domains':'主要涉及哪些方面',
     'ob.goal.q':'这个季度，一件想推进的事。','ob.goal.d':'只写一件。系统之后会帮你拆到月、周，再到今天。',
     'ob.goal.ph':'例如：学会 APQP 流程','ob.goal.note':'写不出来也没关系。可以先跳过，Today 依然可用。',
-    'ob.gen.lbl':'正在生成第一周…','ob.gen.sub':'根据你的作息与 Routines 排入今天和本周的空档。<br/>之后每天 20:30 会再排一次。',
-    'ob.done.q':'好了。','ob.done.d':'今天有 3 个重点任务。先做完第一个，剩下的明天再说。',
     'focus.quit':'退出专注','focus.start':'开始','focus.pause':'暂停','focus.resume':'继续','focus.done':'完成',
     'toast.back2inbox':'已移回收集箱，不删除','toast.skiptoday':'已跳过，明天不再提醒',
     'toast.walk':'已改成 Walk · 20 min','toast.keep':'保持原计划',
@@ -1796,7 +1628,7 @@ const I18N = {
     'toast.moved':'已移到周六 15:30','toast.skip':'已跳过','toast.deleted':'已删除','toast.undo':'撤销',
     'auth.busy.in':'登录中…','auth.busy.up':'注册中…',
     'toast.connected':'已连接 · 基线需要约 2 周数据','toast.disconnected':'已断开，数据已清除',
-    'toast.denied':'未授权，健康功能保持关闭','toast.week':'第一周已生成',
+    'toast.denied':'未授权，健康功能保持关闭',
     'toast.health-connect':'Apple 健康接入（移动端可用）','toast.adapted':'已按建议调整今天',
     'plan.myday.entry':'Plan My Day',
   },
@@ -1830,17 +1662,13 @@ const I18N = {
     'prog.completion':'Completion','prog.consistency':'Consistency','prog.last30':'Last 30 days',
     'prog.planned':'24 of 31 planned done.','prog.monthdays':'Main tasks done on 24 of 30 days.',
     'm.learning':'Learning','m.exercise':'Exercise','m.habits':'Habits','m.sleep':'Sleep','m.hrv':'HRV','m.avg':'avg',
-    'rhythm.title':'7-day rhythm','rhythm.note':'Daily completion',
     'dots.note':'Each dot is a day. Depth shows completion — no streak counting.',
     'insight.week.q':'Thursday and Saturday clearly lag the other days.',
     'insight.week.d':'Both had 4 main tasks scheduled. Try capping at 3 for a week.',
     'insight.week.a':'Adjust cap','insight.keep':'Keep as is',
     'insight.month.q':'Sleep is down 22 minutes vs last month, mostly on Fri and Sat.',
     'insight.month.d':'Those two days also have the lowest completion. Maybe the schedule itself is too full, not discipline.',
-    'reflect.title':'Reflection','reflect.q':'One thing to improve next week.','reflect.ph':'Just one thing…',
-    'reflect.note':'It becomes a gentle reminder in next week\u2019s Today.',
     'me.title':'Me','me.sub':'Direction, goals, routines and habits.',
-    'sec.goals':'Goals','sec.goals.note':'Current focus','sec.routines':'Routines & Habits','sec.health':'Health','sec.system':'System',
     'me.focus':'Focus: ','me.language':'Language',
     'me.weekly.sub':'Not written this week','me.learning.sub':'Active · 4h 20m / week','me.journal.sub':'2 entries',
     'me.hd.connect':'Connect a source','me.prefs.sub':'Appearance · Notifications · Schedule',
@@ -1892,24 +1720,6 @@ const I18N = {
     'health.adapt':'Adjust today','health.keep':'Keep as planned',
     'health.ok.q':'Your body is within normal range.','health.ok.d':'Carry on. This page only speaks when something persists.',
     'health.from':'From {src} · synced {when} · processed locally, never uploaded.',
-    'dir.kicker':'Direction','dir.title':'Where are you going?',
-    'dir.sub':'Not a vision board, not hype. Just one sentence to judge whether a task is still worth doing.',
-    'dir.yours':'Your direction','dir.chain':'Does the chain hold',
-    'dir.m1':'Direction → Goals','dir.m1.v':'6 goals linked','dir.m2':'Goals → Routines','dir.m2.v':'4 routines running',
-    'dir.m3':'Routines → Tasks','dir.m3.v':'31 this week','dir.m4':'Unlinked tasks','dir.m4.v':'2 · worth a look',
-    'dir.insight.q':'2 tasks are not linked to any goal.',
-    'dir.insight.d':'Not necessarily wrong — but they can\u2019t answer “why am I doing this now”. Place them now, or later?',
-    'dir.insight.a1':'Review these 2','dir.insight.a2':'Later',
-    'gd.note':'Only the current level is expanded. Longer horizons stay folded.',
-    'gd.progress':'Progress','gd.focus':'Current Focus','gd.routines':'Associated Routines','gd.tasks':'Associated Tasks','gd.tasks.note':'4 this week','gd.next':'Next step: ',
-    'rt.kicker':'Routine','rt.sub':'A recurring structure of life. Change it once and future tasks follow.',
-    'rt.repeat':'Repeats','rt.repeat.v':'Every Tuesday','rt.time':'Time','rt.goal':'Linked Goal','rt.hit':'Hit rate','rt.hit.v':'6 of last 8 weeks',
-    'rt.items':'Routine Items','rt.ops':'Actions',
-    'hb.kicker':'Habit','hb.last10':'Last 10 weeks',
-    'hb.note':'No streak counting, no leaderboard. Just whether the rhythm is stable.',
-    'hb.insight.q':'Wednesday clearly trails Monday and Friday.',
-    'hb.insight.d':'Moving Wed to Thu 20:15 should raise the hit rate from 62% to 88%.',
-    'hb.move':'Move to Thursday','hb.keep':'Keep as is',
     'wr.kicker':'Reflection','wr.title':'This week','wr.sub':'Only three questions a week. Not a journal system.',
     'wr.q1.ph':'What got done…','wr.q2.ph':'What drained you…',
     'wr.q3.kicker':'The one that matters','wr.q3.ph':'Change just this next week…',
@@ -1918,8 +1728,6 @@ const I18N = {
     'ln.week':'This week','ln.month':'This month','ln.goal':'Linked Goal','ln.topics':'Topics',
     'ln.insight.q':'Nothing gets produced after learning.',
     'ln.insight.d':'Learning doesn\u2019t need an essay — but you should be able to say it in your own words. One line of notes per topic.',
-    'jn.title':'Journal','jn.sub':'At most three sentences a week. This is just the trace they leave.',
-    'jn.thisweek':'This week','jn.lastweek':'Last week','jn.count':'1 entry',
     'st.title':'Preferences','st.appearance':'Appearance','st.appearance.note':'Soft Glass / Dark Frosted',
     'st.schedule':'Schedule','st.planning':'Planning Preferences','st.notifications':'Notifications','st.data':'Data','st.language':'Language',
     'st.wake':'Wake up','st.work':'Work hours','st.sleep':'Sleep',
@@ -1929,7 +1737,7 @@ const I18N = {
     'st.export':'Export','st.sync':'Sync','st.sync.v':'Local-first',
     'ob.skip':'Skip','ob.back':'Back','ob.next':'Continue','ob.start':'Start','ob.enter':'Enter Today',
     'ob.welcome.q':'Shape your time.<br/>Shape yourself.',
-    'ob.welcome.d':'Epoch is not a todo list, nor a habit tracker.<br/>It answers two questions: <b style="color:var(--ink-1);font-weight:600">what to do today</b>, and <b style="color:var(--ink-1);font-weight:600">why</b>.',
+    'ob.welcome.d':'Epoch is not a todo list, nor a habit tracker.<br/>It answers two questions: <b style="color:var(--text-primary);font-weight:600">what to do today</b>, and <b style="color:var(--text-primary);font-weight:600">why</b>.',
     'ob.welcome.1.t':'Start with a default schedule','ob.welcome.1.d':'Recommended · editable later. A working Today in ~50s.',
     'ob.welcome.2.t':'Set it up myself','ob.welcome.2.d':'Work hours, wake and sleep times, all manual.',
     'ob.sched.q':'What does your day look like?','ob.sched.d':'Just three time points. The system plans around them and never stuffs more in.',
@@ -1962,7 +1770,6 @@ const I18N = {
     'sug.heavy.d':'{n} still open. Move one back to the Inbox — nothing gets deleted.',
     'sug.energy.d':'{s}? Lowering the intensity still counts.','sug.inbox.q':'{n} unscheduled in the Inbox.',
     'sug.inbox.d':'Capturing first is right — but leaving it too long becomes a burden. Pick one and schedule it.',
-    'prog.today.line':'{done} of {total} done · Main {md}/{mt}.',
     'en.r.sleep':'Slept {a}, {b} less than usual','en.r.hrv':'HRV down {n} days in a row','en.r.good':'Body feels good',
     'toast.newname':'Give it a name first','md.reason.join':', ','toast.newday':'New day — timeline reset','toast.adjustplan':'Adjust item by item in Plan',
   },
@@ -2100,7 +1907,7 @@ const ZH2EN = {
   '主要涉及哪些方面':'Which areas it involves','这个季度，一件想推进的事。':'One thing to push this quarter.','只写一件。系统之后会帮你拆到月、周，再到今天。':'Just one. The system breaks it down to months, weeks, and today.',
   '写不出来也没关系。可以先跳过，Today 依然可用。':'Stuck? Skip it — Today still works.',
   '正在生成第一周…':'Generating your first week…','根据你的作息与 Routines 排入今天和本周的空档。':'Filling today and this week around your schedule and Routines.','之后每天 20:30 会再排一次。':'Re-planned daily at 20:30.',
-  '好了。':'Done.','今天有 3 个 Main Task。先做完第一个，剩下的明天再说。':'3 Main Tasks today. Finish the first one — the rest can wait.','进入 Today':'Enter Today',
+  '好了。':'Done.','进入 Today':'Enter Today',
   '上一步':'Back','开始':'Start','继续':'Continue',
   /* 建议卡 / Toast / Progress */
   '开始专注':'Start focus','改时间':'Reschedule','今天看起来有点满。':'Your day looks heavy.','移回一件':'Move one back',
@@ -2109,13 +1916,20 @@ const ZH2EN = {
   '先起个名字':'Give it a name first','先写一句话':'Write one line first','已存入 Inbox':'Saved to Inbox',
   '已按建议调整今天':'Today adjusted as suggested','已移回 Inbox，不删除':'Moved back to Inbox — not deleted',
   '已改成 Walk · 20 min':'Switched to Walk · 20 min',
-  '真实进度':'Progress','真实完成':'actual','点击看详情':'Tap for detail','每周一件':'One thing a week',
+  '真实进度':'Progress','点击看详情':'Tap for detail','每周一件':'One thing a week',
+  '70 天':'70 days','真实执行痕迹':'Real record','已就绪':'Ready','待设定':'Not set',
+  '目标':'Goals','例程与习惯':'Routines & Habits','健康':'Health','系统':'System','进展':'Progress','关联例程':'Routines','关联任务':'Tasks',
+  '设置已保存。打开 Today 开始今天；想排日程时，用 Plan 里的「生成建议日程」。':'Setup saved. Open Today to start; use "Generate a suggested day" in Plan when you want to schedule.',
+  '来自引导 · 当前季度':'From onboarding · this quarter',
+  '已跳过，明天可再排':'Skipped — reschedule anytime','已退出专注，计时未丢弃':'Focus paused — timer kept',
+  '回去继续':'Resume','云同步失败，本地已保存':'Cloud sync failed — saved locally',
   '今天':'Today','未安排':'Unscheduled','建议':'Suggested','空档':'Open slot','缓冲':'Buffer',
   '撤销':'Undo','已删除':'Deleted','登录中…':'Signing in…','注册中…':'Creating account…',
   '已跳过':'Skipped','已跳过，明天不再提醒':"Skipped — won't nag tomorrow",'收集箱':'Inbox','以后':'Later','生成':'Generate',
   '已排':'Scheduled','明天':'Tomorrow','本周末':'This weekend','下周一':'Next Monday',
   '选择一个日期。事情会出现在那天的 Today 里。':'Pick a date. It shows up in that day\u2019s Today.',
   '来自本周反思':'From weekly review','调整当天强度':"Tunes today's intensity",'每周二':'Every Tuesday',
+  '已写':'Written','本周待写':'Not written this week',
   '每周重复出现的生活结构。修改一次，未来的 Task 跟着变。':'A repeating weekly structure. Change once — future Tasks follow.',
   '存入 Inbox':'Save to Inbox','保存后它会出现在 Plan 的 Inbox 里，等你安排。':'It lands in Plan → Inbox, ready to be scheduled.',
 };
@@ -2190,6 +2004,8 @@ function fmtDateCN(d) {
   return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 · 星期${'日一二三四五六'[d.getDay()]}`;
 }
 function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+/* 本周 key（以周一为一周起点）——Weekly Review 用 */
+function weekKey(d) { const t = d ? new Date(d) : new Date(); t.setDate(t.getDate() - (t.getDay() + 6) % 7); return dateKey(t); }
 /* 短日期提示（语言感知）：zh '09-08 周二' / en 'Sep 8' */
 function fmtShortDate(iso) {
   try {
@@ -2219,7 +2035,7 @@ function todayTasks() {
 /* ─────────────── 路由 ─────────────── */
 const router = { tab:'today', panel:null, sheet:null };
 const TABS   = ['today','plan','progress','me'];
-const PANELS = ['direction','goal','routine','habit','weekly','settings','learning','journal','health-connect','health'];
+const PANELS = ['goal','weekly','settings','health-connect','health'];
 
 /* ── URL 路由：可以深链到任意一屏， ── */
 function setRoute(hash, replace) {
@@ -2286,20 +2102,28 @@ function closeSheets() {
   if (was) setRoute(router.panel || router.tab, true);
 }
 
+/* Goal pct 真数据：由关联任务的完成度派生；无关联任务 → 0（不做假百分比） */
+function goalPct(g) {
+  const linked = state.tasks.filter(x => x.goal === g.title);
+  if (!linked.length) return 0;
+  return Math.round(linked.filter(x => x.done).length / linked.length * 100);
+}
+
 /* Goal Detail 内容填充（可被路由或 Me 页触发） */
 function loadGoal(id) {
   const g = state.goals.find(x => x.id === id) || state.goals[0];
   if (!g) return;
+  const pct = goalPct(g);
   $('#gd-kicker').textContent = g.kicker;
   $('#gd-title').textContent = g.title;
   $('#gd-note').textContent = g.note;
-  $('#gd-pct').textContent = g.pct + '%';
-  $('#gd-bar').style.width = g.pct + '%';
+  $('#gd-pct').textContent = pct + '%';
+  $('#gd-bar').style.width = pct + '%';
   $('#gd-focus').textContent = g.focus;
   $('#gd-next').textContent = 'Next step：' + g.next;
   $('#gd-ladder').innerHTML = g.ladder.map(l => `
     <div class="metric" style="${l.cur ? '' : 'opacity:.5'}">
-      <span class="m">${l.lv}</span><span class="v" style="flex:2;text-align:right;${l.cur?'font-weight:600;color:var(--ink-1)':''}">${l.t}</span>
+      <span class="m">${l.lv}</span><span class="v" style="flex:2;text-align:right;${l.cur?'font-weight:600;color:var(--text-primary)':''}">${l.t}</span>
     </div>`).join('');
   setRoute('goal:' + g.id, true);
 }
@@ -2308,6 +2132,7 @@ function loadGoal(id) {
 /* 测试/interop 钩子：受控暴露只读引用 */
 window.__epoch = { get state() { return state; }, migrateLegacy };
 window.renderToday = renderToday;
+window.renderProgress = renderProgress;
 window.openTaskDetail = openTaskDetail;
 window.checkDayRollover = checkDayRollover;
 /* ══════════ 上下文建议卡：状态驱动 — 出现/行动/消失，无状态时零卡片 ══════════ */
@@ -2387,7 +2212,7 @@ function renderSuggestions() {
         <div class="sug-card" data-card="${c.id}">
           <div class="sug-q">${c.q}</div>
           <div class="sug-d">${c.d}</div>
-          <div class="sug-acts">${c.acts.map(a => `<button class="btn ${a.primary ? 'btn-p' : 'btn-g'}" data-act="${a.act}" style="height:36px;padding:0 14px;font-size:13px;${a.primary ? 'flex:1.3' : 'flex:1'}">${a.label}</button>`).join('')}</div>
+          <div class="sug-acts">${c.acts.map(a => `<button class="btn ${a.primary ? 'btn-p' : 'btn-g'}" data-act="${a.act}" style="height:36px;padding:0 12px;font-size:14px;${a.primary ? 'flex:1.3' : 'flex:1'}">${a.label}</button>`).join('')}</div>
         </div>`).join('')}
     </div></div>
     ${cards.length > 1 ? `<div class="sug-dots">${cards.map((_, i) => `<i class="sug-dot ${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}`;
@@ -2547,8 +2372,8 @@ function renderToday() {
         <div class="skel-row">
           <div class="skel" style="height:11px;width:34px"></div>
           <div><div class="skel" style="height:13px;width:${58 + (i%3)*16}%"></div>
-              <div class="skel" style="height:9px;width:32%;margin-top:7px"></div></div>
-          <div class="skel" style="height:22px;width:22px;border-radius:50%;justify-self:end"></div>
+              <div class="skel" style="height:9px;width:32%;margin-top:8px"></div></div>
+          <div class="skel" style="height:22px;width:22px;border-radius: 50%;justify-self:end"></div>
         </div>`).join('');
     updateDash();
     return;
@@ -2570,7 +2395,7 @@ function renderToday() {
       <div class="empty">
         <div class="e1">${t('today.empty.1')}</div>
         <div class="e2">${t('today.empty.2')}</div>
-        <div class="ea"><button class="btn btn-q neutral" id="empty-plan" style="height:38px;padding:0 18px">Plan My Day</button></div>
+        <div class="ea"><button class="btn btn-q neutral" id="empty-plan" style="height:38px;padding:0 16px">Plan My Day</button></div>
       </div>`;
     $('#empty-plan').onclick = () => openSheet('sheet-myday');
     updateDash();
@@ -2619,7 +2444,7 @@ function renderToday() {
     <div class="sec"><h2>${t('sec.habits')}</h2><span class="n">${t('sec.habits.note')}</span></div>
     <div class="habits">${habitHtml}</div>
     ${allDone ? `
-      <div class="empty" style="padding-top:36px">
+      <div class="empty" style="padding-top:32px">
         <div class="e1">${t('today.alldone.1')}</div>
         <div class="e2">${t('today.alldone.2')}</div>
       </div>` : ''}
@@ -2661,7 +2486,6 @@ function bindToday(root) {
 }
 
 /* ─────────────── Task Detail（可编辑表单 / 新建） ─────────────── */
-const TASK_TYPES = ['工作', '日常', '娱乐', '居家', '自定义'];
 function openTaskDetail(task) {
   state.activeTask = task || null;
   const isNew = !task;
@@ -2670,17 +2494,9 @@ function openTaskDetail(task) {
   $('#td-when2').textContent = isNew ? t('td.new') : (cur.time ? `${t('td.today')} · ${cur.time}` : `${t('td.today')} · ${t('td.unset')}`);
   $('#td-title-in').value = isNew ? '' : (cur.title || '');
 
-  // 类型 chips + 紧急开关
+  // 紧急开关（类型 chips 已删：类型不改变行为，只增加视觉噪音）
   $('#td-types').innerHTML =
-    TASK_TYPES.map(c => `<button type="button" class="chip ${cur.type === c ? 'on' : ''}" data-type="${c}">${c}</button>`).join('') +
     `<button type="button" class="chip chip-urgent ${cur.urgent ? 'on' : ''}" id="td-urgent">紧急</button>`;
-  $('#td-types').querySelectorAll('.chip[data-type]').forEach(c => {
-    c.onclick = () => {
-      const wasOn = c.classList.contains('on');
-      $('#td-types').querySelectorAll('.chip[data-type]').forEach(x => x.classList.remove('on'));
-      if (!wasOn) c.classList.add('on');     // 再点一次取消选中
-    };
-  });
   const ug = $('#td-urgent');
   ug.onclick = () => ug.classList.toggle('on');
 
@@ -2806,39 +2622,39 @@ function renderProgress() {
   $('#prog-title').textContent = '真实进度';
   const body = $('#prog-body');
 
-  // 今天（来自 todayTasks，与 Today 仪表盘同口径；非硬编码）
-  const actionable = todayTasks().filter(x => x.title !== '睡觉');
-  const doneT = actionable.filter(x => x.done).length;
-  const totalT = actionable.length;
-  const pct = totalT ? Math.round(doneT / totalT * 100) : 0;
-  const mainDone = state.tasks.filter(x => x.tier === 'main' && x.done).length;
-  const mainTotal = state.tasks.filter(x => x.tier === 'main').length;
-  const habitsDone = state.habits.filter(h => h.done).length;
-
   const goalsHtml = state.goals.map(g => `
     <div class="metric" data-goal-jump="${g.id}" style="cursor:pointer">
-      <span class="m" data-user>${g.title}</span><span class="v"><b>${g.pct}%</b></span>
+      <span class="m" data-user>${g.title}</span>
+      <span class="pbar" style="flex:1.1;min-width:72px"><span class="track"><i style="width:${goalPct(g)}%"></i></span><span class="pct">${goalPct(g)}%</span></span>
     </div>`).join('');
 
-  body.innerHTML = `
-    <div class="sec tight"><h2>Today</h2><span class="n">真实完成</span></div>
-    <div class="big">${pct}<small>%</small></div>
-    <div class="t-sub" style="margin-top:8px">${tpl('prog.today.line', { total: totalT, done: doneT, md: mainDone, mt: mainTotal })}</div>
+  // 70 天点阵：来自每日真实快照（近 10 周 = 70 天，今天在最后）。
+  // 自 Me/habit 假面板上移，成为本页主体；与 Today 重复的「今日%」「Habits」块已删。
+  state.history = state.history || {};
+  const nowD = new Date();
+  const cells = [];
+  for (let i = 69; i >= 0; i--) {
+    const dd = new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate() - i);
+    const cls = calendarDotClass(state.history[dateKey(dd)]);
+    cells.push(`<i class="${cls === 'urgent' ? 'u' : cls}"></i>`);
+  }
 
-    <div class="sec"><h2>Habits</h2><span class="n">今天</span></div>
-    <div class="glass" style="padding:2px 18px">
-      <div class="metric"><span class="m">Habits</span><span class="v"><b>${habitsDone}/${state.habits.length}</b></span></div>
+  body.innerHTML = `
+    <div class="sec tight"><h2>70 天</h2><span class="n">真实执行痕迹</span></div>
+    <div class="glass" style="padding:16px 16px">
+      <div class="grid-dots">${cells.join('')}</div>
+      <div class="cal-legend"><span><i style="background:var(--accent)"></i>全部完成</span><span><i style="background:#E8A13D"></i>部分完成</span><span><i style="background:#E0655A"></i>缺席</span><span><i style="background:var(--urgent)"></i>有紧急计划</span></div>
     </div>
 
     <div class="sec"><h2>Goals</h2><span class="n">点击看详情</span></div>
-    <div class="glass" style="padding:2px 18px" id="prog-goals">${goalsHtml}</div>
+    <div class="glass" style="padding:4px 16px" id="prog-goals">${goalsHtml}</div>
 
     <div class="sec"><h2>Reflection</h2><span class="n">每周一件</span></div>
-    <div class="glass" style="padding:19px">
+    <div class="glass" style="padding:16px">
       <div class="q t-body">下周想改进的一件事。</div>
       <input class="field" id="ref-one" placeholder="只写一件事…" />
       <div class="btn-row" style="margin-top:12px"><button class="btn btn-p" id="ref-save" style="flex:1">存入 Inbox</button></div>
-      <div class="t-cap" style="margin-top:10px">保存后它会出现在 Plan 的 Inbox 里，等你安排。</div>
+      <div class="t-cap" style="margin-top:12px">保存后它会出现在 Plan 的 Inbox 里，等你安排。</div>
     </div>
     <div style="height:20px"></div>`;
 
@@ -2861,52 +2677,32 @@ function renderProgress() {
 
 /* ─────────────── ME 渲染 ─────────────── */
 function renderMe() {
-  // Direction 卡由 state 驱动（Onboarding 可改）
+  // Direction 卡由 state 驱动（Onboarding 可改）；噪音子块（tag chips/链条图）已删
   const dirEl = $('#dir-state');
   if (dirEl) dirEl.innerHTML = breakLine(state.direction);
-  const domEl = $('#dir-domains');
-  if (domEl) domEl.innerHTML = state.domains.map(d => `<span>${d}</span>`).join('');
+
+  // 周回顾状态（本周已写则不再显示「本周待写」）
+  const wSub = $('#me-weekly-sub');
+  if (wSub) wSub.textContent = (state.review && state.review.week === weekKey()) ? '已写' : '本周待写';
 
   $('#me-goals').innerHTML = state.goals.map(g => `
     <div class="goal" data-goal="${g.id}">
       <div class="g">${g.kicker}</div>
       <div class="t" data-user>${g.title}</div>
       <div class="f" data-user>${t('me.focus')}${g.focus}</div>
-      <div class="lv">${[0,1,2,3,4].map(i => `<i class="${i < Math.round(g.pct/20) ? 'on' : ''}"></i>`).join('')}</div>
+      <div class="pbar" style="margin-top:12px"><span class="track"><i style="width:${goalPct(g)}%"></i></span><span class="pct">${goalPct(g)}%</span></div>
     </div>`).join('');
   $('#me-goals').querySelectorAll('[data-goal]').forEach(el => {
     el.onclick = () => { loadGoal(el.dataset.goal); pushPanel('goal'); };
   });
 
   $('#me-routines').innerHTML = state.routines.map(r => `
-    <div class="row" data-routine="${r.id}"><span class="t">${r.name}</span><span class="d">${r.sub}</span><span class="chev"></span></div>
+    <div class="row" data-routine="${r.id}"><span class="t">${r.name}</span><span class="d">${r.sub}</span></div>
   `).join('');
-  $('#me-routines').querySelectorAll('[data-routine]').forEach(el => {
-    el.onclick = () => pushPanel(el.dataset.routine === 'r5' ? 'routine' : 'habit');
-  });
+  const rn = $('#me-routines-n'); if (rn) rn.textContent = state.routines.length;
+  /* 详情假面板（routine/habit）已删：行只展示真实数据，不再伪装可点 */
 
-  // Learning 列表
-  const learnEl = $('#learn-list');
-  if (learnEl) {
-    const items = [
-      { t:'Automotive engineering systems', s:'Goal · Career · 本季度' },
-      { t:'Product Design', s:'Routine · Tuesday Learning' },
-      { t:'English', s:'未安排 · 这周移到周四' },
-    ];
-    learnEl.innerHTML = items.map(i => `
-      <div class="row"><span class="t">${i.t}</span><span class="d">${i.s}</span><span class="chev"></span></div>`).join('');
-  }
-
-  // Habit 日历点阵：来自每日真实快照（近 10 周 = 70 天，今天在最后）
-  state.history = state.history || {};
-  const nowD = new Date();
-  const cells = [];
-  for (let i = 69; i >= 0; i--) {
-    const dd = new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate() - i);
-    const cls = calendarDotClass(state.history[dateKey(dd)]);
-    cells.push(`<i class="${cls === 'urgent' ? 'u' : cls}"></i>`);
-  }
-  $('#habit-dots').innerHTML = cells.join('');
+  /* Learning/Journal 假面板与假数据列表已删（P3 结构收缩） */
 
   // Health 区块
   renderMeHealth();
@@ -2936,14 +2732,14 @@ function renderMeHealth() {
   if (label) label.textContent = t('me.h.connected');
   if (hdSub) hdSub.textContent = `${h.sourceName} · ${t('me.h.connected')}`;
   wrap.innerHTML = `
-    <div class="glass" style="padding:2px 18px" data-hc-open>
+    <div class="glass" style="padding:4px 16px" data-hc-open>
       <div class="row"><span class="t">${t('me.h.sleep')}</span><span class="d">${fmtH(t.sleepHours)} · ${t('h.usual')} ${fmtH(t.usualSleep)} · ${diffTxt}</span><span class="chev"></span></div>
       <div class="row"><span class="t">${t('me.h.rhr')}</span><span class="d">${t.restingHR} bpm · ${t('h.usual')} ${t.usualRestingHR}</span><span class="chev"></span></div>
       <div class="row"><span class="t">HRV</span><span class="d">${t.hrv} ms · ${tpl('me.h.hrv.d', { n: t.hrvDownDays })}</span><span class="chev"></span></div>
       <div class="row"><span class="t">${t('me.h.steps')}</span><span class="d">${t.steps.toLocaleString()} · ${t.syncedLabel}${t('h.synced')}</span><span class="chev"></span></div>
     </div>
     ${energy && energy.level === 'low' ? `
-      <div class="note energy-note" style="margin-top:10px">
+      <div class="note energy-note" style="margin-top:12px">
         <span>${energy.reasons.join(' · ')}。</span>
       </div>` : ''}`;
   wrap.querySelectorAll('[data-hc-open]').forEach(el => {
@@ -2995,7 +2791,7 @@ function renderHealth() {
       <div class="empty">
         <div class="e1">${t('health.empty.1')}</div>
         <div class="e2">${t('health.empty.2')}</div>
-        <div class="ea"><button class="btn btn-q" id="health-go-connect" style="height:38px;padding:0 18px">${t('health.go')}</button></div>
+        <div class="ea"><button class="btn btn-q" id="health-go-connect" style="height:38px;padding:0 16px">${t('health.go')}</button></div>
       </div>`;
     $('#health-go-connect').onclick = () => pushPanel('health-connect');
     return;
@@ -3005,7 +2801,7 @@ function renderHealth() {
   const diff = t.sleepHours - t.usualSleep;
   const diffTxt = (diff < 0 ? '−' : '+') + fmtH(Math.abs(diff));
   body.innerHTML = `
-    <div class="glass" style="padding:2px 18px;margin-top:22px">
+    <div class="glass" style="padding:4px 16px;margin-top:24px">
       <div class="metric"><span class="m">睡眠</span><span class="v"><b>${fmtH(t.sleepHours)}</b> · 平时 ${fmtH(t.usualSleep)} · ${diffTxt}</span></div>
       <div class="metric"><span class="m">静息心率</span><span class="v"><b>${t.restingHR}</b> bpm · 平时 ${t.usualRestingHR}</span></div>
       <div class="metric"><span class="m">HRV</span><span class="v"><b>${t.hrv}</b> ms · 连续 ${t.hrvDownDays} 天下降</span></div>
@@ -3016,7 +2812,7 @@ function renderHealth() {
       <div class="insight">
         <div class="q">${energy.reasons.join('，')}。</div>
         <div class="d">今天的身体适合轻一点的日程。${energy.suggestion}，Learning 减半。休息是计划的一部分，不是失败。</div>
-        <div class="btn-row" style="margin-top:14px">
+        <div class="btn-row" style="margin-top:12px">
           <button class="btn btn-g btn-sm acc-t" style="flex:1.3" id="health-adapt">按建议调整今天</button>
           <button class="btn btn-g btn-sm" style="flex:1" id="health-keep">保持原计划</button>
         </div>
@@ -3096,12 +2892,16 @@ function toast(msg, action) {
     el.setAttribute('aria-live', 'polite');
     el.style.cssText = `position:absolute;z-index:80;left:50%;bottom:120px;transform:translate(-50%,10px);
       display:flex;align-items:center;gap:12px;
-      padding:10px 18px;border-radius:99px;font-size:13px;font-weight:500;
+      padding:12px 16px;border-radius: var(--r-pill);font-size:14px;font-weight:500;
       background:rgba(252,253,255,.9);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-      border:1px solid rgba(255,255,255,.8);box-shadow:0 8px 28px rgba(60,70,100,.1);
-      color:var(--ink-1);opacity:0;transition:all .26s cubic-bezier(.32,.72,.24,1);pointer-events:none;white-space:nowrap;`;
+      border:1px solid rgba(255,255,255,0.72);box-shadow: var(--elev-floating);
+      color:var(--text-primary);opacity:0;transition:all .26s cubic-bezier(.32,.72,.24,1);pointer-events:none;white-space:nowrap;`;
     $('.phone').appendChild(el);
   }
+  /* 语义变体：error=红边 / success=绿边 / 默认中性（P4 toast 三变体） */
+  el.style.borderColor = action && action.kind === 'error' ? 'var(--danger-strong)'
+    : action && action.kind === 'success' ? 'var(--accent-strong)'
+    : 'rgba(255,255,255,0.72)';
   el.innerHTML = '';
   const s = document.createElement('span');
   s.textContent = msg;
@@ -3164,7 +2964,7 @@ function _localLoad() {
     if (!raw) return false;
     const saved = JSON.parse(raw);
     ['tasks','habits','inbox','goals','routines','health',
-     'direction','domains','wake','sleep','work','obCompleted','history','lastDay','lang','theme'].forEach(k => {
+     'direction','domains','wake','sleep','work','obCompleted','history','review','lastDay','lang','theme'].forEach(k => {
       if (saved[k] !== undefined) state[k] = saved[k];
     });
     migrateLegacy(saved);
@@ -3210,6 +3010,13 @@ function save() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(_cloudSave, 800);
 }
+let _lastSyncErrToast = 0;
+function _syncFailToast() {
+  const nowT = Date.now();
+  if (nowT - _lastSyncErrToast < 60000) return;   // 节流：每分钟至多提醒一次
+  _lastSyncErrToast = nowT;
+  toast('云同步失败，本地已保存', { kind: 'error' });
+}
 async function _cloudSave() {
   if (!sb || !currentUser) return;
   try {
@@ -3218,8 +3025,8 @@ async function _cloudSave() {
       { user_id: currentUser.id, key: STATE_KEY, value: payload, updated_at: new Date().toISOString() },
       { onConflict: 'user_id,key' }
     );
-    if (error) console.warn('[sb] save failed:', error.message);
-  } catch (e) { console.warn('[sb] save exception:', e); }
+    if (error) { console.warn('[sb] save failed:', error.message); _syncFailToast(); }
+  } catch (e) { console.warn('[sb] save exception:', e); _syncFailToast(); }
 }
 async function _cloudLoad() {
   if (!sb || !currentUser) return false;
@@ -3234,7 +3041,7 @@ async function _cloudLoad() {
     if (!data || !data.value) return false;
     const remote = JSON.parse(data.value);
     ['tasks','habits','inbox','goals','routines','health',
-     'direction','domains','wake','sleep','work','obCompleted','history','lastDay','lang','theme'].forEach(k => {
+     'direction','domains','wake','sleep','work','obCompleted','history','review','lastDay','lang','theme'].forEach(k => {
       if (remote[k] !== undefined) state[k] = remote[k];
     });
     migrateLegacy(remote);
@@ -3296,9 +3103,9 @@ function rerenderCurrent() {
 /* ─────────────── 首次引导 ─────────────── */
 const OB = {
   step: 0,
-  data: { schedule:'', wake:'06:50', sleep:'23:20', work:'08:00 – 18:30', routines:[], direction:'', domains:[], connectHealth:null },
+  data: { schedule:'', wake:'06:50', sleep:'23:20', work:'08:00 – 18:30', routines:[], direction:'', domains:[], goal:'', gdomain:'Career', connectHealth:null },
 };
-const OB_STEPS = ['welcome','schedule','routines','health','direction','goals','generating','done'];
+const OB_STEPS = ['welcome','schedule','routines','health','direction','goals','done'];
 
 function startOnboarding() {
   OB.step = 0;
@@ -3309,14 +3116,13 @@ function renderOb() {
   const step = OB_STEPS[OB.step];
   const root = $('#ob-root');
   const dots = OB_STEPS.map((_, i) => `<i class="${i === OB.step ? 'on' : ''}"></i>`).join('');
-  const isGen = step === 'generating';
   const isDone = step === 'done';
 
   let body = '';
   if (step === 'welcome') {
     body = `
       <div class="ob-q">Shape your time.<br/>Shape yourself.</div>
-      <div class="ob-d">Epoch 不是待办清单，也不是习惯打卡。<br/>它只帮你回答两个问题：<b style="color:var(--ink-1);font-weight:600">今天该做什么</b>，以及 <b style="color:var(--ink-1);font-weight:600">为什么</b>。</div>
+      <div class="ob-d">Epoch 不是待办清单，也不是习惯打卡。<br/>它只帮你回答两个问题：<b style="color:var(--text-primary);font-weight:600">今天该做什么</b>，以及 <b style="color:var(--text-primary);font-weight:600">为什么</b>。</div>
       <div class="ob-opts">
         <button class="ob-opt sel" data-ob-sched="balanced">
           <span class="box">${CHECK}</span>
@@ -3333,7 +3139,7 @@ function renderOb() {
       <div class="ob-d">只需要三个时间点。之后系统会围绕它们安排，不会往里塞东西。</div>
       <div class="time-pick"><span class="u">${OB.data.wake}</span><span class="sep">–</span><span class="u">${OB.data.sleep}</span></div>
       <div class="t-cap" style="text-align:center;margin-top:12px">起床 / 睡觉</div>
-      <div class="ob-opts" style="margin-top:26px">
+      <div class="ob-opts" style="margin-top:24px">
         <button class="ob-opt sel" data-ob-work="08:00 – 18:30"><span class="box">${CHECK}</span><span><span class="t">08:00 – 18:30</span><span class="d">标准班</span></span></button>
         <button class="ob-opt" data-ob-work="09:00 – 19:00"><span class="box">${CHECK}</span><span><span class="t">09:00 – 19:00</span><span class="d">弹性班</span></span></button>
         <button class="ob-opt" data-ob-work="shift"><span class="box">${CHECK}</span><span><span class="t">轮班 / 不固定</span><span class="d">系统只安排工作之外的空档</span></span></button>
@@ -3372,7 +3178,7 @@ function renderOb() {
       <div class="ob-q">Where are you going?</div>
       <div class="ob-d">一句话就够。它会在你想放弃一项任务时，帮你判断这件事是否还值得做。</div>
       <input class="ob-in" id="ob-dir" placeholder="例如：我想要更大的自由和更多的选择权。" value="${OB.data.direction}" />
-      <div class="eyebrow" style="margin-top:26px;display:block">主要涉及哪些方面</div>
+      <div class="eyebrow" style="margin-top:24px;display:block">主要涉及哪些方面</div>
       <div class="chips">
         ${['Career','Income','Health','English','Travel','Knowledge'].map(d =>
           `<button class="chip ${OB.data.domains.includes(d)?'sel':''}" data-ob-domain="${d}">${d}</button>`).join('')}
@@ -3381,7 +3187,7 @@ function renderOb() {
     body = `
       <div class="ob-q">这个季度，一件想推进的事。</div>
       <div class="ob-d">只写一件。系统之后会帮你拆到月、周，再到今天。</div>
-      <input class="ob-in" id="ob-goal" placeholder="例如：学会 APQP 流程" />
+      <input class="ob-in" id="ob-goal" placeholder="例如：学会 APQP 流程" value="${OB.data.goal}" />
       <div class="chips">
         ${['Career','Health','English','Income','Knowledge'].map(d =>
           `<button class="chip ${d==='Career'?'sel':''}" data-ob-gdomain="${d}">${d}</button>`).join('')}
@@ -3389,19 +3195,12 @@ function renderOb() {
       <div class="note" style="margin-top:24px">
         <span>写不出来也没关系。可以先跳过，Today 依然可用。</span>
       </div>`;
-  } else if (step === 'generating') {
-    body = `
-      <div class="ob-gen">
-        <div class="spinner"></div>
-        <div class="lbl">正在生成第一周…</div>
-        <div class="sub">根据你的作息与 Routines 排入今天和本周的空档。<br/>之后每天 20:30 会再排一次。</div>
-      </div>`;
   } else if (step === 'done') {
     body = `
       <div class="ob-gen">
         <div class="t-page" style="text-align:center">好了。</div>
-        <div class="ob-d" style="text-align:center;margin-top:12px">今天有 3 个 Main Task。先做完第一个，剩下的明天再说。</div>
-        <div style="margin-top:28px;width:100%">
+        <div class="ob-d" style="text-align:center;margin-top:12px">设置已保存。打开 Today 开始今天；想排日程时，用 Plan 里的「生成建议日程」。</div>
+        <div style="margin-top:24px;width:100%">
           <button class="btn btn-p" id="ob-enter">进入 Today</button>
         </div>
       </div>`;
@@ -3410,10 +3209,10 @@ function renderOb() {
   root.innerHTML = `
     <div class="ob-top">
       <div class="ob-dots">${dots}</div>
-      ${isGen || isDone ? '' : '<button class="ob-skip" id="ob-skip">跳过</button>'}
+      ${isDone ? '' : '<button class="ob-skip" id="ob-skip">跳过</button>'}
     </div>
     <div class="ob-body">${body}</div>
-    ${isGen || isDone ? '' : `
+    ${isDone ? '' : `
       <div class="ob-foot">
         ${OB.step > 0 ? '<button class="btn btn-g" id="ob-back">上一步</button>' : ''}
         <button class="btn btn-p" id="ob-next">${OB.step === 0 ? '开始' : '继续'}</button>
@@ -3449,24 +3248,22 @@ function renderOb() {
   root.querySelectorAll('[data-ob-gdomain]').forEach(b => b.onclick = () => {
     root.querySelectorAll('[data-ob-gdomain]').forEach(x => x.classList.remove('sel'));
     b.classList.add('sel');
+    OB.data.gdomain = b.dataset.obGdomain;
   });
   const dirIn = $('#ob-dir');
   if (dirIn) dirIn.oninput = () => OB.data.direction = dirIn.value;
+  const goalIn = $('#ob-goal');
+  if (goalIn) goalIn.oninput = () => OB.data.goal = goalIn.value;
 
-  const skip = $('#ob-skip');   if (skip)   skip.onclick  = () => { closeOverlay(); goTab('today'); };
+  const skip = $('#ob-skip');   if (skip)   skip.onclick  = () => { applyOnboarding(); closeOverlay(); goTab('today'); };  // 跳过 = 接受已选项并落库
   const back = $('#ob-back');   if (back)   back.onclick  = () => { OB.step = Math.max(0, OB.step - 1); renderOb(); };
   const next = $('#ob-next');
-  if (next) next.onclick = () => {
-    OB.step += 1; renderOb();
-    if (OB_STEPS[OB.step] === 'generating') {
-      setTimeout(() => { OB.step += 1; renderOb(); }, 2000);
-    }
-  };
+  if (next) next.onclick = () => { OB.step += 1; renderOb(); };
   const enter = $('#ob-enter');
   if (enter) enter.onclick = () => {
     applyOnboarding();
     closeOverlay(); goTab('today');
-    toast('第一周已生成');
+    toast('已就绪');
   };
 }
 
@@ -3475,19 +3272,34 @@ function applyOnboarding() {
   if (OB.data.direction) state.direction = OB.data.direction;
   if (OB.data.domains && OB.data.domains.length) state.domains = [...OB.data.domains];
   state.wake = OB.data.wake; state.sleep = OB.data.sleep; state.work = OB.data.work;
-  const map = {
-    run:      { name:'Run',      sub:'30 min' },
-    learn:    { name:'Learning', sub:'60 min' },
-    posture:  { name:'Posture',  sub:'5 min' },
-    read:     { name:'Reading',  sub:'20 min' },
-    skincare: { name:'Skincare', sub:'早晚' },
+  /* 例程写入真实存储 state.routines（此前错写进 state.habits——habits 只是 Today 的打卡视图） */
+  const rmap = {
+    run:      { name:'Run',      sub:'Mon / Wed / Fri · 30 min', type:'habit'   },
+    learn:    { name:'Learning', sub:'Tue / Thu · 60 min',       type:'routine' },
+    posture:  { name:'Posture',  sub:'5 min · 早上',             type:'habit'   },
+    read:     { name:'Reading',  sub:'20 min · 睡前',            type:'habit'   },
+    skincare: { name:'Skincare', sub:'Daily',                    type:'habit'   },
   };
   OB.data.routines.forEach(k => {
-    const m = map[k]; if (!m) return;
-    if (!state.habits.find(h => h.name === m.name)) {
-      state.habits.push({ id:'h'+k, name:m.name, sub:m.sub, done:false });
+    const m = rmap[k]; if (!m) return;
+    if (!state.routines.find(r => r.name === m.name)) {
+      state.routines.push({ id:'r_ob_' + k, name:m.name, sub:m.sub, type:m.type });
     }
   });
+  /* 引导里写的目标 → 真实 Goal（此前用户输入被直接丢弃） */
+  const obGoal = (OB.data.goal || '').trim();
+  if (obGoal && !state.goals.some(g => g.title === obGoal)) {
+    state.goals.push({
+      id: 'g_ob_' + Date.now(),
+      kicker: (OB.data.gdomain || 'Career').toUpperCase(),
+      title: obGoal,
+      note: '来自引导 · 当前季度', pct: 0,
+      focus: '待设定', next: '待设定', ladder: [],
+    });
+  }
+  /* Today 的习惯打卡视图从 routines 派生（type='habit' 的例程） */
+  state.habits = state.routines.filter(r => r.type === 'habit')
+    .map(r => ({ id:r.id, name:r.name, sub:r.sub, done:false }));
   state.obCompleted = true;
   // Onboarding 选择连接健康数据 → 直接接入（真实版会在这里弹系统授权）
   if (OB.data.connectHealth) {
@@ -3777,7 +3589,7 @@ async function boot() {
       time: $('#td-time-in').value || null,
       date: $('#td-date-in').value || null,
       dur: $('#td-dur-in').value ? +$('#td-dur-in').value : null,
-      type: $('#td-types .chip.on')?.dataset.type || null,
+      type: state.activeTask?.type || null,   // 类型 chips 已删：编辑时保留原类型，新建不设类型
       urgent: $('#td-urgent') ? $('#td-urgent').classList.contains('on') : false,
       goal: $('#td-goal-in').value || null,
       routine: $('#td-routine-in').value || null,
@@ -3797,8 +3609,15 @@ async function boot() {
     setTimeout(closeSheets, 260);
   };
   $('#td-focus').onclick = () => {
-    $('#focus-task').textContent = state.activeTask ? state.activeTask.title : 'Focus';
-    resetFocus(); closeSheets(); $('#focus').classList.add('on');
+    const t = state.activeTask;
+    $('#focus-task').textContent = t ? t.title : 'Focus';
+    /* 接任务时长：dur(分钟) → 秒；无 dur → 默认 40 min（P4：计时不再与任务脱节） */
+    clearInterval(focusTimer); focusTimer = null;
+    focusSec = (t && t.dur ? t.dur * 60 : 40 * 60);
+    $('#focus-time').textContent = fmtT(focusSec);
+    $('#focus-time').classList.remove('done-c');
+    $('#focus-start').textContent = 'Start';
+    closeSheets(); $('#focus').classList.add('on');
   };
   $('#td-resched').onclick = () => {
     const t = state.activeTask; if (!t) return;
@@ -3806,12 +3625,33 @@ async function boot() {
   };
   $('#td-skip').onclick = () => {
     const t = state.activeTask; if (!t) return;
-    t.done = true; renderToday(); closeSheets(); toast('已跳过');
+    /* 跳过与完成解耦：不记 done，从今天移出（Plan 里随时可再排） */
+    t.done = false; t.date = null; t.time = null;
+    if (t.tier === 'main') t.tier = 'anytime';
+    renderToday(); renderPlan(); closeSheets(); toast('已跳过，明天可再排');
   };
   $('#td-delete').onclick = () => {
     const ev = state.activeTask; if (!ev) return;
     deleteTaskUndoable(ev.id);
     closeSheets();
+  };
+
+  // Weekly Review 真保存：写 state.review；「下周一件事」入收集箱（回顾 → 下周计划闭环）
+  $('#wr-save').onclick = () => {
+    const one = ($('#review-one').value || '').trim();
+    state.review = {
+      week: weekKey(),
+      good: ($('#wr-good').value || '').trim(),
+      drain: ($('#wr-drain').value || '').trim(),
+      one,
+      at: Date.now(),
+    };
+    if (one) state.inbox.unshift({ id: 'w' + Date.now(), title: one, hint: '来自本周反思' });
+    const sub = $('#me-weekly-sub');
+    if (sub) sub.textContent = '已写';
+    save();
+    toast('已保存');
+    popPanel();
   };
 
   // 健康授权流程（模拟）
@@ -3847,7 +3687,15 @@ async function boot() {
       }
     }, 1000);
   };
-  $('#focus-quit').onclick = () => { resetFocus(); $('#focus').classList.remove('on'); };
+  $('#focus-quit').onclick = () => {
+    /* 退出可撤销：暂停并保留剩余时间，toast 给「回去继续」（P4：退出不再无声丢进度） */
+    if (focusTimer) { clearInterval(focusTimer); focusTimer = null; }
+    $('#focus').classList.remove('on');
+    toast('已退出专注，计时未丢弃', { label: '回去继续', onClick: () => {
+      $('#focus').classList.add('on');
+      $('#focus-start').textContent = 'Resume';
+    }});
+  };
 
   // 主题 — 只在「系统设置」里切换：白天 / 黑夜 / 随系统（选择持久化）
   const applyMode = (m) => {

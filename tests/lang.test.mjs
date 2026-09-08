@@ -56,7 +56,7 @@ console.log('— 全 DOM 中文残留扫描（系统文字必须全英文） —
 
 console.log('— 编辑弹框（动态生成） —');
 w.openTaskDetail(S().tasks.find(x => x.title !== '睡觉')); await sleep(80);
-t('类型 chip 变英文', [...d.querySelectorAll('#td-types .chip')].some(c => c.textContent === 'Work'));
+t('类型 chips 已删（仅剩紧急）', [...d.querySelectorAll('#td-types .chip')].every(c => c.id === 'td-urgent'));
 t('紧急 chip 变英文', d.getElementById('td-urgent')?.textContent === 'Urgent');
 t('表单标签变英文', [...d.querySelectorAll('.td-f label')].some(l => l.textContent === 'Start time'));
 t('保存按钮变英文', d.getElementById('td-save')?.textContent === 'Save');
