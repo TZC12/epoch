@@ -1,0 +1,32 @@
+.chip {
+  border: none;
+  background: var(--surface-sunken);
+  border-radius: var(--r-pill);
+  padding: var(--sp-2) var(--sp-3);
+  min-height: 32px;
+  font-size: var(--fs-small);
+  font-weight: 400;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  transition: background-color var(--dur-1) var(--ease), color var(--dur-1) var(--ease), transform var(--dur-1) var(--ease);
+}
+.chip:hover { color: var(--text-primary); }
+.chip:active { transform: scale(0.97); }
+.chip.on { background: var(--accent-soft); color: var(--accent-strong); }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  background: var(--surface-sunken);
+}
+.tag--accent { color: var(--accent-strong); background: var(--accent-soft); }
+.tag--danger { color: var(--danger); background: var(--danger-soft); }
+.tag--warning { color: var(--warning); background: var(--warning-soft); }

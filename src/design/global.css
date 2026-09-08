@@ -1,0 +1,75 @@
+/* ═══ Global · Paper Mono ═══
+   - 排版 utilities（七级 + eyebrow）
+   - 交互基线（focus-visible / touch-action / 触控最小目标）
+   - reduced-motion 一处收口
+   规则：这里之外的组件 CSS 禁止再写 font-size/letter-spacing 硬值。 */
+
+/* ── Reset（最小） ── */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html, body, #root { height: 100%; }
+body {
+  font-family: 'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text',
+    'PingFang SC', 'HarmonyOS Sans SC', 'MiSans', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  transition: background-color var(--dur-3) var(--ease), color var(--dur-3) var(--ease);
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+img, svg, canvas { display: block; max-width: 100%; }
+::placeholder { color: var(--text-disabled); }
+input, textarea, button { font-family: inherit; }
+
+/* 数字一律等宽（仪表/计时/百分比） */
+.tnum, .metric-v, .gauge-val { font-variant-numeric: tabular-nums; }
+
+/* ── 排版七级 utilities（docs §5.3；组件不自带字号） ── */
+.t-display { font-size: var(--fs-display); line-height: var(--lh-display); font-weight: 300; letter-spacing: -0.015em; color: var(--text-primary); }
+.t-h1      { font-size: var(--fs-h1);      line-height: var(--lh-h1);      font-weight: 600; letter-spacing: -0.015em; color: var(--text-primary); }
+.t-h2      { font-size: var(--fs-h2);      line-height: var(--lh-h2);      font-weight: 600; letter-spacing: -0.01em;  color: var(--text-primary); }
+.t-h3      { font-size: var(--fs-h3);      line-height: var(--lh-h3);      font-weight: 600; letter-spacing: -0.005em; color: var(--text-primary); }
+.t-body    { font-size: var(--fs-body);    line-height: var(--lh-body);    font-weight: 400; color: var(--text-secondary); }
+.t-small   { font-size: var(--fs-small);   line-height: var(--lh-small);   font-weight: 400; color: var(--text-secondary); }
+.t-caption { font-size: var(--fs-caption); line-height: var(--lh-caption); font-weight: 400; color: var(--text-tertiary); }
+
+/* eyebrow：区块小标签（唯一字距特例；en 大写） */
+.eyebrow {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+:lang(zh-CN) .eyebrow, [lang='zh'] .eyebrow { text-transform: none; }
+
+/* ── 交互基线（正则 gate 依赖，勿改字面量） ── */
+:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 2px; }
+button, [role='button'], .chip, .seg > button { touch-action: manipulation; }
+[hidden] { display: none !important; }
+
+/* 滚动条安静化 */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* skeleton 呼吸（loading 规范：无 spinner，文案+opacity） */
+@keyframes breathe {
+  0%, 100% { opacity: var(--op-secondary); }
+  50% { opacity: var(--op-disabled); }
+}
+.is-loading { opacity: var(--op-disabled); pointer-events: none; animation: breathe 800ms var(--ease) 1; }
+.is-disabled { opacity: var(--op-disabled); cursor: not-allowed; pointer-events: none; }
+
+/* ── reduced-motion 一处收口（大纲 §13；Aurora 已退役，此处管全部 transition/animation） ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: var(--dur-0) !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: var(--dur-0) !important;
+  }
+}

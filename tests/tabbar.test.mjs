@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const html = readFileSync(join(root, 'index.html'), 'utf8');
+const html = readFileSync(join(root, 'legacy.html'), 'utf8');
 const css = html.replace(/\/\*[\s\S]*?\*\//g, ''); // 剥掉注释再匹配，防注释措辞误报
 
 let pass = 0, fail = 0;

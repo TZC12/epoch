@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // ═══════════════════════════════════════════════════════════════════
-//  scripts/sync-icons.mjs — 刷新 index.html 内的 Lucide sprite
+//  scripts/sync-icons.mjs — 刷新 legacy.html 内的 Lucide sprite
 //
 //  用法：node scripts/sync-icons.mjs
 //  行为：从 unpkg 的 lucide-static 固定版本拉取 ICONS 表中的图标，
-//        重写 index.html 中 <!-- ICONS:BEGIN/END --> 之间的 symbol 块。
+//        重写 legacy.html 中 <!-- ICONS:BEGIN/END --> 之间的 symbol 块。
 //  规则：source=custom 的 symbol（i-plan / i-progress / i-me）不受影响，
 //        永远保留本地几何（已按 24 网格 / 2px 规范手工校准）。
 //  升级版本：改 LUCIDE_VER 后重跑；跑完必须重跑全套测试。
@@ -12,7 +12,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 
 const LUCIDE_VER = '0.525.0'
-const FILE = 'index.html'
+const FILE = 'legacy.html'
 // id → lucide-static 图标名（custom 的不在此表，见 CUSTOM）
 const ICONS = {
   'i-clock': 'clock',

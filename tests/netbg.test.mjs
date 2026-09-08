@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const html = readFileSync(join(root, 'index.html'), 'utf8');
+const html = readFileSync(join(root, 'legacy.html'), 'utf8');
 // jsdom 未装 canvas 包时 getContext 会报 "Not implemented"——引擎按设计安静退出，此处吞掉该已知噪音
 const vc = new VirtualConsole();
 vc.on('jsdomError', () => {});

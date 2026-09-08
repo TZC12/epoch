@@ -1,0 +1,26 @@
+.seg {
+  display: flex;
+  gap: var(--sp-1);
+  background: var(--surface-sunken);
+  border-radius: var(--r-pill);
+  padding: var(--sp-1);
+  width: fit-content;
+  max-width: 100%;
+}
+.seg__btn {
+  border: none;
+  background: none;
+  border-radius: var(--r-pill);
+  padding: var(--sp-2) var(--sp-4);
+  min-height: 32px;
+  font-size: var(--fs-small);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--dur-1) var(--ease), background-color var(--dur-2) var(--ease);
+}
+.seg__btn:hover { color: var(--text-primary); }
+.seg__btn:active { transform: scale(0.97); }
+/* 激活 = 黑 pill 白字（Paper Mono 主强调） */
+.seg__btn.on { background: var(--ink); color: var(--ink-inverse); }

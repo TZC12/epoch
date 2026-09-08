@@ -9,7 +9,7 @@
 // ═══════════════════════════════════════════════════════════════════
 import { readFileSync, writeFileSync } from 'node:fs'
 
-const FILE = 'index.html'
+const FILE = 'legacy.html'
 const html0 = readFileSync(FILE, 'utf8')
 let html = html0
 const stripNodeIds = (s) => s.replace(/ data-page-node-id="[^"]*"/g, '')
@@ -134,4 +134,4 @@ if ((html.match(/viewBox="0 0 24 24"/g) || []).length !== 10) {
   console.error('FAIL sprite symbol 数应为 10（9 用途 + eye-off 切换）'); process.exit(1)
 }
 writeFileSync(FILE, html)
-console.log('[done] index.html 已写回；净变化', html.length - html0.length, '字符')
+console.log('[done] legacy.html 已写回；净变化', html.length - html0.length, '字符')

@@ -1,0 +1,12 @@
+.netbg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;                    /* subtle（默认） */
+  transition: opacity 1.1s var(--ease);
+}
+.netbg[data-tier='ambient'] { opacity: 0.78; }
+.netbg[data-tier='featured'] { opacity: 1; }

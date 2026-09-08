@@ -1,0 +1,161 @@
+/* ═══════════════════════════════════════════════════════════════════
+   EPOCH DESIGN TOKENS · Paper Mono（定版 2026-09-08）
+   依据：docs/design-direction-2026-09-08.md（用户参考 Ollama 拍板）
+   架构：docs/design-system-proposal.md §5（七级字阶/八档间距/5+1 圆角/4 级 elevation）
+   规则：组件层禁止出现 hex/px 字号/px 间距/裸时长——全部引用本表 token。
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── 表面（实心纸面：色阶分层，无边框无阴影） ── */
+  --bg: #F7F8FA;               /* 画布 */
+  --surface: #FFFFFF;          /* 卡片 */
+  --surface-sunken: #F2F4F7;   /* 内嵌块：输入底 / 次级区 / 代码块 */
+  --surface-raised: #FFFFFF;   /* 悬浮物底（配合 glass 用） */
+
+  /* ── 文字（大纲 §10 直采；层级=明度） ── */
+  --text-primary: #17191D;
+  --text-secondary: #666B73;
+  --text-tertiary: #9DA2AA;
+  --text-disabled: #C4C8CE;
+
+  /* ── 强调（黑=主操作；绿=仅完成/活跃） ── */
+  --ink: #17191D;              /* 主按钮底、激活态 */
+  --ink-inverse: #F7F8FA;      /* 主按钮字 */
+  --accent: #5BAE82;
+  --accent-strong: #3C8A61;
+  --accent-soft: rgba(91, 174, 130, 0.12);
+  --accent-line: rgba(91, 174, 130, 0.32);
+
+  /* ── 语义色（仅状态提示/边条使用，不做装饰） ── */
+  --success: #5BAE82;
+  --success-soft: rgba(91, 174, 130, 0.12);
+  --warning: #E8A13D;
+  --warning-soft: rgba(232, 161, 61, 0.14);
+  --danger: #C46464;
+  --danger-strong: #B04E4E;
+  --danger-soft: rgba(196, 100, 100, 0.11);
+  --info: #5B7FD7;
+  --info-soft: rgba(91, 127, 215, 0.12);
+  --urgent: #7C5CFF;
+
+  /* ── 线与分隔 ── */
+  --divider: rgba(23, 25, 29, 0.07);
+  --border: rgba(23, 25, 29, 0.10);       /* 仅悬浮层描边 */
+  --border-strong: rgba(23, 25, 29, 0.16);
+
+  /* ── Glass（唯一 blur 区：底部导航 / Sheet / Modal / AI 面 / 浮层） ── */
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(23, 25, 29, 0.06);
+  --blur: blur(24px) saturate(1.5);
+  --overlay: rgba(23, 25, 29, 0.36);
+
+  /* ── 粒子背景（中性，存在但不被注意到） ── */
+  --net-dot: #8A94A6;
+  --net-link: #A7B2C4;
+
+  /* ── Typography 七级（docs §5.3 定版；每级五项齐全） ── */
+  --fs-display: 40px;  --lh-display: 1.1;   /* hero 数字（细字重大数字） */
+  --fs-h1: 32px;       --lh-h1: 1.2;
+  --fs-h2: 24px;       --lh-h2: 1.3;
+  --fs-h3: 20px;       --lh-h3: 1.35;
+  --fs-body: 16px;     --lh-body: 1.55;
+  --fs-small: 14px;    --lh-small: 1.5;
+  --fs-caption: 12px;  --lh-caption: 1.4;
+
+  /* ── Spacing 八档（4/8/12/16/24/32/48/64；例外仅 0/1px/-1px/auto） ── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* ── Radius 5 档 + 圆形 ── */
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 28px;
+  --r-pill: 99px;
+  --r-full: 50%;
+
+  /* ── Elevation 4 级（Paper Mono：卡片 flat；阴影只给真悬浮物） ── */
+  --elev-flat: none;
+  --elev-surface: 0 1px 2px rgba(23, 25, 29, 0.04);
+  --elev-floating: 0 8px 32px rgba(23, 25, 29, 0.10);
+  --elev-modal: 0 24px 64px rgba(23, 25, 29, 0.16);
+
+  /* ── Opacity ── */
+  --op-disabled: 0.38;
+  --op-secondary: 0.68;
+
+  /* ── Motion 6 token（docs/visual-system-research §4 定版） ── */
+  --dur-0: 0ms;
+  --dur-1: 150ms;   /* micro：按压/icon/checkbox */
+  --dur-2: 200ms;   /* component：chip/seg 切换 */
+  --dur-3: 250ms;   /* component 慢档：卡片浮现 */
+  --dur-4: 350ms;   /* page/sheet */
+  --dur-5: 500ms;   /* large visual：进度弧 */
+  --ease: cubic-bezier(0.32, 0.72, 0.24, 1);
+  --ease-inout: cubic-bezier(0.6, 0.05, 0.28, 0.95);
+  --ease-spring: cubic-bezier(0.34, 1.35, 0.6, 1);
+
+  /* ── 图标 7 档 ── */
+  --ic-12: 12px; --ic-16: 16px; --ic-18: 18px; --ic-20: 20px;
+  --ic-24: 24px; --ic-28: 28px; --ic-32: 32px;
+
+  /* ── 布局 ── */
+  --content-max: 640px;        /* 移动/平板内容列宽 */
+  --sidebar-w: 240px;          /* ≥1024 桌面侧栏 */
+  --tabbar-h: 64px;
+  --touch-min: 44px;           /* 触控最小目标 */
+  color-scheme: light;
+}
+
+/* ═══ 深色（data-mode 覆盖；档位与结构不变，只换值） ═══ */
+[data-mode='dark'] {
+  --bg: #0D0F12;
+  --surface: #14171B;
+  --surface-sunken: #1A1E23;
+  --surface-raised: #1A1E23;
+
+  --text-primary: #F5F6F7;
+  --text-secondary: #A4A9B1;
+  --text-tertiary: #6E737B;
+  --text-disabled: #4A4F57;
+
+  --ink: #F5F6F7;              /* 主按钮反白 */
+  --ink-inverse: #0D0F12;
+  --accent: #6FBF93;
+  --accent-strong: #85C9A3;
+  --accent-soft: rgba(111, 191, 147, 0.14);
+  --accent-line: rgba(111, 191, 147, 0.30);
+
+  --success: #6FBF93;
+  --success-soft: rgba(111, 191, 147, 0.14);
+  --warning: #EDB268;
+  --warning-soft: rgba(237, 178, 104, 0.16);
+  --danger: #D57C7C;
+  --danger-strong: #E29B9B;
+  --danger-soft: rgba(213, 124, 124, 0.16);
+  --info: #7E96DF;
+  --info-soft: rgba(126, 150, 223, 0.16);
+  --urgent: #9B82FF;
+
+  --divider: rgba(245, 246, 247, 0.07);
+  --border: rgba(245, 246, 247, 0.10);
+  --border-strong: rgba(245, 246, 247, 0.16);
+
+  --glass: rgba(20, 23, 27, 0.72);
+  --glass-border: rgba(245, 246, 247, 0.07);
+  --overlay: rgba(0, 0, 0, 0.52);
+
+  --net-dot: #5A6475;
+  --net-link: #3A4150;
+
+  --elev-surface: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --elev-floating: 0 8px 32px rgba(0, 0, 0, 0.40);
+  --elev-modal: 0 24px 64px rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}

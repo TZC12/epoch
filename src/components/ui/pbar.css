@@ -1,0 +1,16 @@
+.pbar { display: flex; align-items: center; gap: var(--sp-2); flex: 1; min-width: 0; }
+.pbar__track {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--divider);
+  overflow: hidden;
+}
+.pbar__fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  transition: width var(--dur-5) var(--ease);
+}
+.pbar__fill--done { background: var(--accent); }
+.pbar__pct { color: var(--text-tertiary); flex-shrink: 0; }

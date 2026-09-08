@@ -1,0 +1,17 @@
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: var(--r-pill);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease), background-color var(--dur-1) var(--ease),
+    transform var(--dur-1) var(--ease);
+}
+.icon-btn:hover { color: var(--text-primary); background: var(--surface-sunken); }
+.icon-btn:active { transform: scale(0.96); }
+.icon-btn svg { width: var(--ic-20); height: var(--ic-20); stroke-width: 1.8; }
+.icon-btn--sm { width: 32px; height: 32px; }
+.icon-btn--sm svg { width: var(--ic-16); height: var(--ic-16); }

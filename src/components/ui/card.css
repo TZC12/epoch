@@ -1,0 +1,25 @@
+.card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  transition: background-color var(--dur-1) var(--ease), transform var(--dur-1) var(--ease);
+}
+.card--pad-sm { padding: var(--sp-3); }
+.card--pad-md { padding: var(--sp-4); }
+.card--pad-lg { padding: var(--sp-5); }
+
+.card--sunken { background: var(--surface-sunken); }
+
+/* glass 档：唯一允许 blur 的容器之一（Modal/Sheet/AI 面/浮层同族） */
+.card--glass {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--elev-floating);
+}
+
+/* 可点卡片：pressed 微缩；hover 只升背景 */
+.card--action { cursor: pointer; }
+.card--action:hover { background: var(--surface-sunken); }
+.card--action:active { transform: scale(0.99); }
+.card--sunken.card--action:hover { background: var(--divider); }

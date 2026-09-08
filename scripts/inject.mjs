@@ -2,7 +2,7 @@
 // ═══════════════════════════════════════════════════════════════════
 //  scripts/inject.mjs
 //
-//  Cloudflare Pages 构建时脚本：把 index.html 中的占位符
+//  Cloudflare Pages 构建时脚本：把 legacy.html 中的占位符
 //  __SUPABASE_URL__ 和 __SUPABASE_ANON_KEY__ 替换为
 //  process.env 中的真实值。
 //
@@ -22,7 +22,7 @@ import { dirname, resolve } from 'node:path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = resolve(__dirname, '..')
-const target = resolve(root, 'index.html')
+const target = resolve(root, 'legacy.html')
 
 const url = process.env.SUPABASE_URL || ''
 const key = process.env.SUPABASE_ANON_KEY || ''
@@ -55,7 +55,7 @@ html = html.replaceAll('__SUPABASE_URL__', url)
 html = html.replaceAll('__SUPABASE_ANON_KEY__', key)
 
 if (html === before) {
-  console.warn('[inject] WARN: no placeholders replaced. Did index.html contain __SUPABASE_URL__ and __SUPABASE_ANON_KEY__?')
+  console.warn('[inject] WARN: no placeholders replaced. Did legacy.html contain __SUPABASE_URL__ and __SUPABASE_ANON_KEY__?')
 }
 
 // ── 版本标识：每次构建生成 version.json + 页面内嵌 commit SHA ──
@@ -81,9 +81,24 @@ try {
 }
 html = html.replaceAll('__APP_VERSION__', versionInfo.commit)
 if (html.includes('__APP_VERSION__')) {
-  console.warn('[inject] WARN: __APP_VERSION__ placeholder still present in index.html')
+  console.warn('[inject] WARN: __APP_VERSION__ placeholder still present in legacy.html')
 }
 console.log(`[inject] version: ${versionInfo.environment} · ${versionInfo.commit.slice(0, 7)} · ${versionInfo.branch} · ${versionInfo.built_at}`)
 
 writeFileSync(target, html)
 console.log(`[inject] injected SUPABASE_URL + SUPABASE_ANON_KEY into ${target}`)
+
+// ── 迁移期线上保护（2026-09-08）──
+// Cloudflare Pages 构建输出为仓库根目录（Build output: .），静态服务把 "/" 命中 index.html。
+// 迁移期仓库根的 index.html 是 Vite 入口（引用 /src/main.tsx，静态产物里不存在），
+// 直接上线会让线上首页白屏。因此仅在 Pages 构建环境（CF_PAGES=1）把注入后的
+// legacy.html 内容镜像写入 index.html，保证 "/" 继续服务 legacy 应用；
+// 本地不覆盖，保留 Vite 入口供 npm run dev 使用。
+if (process.env.CF_PAGES === '1') {
+  try {
+    writeFileSync(resolve(root, 'index.html'), html)
+    console.log('[inject] CF_PAGES: mirrored legacy.html -> index.html (protect /)')
+  } catch (err) {
+    console.error('[inject] WARN: cannot mirror legacy.html to index.html —', err.message)
+  }
+}
