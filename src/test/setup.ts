@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest'
 import { afterEach } from 'vitest'
 import { cleanup } from '@testing-library/react'
+import '@/lib/i18n'   // 测试全局初始化 i18n（与 main.tsx 同源）
 
 /* RTL：每个用例后卸载，避免重复节点串扰 */
 afterEach(() => { cleanup() })

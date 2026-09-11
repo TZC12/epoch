@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider } from 'react-router-dom'
 import { router } from '@/app/router'
 import { useTheme } from '@/lib/theme'
+import { ToastProvider } from '@/components/ui/Toast'
+import { boot } from '@/services'
 import '@/lib/i18n'
 import '@fontsource-variable/inter'
 import '@/design/tokens.css'
@@ -21,10 +23,22 @@ const queryClient = new QueryClient({
   },
 })
 
+/* 数据启动：legacy 迁移 → 云端 legacy 副本 → 新表同步（异步，不阻塞首帧） */
+void boot()
+
+/* PWA：仅生产注册 SW（dev 不注册，避免缓存干扰 HMR）。失败静默——PWA 是增强，不是依赖。 */
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker.register('/sw.js').catch(() => { /* ignore */ })
+  })
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <ToastProvider>
+        <RouterProvider router={router} />
+      </ToastProvider>
     </QueryClientProvider>
   </StrictMode>,
 )

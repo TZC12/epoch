@@ -1,14 +1,16 @@
 import type { ReactNode } from 'react'
+import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Clock, CalendarDays, ChartNoAxesColumn, User } from 'lucide-react'
+import { Clock, ChartNoAxesColumn, User } from 'lucide-react'
 import { NetBackground } from '@/components/NetBackground'
+import { FocusVeil } from '@/features/focus/FocusVeil'
+import { Onboarding, needOnboarding } from '@/features/onboarding/Onboarding'
 import './app-shell.css'
 
-/** Tab 定义（唯一导航源；移动底栏与桌面侧栏共用）。 */
+/** Tab 定义（唯一导航源；M9 IA：Plan 并入主页，3 Tab）。 */
 export const TABS = [
   { to: '/today', key: 'nav.today' as const, Icon: Clock, tier: 'subtle' as const },
-  { to: '/plan', key: 'nav.plan' as const, Icon: CalendarDays, tier: 'subtle' as const },
   { to: '/progress', key: 'nav.progress' as const, Icon: ChartNoAxesColumn, tier: 'ambient' as const },
   { to: '/me', key: 'nav.me' as const, Icon: User, tier: 'subtle' as const },
 ]
@@ -17,6 +19,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
   const active = TABS.find((x) => pathname.startsWith(x.to))?.tier ?? 'subtle'
+  const [obOpen, setObOpen] = useState(() => needOnboarding())
 
   return (
     <div className="app">
@@ -36,6 +39,8 @@ export function AppShell({ children }: { children?: ReactNode }) {
       <main className="app-main no-scrollbar">
         {children ?? <Outlet />}
       </main>
+      <FocusVeil />
+      {obOpen && <Onboarding onDone={() => setObOpen(false)} />}
       <nav className="app-tabbar" aria-label="primary">
         {TABS.map(({ to, key, Icon }) => (
           <NavLink

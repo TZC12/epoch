@@ -1,11 +1,15 @@
-.gauge { position: relative; width: 200px; max-width: 100%; margin: 0 auto; }
+.gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .gauge__svg { width: 100%; height: auto; overflow: visible; }
+/* 数字置于弧线下方（排版驱动）：180° 碗内放大数字必然与弧线擦边，下方布局零重叠 */
 .gauge__center {
-  position: absolute;
-  left: 0; right: 0; bottom: var(--sp-2);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--sp-1);
+  margin-top: calc(-1 * var(--sp-4));
 }
 .gauge__sub { color: var(--text-tertiary); }

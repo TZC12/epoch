@@ -1,0 +1,25 @@
+/* 完成勾选：视觉 22px，热区 40px；完成=accent 填充 + 白勾。仅颜色过渡（无缩放）。 */
+.ck {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.ck__box {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-full);
+  border: 1.5px solid var(--border-strong);
+  display: grid;
+  place-items: center;
+  color: var(--ink-inverse);
+  transition: background-color var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease);
+}
+.ck:hover .ck__box { border-color: var(--text-disabled); }
+.ck--on .ck__box { background: var(--accent); border-color: var(--accent); }
+.ck:disabled { opacity: var(--op-disabled); cursor: not-allowed; }

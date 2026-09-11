@@ -1,0 +1,48 @@
+/* DotMatrix（图五映射）：点阵柱状数据表 */
+.dotmatrix {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+}
+.dotmatrix__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--divider);
+}
+.dotmatrix__big {
+  font-size: var(--fs-h1);
+  font-weight: 300;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-top: var(--sp-1);
+}
+.dotmatrix__unit { font-size: var(--fs-small); color: var(--text-tertiary); font-weight: 400; }
+
+.dotmatrix__chart {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-1);
+  padding: var(--sp-4) 0 var(--sp-2);
+}
+.dotmatrix__col { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); }
+.dotmatrix__dots {
+  display: flex;
+  flex-direction: column-reverse;   /* 从下往上堆叠（图五形态） */
+  gap: 3px;
+}
+.dotmatrix__dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--divider);
+}
+.dotmatrix__dots i.is-on { background: var(--ink); }
+.dotmatrix__dots i.is-cur { background: var(--surface-sunken); }
+.dotmatrix__dots i.is-half { background: var(--text-disabled); }
+.dotmatrix__label { color: var(--text-disabled); white-space: nowrap; }
+.dotmatrix__label.is-cur { color: var(--text-primary); }
+.dotmatrix__foot { color: var(--text-disabled); }

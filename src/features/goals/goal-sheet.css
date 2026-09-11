@@ -1,0 +1,4 @@
+.gsheet { display: flex; flex-direction: column; gap: var(--sp-4); }
+.gsheet__two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+.gsheet-acts { display: flex; gap: var(--sp-2); width: 100%; }
+.gsheet-acts > * { flex: 1; }

@@ -33,3 +33,4 @@ tsconfig.tsbuildinfo
 # OS / 日志
 .DS_Store
 *.logsnap-login.png
+.mimosa/

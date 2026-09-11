@@ -1,0 +1,103 @@
+/* sheet-task 表单：行式 chip 组 + 内联 dtp 面板。 */
+.tsheet { display: flex; flex-direction: column; gap: var(--sp-4); }
+.tsheet__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+.tsheet__row--col { flex-direction: column; align-items: stretch; }
+.tsheet__chips { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+
+/* 时间/日期入口：sunken pill，选中后 accent 描边 */
+.tfield {
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+}
+.tfield--set { border-color: var(--accent-line); color: var(--text-primary); }
+
+/* 月历 */
+.dcal { display: flex; flex-direction: column; gap: var(--sp-2); }
+.dcal__nav { display: flex; align-items: center; justify-content: space-between; }
+.dcal__navbtn {
+  width: var(--touch-min);
+  height: var(--touch-min);
+  background: none;
+  border: 0;
+  border-radius: var(--r-sm);
+  color: var(--text-secondary);
+  font-size: var(--fs-h3);
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease);
+}
+.dcal__navbtn:hover { background: var(--surface-sunken); }
+.dcal__month { color: var(--text-primary); }
+.dcal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--sp-1);
+}
+.dcal__wd { text-align: center; padding: var(--sp-1) 0; }
+.dcal__day {
+  position: relative;
+  height: 36px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease), color var(--dur-1) var(--ease);
+}
+.dcal__day:hover { background: var(--surface-sunken); }
+.dcal__day.is-today::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: var(--r-full);
+  background: var(--text-tertiary);
+}
+.dcal__day.on { background: var(--accent); color: var(--ink-inverse); }
+
+/* 时间双列 */
+.tpick { display: flex; flex-direction: column; gap: var(--sp-2); align-items: flex-start; }
+.tpick__cols { display: flex; gap: var(--sp-3); width: 100%; }
+.tpick__col {
+  flex: 1;
+  max-height: 180px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-1);
+  padding: var(--sp-1);
+  background: var(--surface-sunken);
+  border-radius: var(--r-md);
+}
+.tpick__item {
+  height: 36px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease), color var(--dur-1) var(--ease);
+}
+.tpick__item:hover { color: var(--text-primary); }
+.tpick__item.on { background: var(--ink); color: var(--ink-inverse); }
+
+/* 底部动作 */
+.tsheet__foot {
+  display: flex;
+  gap: var(--sp-3);
+  justify-content: flex-end;
+  padding-top: var(--sp-2);
+}

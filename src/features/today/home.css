@@ -1,0 +1,61 @@
+/* HomePage（Today+Plan 合并，图三/图四映射）页面级布局。 */
+
+.home-dayprog { background: var(--surface); border-radius: var(--r-lg); }
+.home-widgets { display: flex; flex-direction: column; gap: var(--sp-3); }
+.home-widgets:empty { display: none; }
+
+/* 三卡切换条（复用 seg 视觉，宽度撑满） */
+.home-cards { width: 100%; }
+.home-cards .seg__btn { flex: 1; }
+
+.home-card { display: flex; flex-direction: column; gap: var(--sp-3); }
+.home-card__filter { display: flex; }
+.home-card__pmd { display: flex; flex-direction: column; gap: var(--sp-2); }
+
+/* 捕获输入（sunken 底，与 Field 同族但单行紧凑） */
+.home-capture {
+  width: 100%;
+  background: var(--surface-sunken);
+  border: 1.5px solid transparent;
+  border-radius: var(--r-pill);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-body);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--dur-1) var(--ease), background-color var(--dur-1) var(--ease);
+}
+.home-capture:focus { border-color: var(--ink); background: var(--surface); }
+
+/* 安排 sheet 内容 */
+.home-plansheet { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-2) 0; }
+.home-chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.home-plansheet__acts { display: flex; gap: var(--sp-2); }
+.home-plansheet__acts > * { flex: 1; }
+
+/* 收集箱行身（无 checkbox，其余手势/样式继承 .tl-row 系；自 plan.css 迁入） */
+.inbox-row__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-1);
+  padding: var(--sp-3) var(--sp-2) var(--sp-3) var(--sp-3);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+/* 时间轴容器（自 dash.css 迁入） */
+.tl { display: flex; flex-direction: column; gap: var(--sp-2); }
+
+/* 习惯条（自 dash.css 迁入） */
+.habit-bar { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+
+/* 区块标题（自 dash.css 迁入） */
+.sec-title { margin: var(--sp-4) 0 var(--sp-3); }
+
+/* 三卡切换行 + 新建按钮 */
+.home-cardnav { display: flex; align-items: center; gap: var(--sp-2); }
+.home-cardnav .home-cards { flex: 1; }

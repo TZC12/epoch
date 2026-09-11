@@ -1,0 +1,18 @@
+/* 观察卡：sunken 底 + 状态点；accent 点=完成/活跃相关，neutral=普通观察。 */
+.insight {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+.insight__dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: 7px;
+  border-radius: var(--r-full);
+  background: var(--text-disabled);
+}
+.insight--accent .insight__dot { background: var(--accent); }
+.insight__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--sp-1); }
+.insight__title { color: var(--text-primary); }
+.insight__acts { display: flex; align-items: center; gap: var(--sp-2); flex-shrink: 0; }

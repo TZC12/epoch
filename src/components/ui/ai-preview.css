@@ -1,0 +1,23 @@
+/* AI 建议列表：纯列表 + 勾选；无 AI 感装饰（无渐变/无机器人图标）。 */
+.ai-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ai-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-1);
+  padding: var(--sp-1) 0;
+}
+.ai-item__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--sp-1); padding-top: var(--sp-2); }
+.ai-item__title { color: var(--text-primary); }
+.ai-item__detail { color: var(--text-tertiary); }
+.ai-empty { text-align: center; padding: var(--sp-6) 0; }
+.ai-acts {
+  display: flex;
+  gap: var(--sp-3);
+  justify-content: flex-end;
+}

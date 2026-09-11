@@ -1,0 +1,57 @@
+[
+  {
+    "name": "main bundle (entry)",
+    "path": "dist/assets/index-*.js",
+    "limit": "90 KB",
+    "gzip": true
+  },
+  {
+    "name": "react vendor",
+    "path": "dist/assets/vendor-react-*.js",
+    "limit": "35 KB",
+    "gzip": true
+  },
+  {
+    "name": "supabase vendor",
+    "path": "dist/assets/vendor-supabase-*.js",
+    "limit": "80 KB",
+    "gzip": true
+  },
+  {
+    "name": "tanstack-query vendor",
+    "path": "dist/assets/vendor-query-*.js",
+    "limit": "20 KB",
+    "gzip": true
+  },
+  {
+    "name": "i18n vendor",
+    "path": "dist/assets/vendor-i18n-*.js",
+    "limit": "20 KB",
+    "gzip": true
+  },
+  {
+    "name": "AI suggest sheet (lazy)",
+    "path": "dist/assets/AISuggestSheet-*.js",
+    "limit": "20 KB",
+    "gzip": true
+  },
+  {
+    "name": "page chunks (each)",
+    "path": [
+      "dist/assets/TodayPage-*.js",
+      "dist/assets/PlanPage-*.js",
+      "dist/assets/ProgressPage-*.js",
+      "dist/assets/MePage-*.js",
+      "dist/assets/GoalPanel-*.js",
+      "dist/assets/HealthPanel-*.js"
+    ],
+    "limit": "8 KB",
+    "gzip": true
+  },
+  {
+    "name": "main CSS",
+    "path": "dist/assets/index-*.css",
+    "limit": "25 KB",
+    "gzip": true
+  }
+]

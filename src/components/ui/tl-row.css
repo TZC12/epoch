@@ -1,0 +1,74 @@
+/* 时间轴行：Paper Mono flat 面；删除钮待命时 visibility:hidden（防行外溢出，真机结论）。 */
+.tl-row {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-md);
+}
+.tl-row__del-slot {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 64px;
+  display: flex;
+  align-items: stretch;
+  visibility: hidden;
+}
+.tl-row--reveal .tl-row__del-slot { visibility: visible; }
+.tl-row__del {
+  flex: 1;
+  margin: var(--sp-1);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  cursor: pointer;
+}
+.tl-row__del:active { background: var(--danger-soft); color: var(--danger-strong); }
+.tl-row__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  padding: var(--sp-1);
+  touch-action: pan-y; /* 行=纵滚归浏览器、横滑归 JS（真机三轮结论，勿改） */
+  transition: transform var(--dur-2) var(--ease);
+}
+.tl-row__inner--drag { transition: none; }
+.tl-row__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-1);
+  padding: var(--sp-1) var(--sp-2) var(--sp-1) 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+.tl-row__title { color: var(--text-primary); }
+.tl-row__meta { color: var(--text-tertiary); }
+.tl-row__note {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-tertiary);
+}
+/* 完成态弱化：透明度下降 + 删除线。无大勾号无动画。 */
+.tl-row--done .tl-row__inner { opacity: var(--op-secondary); }
+.tl-row--done .tl-row__title { text-decoration: line-through; color: var(--text-tertiary); }
+/* 紧急：紫色状态点（用户指定的唯一紫色语义）。 */
+.tl-row--urgent .tl-row__title::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--urgent);
+  margin-right: var(--sp-2);
+  vertical-align: 2px;
+}

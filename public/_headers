@@ -1,0 +1,29 @@
+/*
+  Epoch — Cloudflare Pages 安全头
+  ─────────────────────────────────
+  CSP 允许：自身资源、Supabase 数据 API、Open-Meteo（天气，GET only）。
+  框架策略：deny iframe、关闭嗅探、强制 HSTS 一整年。
+*/
+
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(self)
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+/*
+  CSP：注意
+    - script-src 'unsafe-inline' 为 Vite 注入的内核前置块保留。
+    - connect-src 含 api.open-meteo.com（天气卡数据源）。
+    - frame-src *.supabase.co 为 OAuth 回调留位。
+*/
+Content-Security-Policy: default-src 'self'; connect-src 'self' https://*.supabase.co https://api.open-meteo.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self' 'unsafe-inline'; frame-src https://*.supabase.co; base-uri 'self'; form-action 'self' https://*.supabase.co
+
+# Service Worker 必须每次校验（否则新版本上线客户端拿旧 SW）
+/sw.js
+  Cache-Control: no-cache
+  Service-Worker-Allowed: /
+
+/manifest.webmanifest
+  Content-Type: application/manifest+json
+  Cache-Control: no-cache

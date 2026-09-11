@@ -101,5 +101,78 @@
 - Gauge：细描边弧（stroke var(--ink) 12% 作轨道、--accent 或 --ink 作值弧、4px 线宽、无填充）。
 - eyebrow：`.eyebrow { font-size:12px; letter-spacing:.08em; color:var(--text-tertiary); font-weight:500; }`（en 大写）。
 
+## 7. 组件状态矩阵（Phase 6 补全）
+
+> 依据：`src/components/ui/*` 实际 20 个组件（`AIPreview` / `Button` / `Card` / `Checkbox` / `Chip` / `EmptyState` / `Field` / `Gauge` / `HabitChip` / `IconButton` / `Insight` / `Metric` / `Note` / `Panel` / `Pbar` / `Row` / `Seg` / `Sheet` / `TlRow` / `Toast`）+ 8 态（default / hover / pressed / focus / disabled / loading / error / success）× 2 主题（light / dark）。
+> 状态语义来自 §6 + `docs/design-system-proposal.md` §2.2 矩阵。
+> 标记：`✓` 已落地 · `△` 部分落地（仅有视觉/仅有 ARIA）· `✗` 缺失 · `—` 组件语义不适用。
+
+### 7.1 状态定义与样式来源
+
+| 状态 | 触发条件 | 视觉规则 | 必要 ARIA |
+|---|---|---|---|
+| default | 无交互 | token 基线值 | `role` 正确 |
+| hover | 指针悬停（触屏无效） | `--surface-sunken` 覆盖 / `--ink` 描边 | — |
+| pressed | 鼠标按下 / `:active` | 背景再降一档 / 缩 0.98 | — |
+| focus | 键盘 / 触屏长按 | 1.5px `--ink` 描边（输入域）| `:focus-visible` 全局环 |
+| disabled | `disabled` 属性 | `opacity: .5; cursor: not-allowed` | `disabled` / `aria-disabled` |
+| loading | 异步进行中 | 文案 + opacity 收尾（**无 spinner**，见 §6）| `aria-busy="true"` |
+| error | 校验失败 | `--danger` 1.5px 描边 + `role="alert"` 文案 | `aria-invalid="true"` + `aria-describedby` |
+| success | 完成态 | `--accent` 1.5px 描边 / `aria-pressed="true"` | `aria-pressed` / `role="status"` |
+
+### 7.2 交互态矩阵
+
+| 组件 | default | hover | pressed | focus | disabled | loading | error | success |
+|---|---|---|---|---|---|---|---|---|
+| Button | ✓ | ✓ | ✓ | ✓(全局) | ✓ | ✓ | △(依赖文案) | — |
+| IconButton | ✓ | ✓ | ✓ | ✓(全局) | ✓ | △(需 `aria-busy`) | — | — |
+| Chip | ✓ | ✓ | △ | ✓(全局) | ✗ | — | — | △(`aria-pressed`) |
+| Checkbox | ✓ | ✓ | ✓(click) | ✓(全局) | ✓(form) | △(需 `aria-busy`) | △(依赖 Field 级) | ✓(`ck--on` + `aria-checked`) |
+| Seg | ✓ | ✓ | ✗ | ✓(全局) | ✗ | — | — | ✓(激活态=黑 pill) |
+| Row | ✓ | ✓ | ✗ | ✓(全局) | ✗ | — | — | — |
+| TlRow | ✓ | ✓ | △(swipe 中) | ✓(全局) | ✗ | △(完成动效中) | — | △(划线 + accent) |
+| Field | ✓ | — | — | ✓(1.5px ink 描边) | △(全局) | △(需 `aria-busy`) | ✓(`field--error` + alert) | — |
+| Card | ✓ | △ | — | — | — | — | — | — |
+| Panel | ✓ | △ | — | — | — | — | — | — |
+| Sheet | ✓ | — | — | ✓(关闭按钮) | — | — | △(表单校验同 Field) | — |
+| Toast | ✓ | — | — | — | — | — | ✓(tone=error) | ✓(tone=success) |
+| AIPreview | ✓ | △ | △ | ✓(全局) | — | ✓(内部 spinner 可加，但项目规约禁用) | ✓(503/502 fallback) | — |
+| HabitChip | ✓ | ✓ | △ | ✓(全局) | ✗ | △ | — | ✓(`hchip--on` + `aria-pressed`) |
+| Pbar | ✓ | — | — | — | — | ✓(进度动效) | ✓(值 = 0 + 文案) | ✓(值 = 100) |
+| Gauge | ✓ | — | — | — | — | — | — | — |
+| Metric | ✓ | — | — | — | — | — | — | — |
+| Insight | ✓ | — | — | — | — | — | — | — |
+| Note | ✓ | — | — | — | — | — | — | — |
+| EmptyState | ✓ | — | — | — | — | — | — | — |
+
+### 7.3 主题矩阵（关键 token 切换）
+
+| 状态 | light 视觉 | dark 视觉 | 切换点 |
+|---|---|---|---|
+| default 背景 | `var(--surface)` #FFFFFF | `var(--surface)` #14171B | `[data-mode="dark"]` 覆盖 |
+| default 文字 | `var(--text-primary)` #17191D | `var(--text-primary)` #F5F6F7 | 同上 |
+| hover 覆盖 | `var(--surface-sunken)` #F2F4F7 | `var(--surface-sunken)` #1A1E23 | 同上 |
+| focus 描边 | `var(--ink)` #17191D | `var(--ink)` #F5F6F7 | 因 `--ink/--bg` 互换自动反白 |
+| error 描边 | `var(--danger)` #C46464 | `var(--danger)` 不变 | 语义色不切换 |
+| success 描边 | `var(--accent)` #5BAE82 | `var(--accent)` #6FBF93 | 提亮档 |
+| disabled 透明度 | `.5` | `.5` | 同上 |
+| glass 浮层 | `rgba(255,255,255,.72)` + blur 24px | `rgba(20,23,27,.72)` + blur 24px | 必须用 `--glass` token，不手写 |
+
+### 7.4 已知缺口（Phase 6 必须补）
+
+按矩阵 `✗` 项排序：
+
+1. **Chip / Seg / TlRow / Field 的 disabled 态** — 当前缺 `disabled` / `aria-disabled`，需补 CSS + props 透传。
+2. **Chip / Seg 的 pressed 态视觉差异化** — 当前 pressed 仅有 `:active` 瞬间缩放，无长按 / 选中持久态。
+3. **Field / Sheet 的 loading 态** — 异步提交无 `aria-busy` 指示。
+4. **Button 的 error 态** — 当前仅靠文案表达，缺视觉（`btn--danger` 变体未落地）。
+5. **Tone 三态（success/error/info）的 toast 视觉** — 当前实现 3 个 tone，CSS 视觉一致性需复核。
+6. **AIPreview 的 loading 态** — 当前无 skeleton / placeholder；规范禁用 spinner，**改用"上次的 Proposal 缓存 + 灰色覆盖"**。
+
+### 7.5 验收对齐
+
+- **a11y 自动化**（Phase 6 §3.2）：`@axe-core/playwright` 跑 7 路由，零 `serious`/`critical` violation；matrix 中 `△` 与 `✗` 项会被 axe 标红并 fail CI。
+- **视觉回归**（Phase 6 §3.1）：7 viewport × 6 路由截图，阈值 0.2%；改任何 token 须重生成 baseline + 4 眼 sign-off。
+
 ---
-*定版于 2026-09-08。实施即 Phase 1 tokens.css；旧玻璃色板随 legacy.html 退役。*
+*定版于 2026-09-08。§7 组件状态矩阵于 Phase 6 补全；旧玻璃色板随 legacy.html 退役。*

@@ -1,0 +1,38 @@
+.widgets { display: flex; flex-direction: column; }
+.widgets > * + * { margin-top: var(--sp-3); }
+
+/* 天气卡 */
+.wcard__head { display: flex; align-items: center; justify-content: space-between; }
+.wcard__now { display: flex; align-items: center; gap: var(--sp-2); color: var(--text-primary); }
+.wcard__temp { font-weight: 600; }
+.wcard__desc { display: flex; flex-direction: column; align-items: flex-end; }
+.wcard__desc .t-small { color: var(--text-primary); font-weight: 500; }
+.wcard__hours {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+.wcard__hour { display: flex; flex-direction: column; align-items: center; gap: var(--sp-1); color: var(--text-secondary); }
+.wcard__src { margin-top: var(--sp-3); color: var(--text-disabled); }
+
+/* 事件提醒卡 */
+.evcard__head { display: flex; align-items: baseline; justify-content: space-between; }
+.evcard__head .t-h3 { color: var(--text-primary); }
+.evcard__list { display: flex; flex-direction: column; margin-top: var(--sp-3); }
+.evcard__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  background: none;
+  border: none;
+  padding: var(--sp-2) 0;
+  cursor: pointer;
+  text-align: left;
+  border-radius: var(--r-sm);
+}
+.evcard__row:hover .evcard__title { color: var(--text-primary); }
+.evcard__bar { width: 3px; height: 34px; border-radius: var(--r-pill); background: var(--ink); flex-shrink: 0; }
+.evcard__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.evcard__title { color: var(--text-primary); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.evcard__time { color: var(--text-tertiary); flex-shrink: 0; }

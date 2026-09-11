@@ -10,7 +10,21 @@ export default defineConfig({
   },
   // 复用既有 .env 的 SUPABASE_URL / SUPABASE_ANON_KEY（anon key 为公开标识，RLS 才是安全边界）
   envPrefix: ['VITE_', 'SUPABASE_'],
-  build: { target: 'es2022' },
+  build: {
+    target: 'es2022',
+    rollupOptions: {
+      output: {
+        // vendor 分包：框架/查询/大依赖独立缓存层，业务代码改动不再打爆整包
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-query': ['@tanstack/react-query', 'zustand'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-i18n': ['i18next', 'react-i18next'],
+          'vendor-icons': ['lucide-react'],
+        },
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

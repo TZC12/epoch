@@ -1,0 +1,27 @@
+.focus-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-5);
+  padding: var(--sp-6);
+  animation: focus-in var(--dur-3) var(--ease);
+}
+.focus-veil__task { color: var(--text-secondary); text-align: center; overflow-wrap: anywhere; }
+.focus-veil__time { font-size: var(--fs-display); font-weight: 300; letter-spacing: -0.015em; color: var(--text-primary); }
+.focus-veil__time.is-done { color: var(--accent); }
+.focus-veil__quit {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  padding: var(--sp-2) var(--sp-3);
+  min-height: var(--touch-min);
+}
+.focus-veil__quit:hover { color: var(--text-primary); }
+
+@keyframes focus-in { from { opacity: 0; } to { opacity: 1; } }

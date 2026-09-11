@@ -1,0 +1,17 @@
+/* 习惯 chip：sunken pill；done=accent-soft 底 + accent 字。仅颜色过渡。 */
+.hchip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  cursor: pointer;
+  transition: background-color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+}
+.hchip__name { color: var(--text-secondary); }
+.hchip__sub { color: var(--text-tertiary); }
+.hchip--on { border-color: var(--accent-line); background: var(--accent-soft); }
+.hchip--on .hchip__name { color: var(--accent-strong); }
+.hchip:disabled { opacity: var(--op-disabled); cursor: not-allowed; }

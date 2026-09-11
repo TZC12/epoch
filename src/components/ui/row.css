@@ -15,3 +15,6 @@
 .row__sub { margin-top: 2px; }
 .row__right { color: var(--text-tertiary); flex-shrink: 0; }
 .row__chev { color: var(--text-disabled); flex-shrink: 0; }
+
+/* 图六白卡行：leading icon 槽 */
+.row__icon { display: flex; color: var(--text-secondary); flex-shrink: 0; }

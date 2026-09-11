@@ -37,7 +37,7 @@
 .btn--ghost:hover:not(:disabled) { color: var(--text-primary); background: var(--surface-sunken); }
 
 /* danger：红底（破坏性确认场景唯一出现） */
-.btn--danger { background: var(--danger); color: #fff; }
+.btn--danger { background: var(--danger); color: var(--ink-inverse); }
 .btn--danger:hover:not(:disabled) { background: var(--danger-strong); }
 
 /* 文字式危险动作（如“删除”链接） */

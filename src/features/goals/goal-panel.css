@@ -1,0 +1,19 @@
+.goalp { display: flex; flex-direction: column; gap: var(--sp-5); }
+.goalp__note { color: var(--text-secondary); }
+.goalp__pct { display: flex; }
+.goalp__sec { display: flex; flex-direction: column; gap: var(--sp-2); }
+.sec-title { margin-bottom: 0; }
+
+.goalp__ladder { display: flex; flex-direction: column; }
+.goalp__step {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 2px solid var(--divider);
+}
+.goalp__step.cur { border-left-color: var(--ink); }
+.goalp__lv { width: 64px; flex-shrink: 0; color: var(--text-tertiary); }
+.goalp__step-cur { color: var(--text-primary); font-weight: 500; }
+
+.goalp__focus { display: flex; flex-direction: column; gap: var(--sp-1); padding: var(--sp-3); background: var(--surface-sunken); border-radius: var(--r-md); }

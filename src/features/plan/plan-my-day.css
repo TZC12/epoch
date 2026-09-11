@@ -1,0 +1,13 @@
+.pmd { display: flex; flex-direction: column; }
+.pmd__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--divider);
+}
+.pmd__row:last-child { border-bottom: none; }
+.pmd__time { width: 48px; flex-shrink: 0; color: var(--text-tertiary); }
+.pmd__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pmd__title { color: var(--text-primary); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pmd__reason { color: var(--text-tertiary); }

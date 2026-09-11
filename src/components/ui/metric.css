@@ -1,0 +1,9 @@
+/* 指标块：无卡片壳（Paper Mono 靠色阶分层），数字等宽。 */
+.metric__value {
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.metric__sub { margin-top: var(--sp-1); }

@@ -1,0 +1,52 @@
+/* 推入面板：不透明纸面（用户偏好），右滑入；层级高于 sheet 的普通内容、低于 sheet(z)。 */
+.panel-root {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+.panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  animation: panel-in var(--dur-4) var(--ease);
+}
+@keyframes panel-in {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.panel__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: calc(var(--sp-4) + env(safe-area-inset-top, 0px)) var(--sp-4) var(--sp-3);
+}
+.panel__back {
+  width: var(--touch-min);
+  height: var(--touch-min);
+  margin-left: calc(var(--sp-2) * -1);
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  border-radius: var(--r-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease), background-color var(--dur-1) var(--ease);
+}
+.panel__back:hover { color: var(--text-primary); background: var(--surface-sunken); }
+.panel__title { flex: 1; min-width: 0; }
+.panel__right { display: flex; align-items: center; }
+.panel__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding: 0 var(--sp-4) var(--sp-6);
+}
+.panel__footer {
+  padding: var(--sp-3) var(--sp-4) calc(var(--sp-4) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--divider);
+  background: var(--bg);
+}

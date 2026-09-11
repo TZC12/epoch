@@ -1,0 +1,2 @@
+/* 备注：计数右对齐。输入底样式全部继承 Field。 */
+.note__count { text-align: right; margin-top: var(--sp-1); }

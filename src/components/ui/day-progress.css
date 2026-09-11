@@ -1,0 +1,47 @@
+/* DayProgress（图一映射）：起床→入睡的日航程条 */
+.dayprog {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-4);
+}
+.dayprog__end { display: flex; flex-direction: column; align-items: flex-start; min-width: 52px; }
+.dayprog__end--right { align-items: flex-end; }
+.dayprog__cap { color: var(--text-primary); line-height: 1.1; }
+.dayprog__caplabel { color: var(--text-tertiary); }
+
+.dayprog__track {
+  position: relative;
+  flex: 1;
+  height: 4px;
+  display: flex;
+  align-items: center;
+}
+.dayprog__done {
+  height: 4px;
+  background: var(--ink);
+  border-radius: var(--r-pill) 0 0 var(--r-pill);
+}
+.dayprog__rest {
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--text-disabled) 0 6px,
+    transparent 6px 12px
+  );
+  border-radius: 0 var(--r-pill) var(--r-pill) 0;
+}
+.dayprog__marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  background: var(--surface);
+  border-radius: var(--r-full);
+  box-shadow: var(--elev-surface);
+}

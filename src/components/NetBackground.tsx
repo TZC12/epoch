@@ -32,7 +32,7 @@ export function NetBackground({ tier = 'subtle' }: { tier?: 'subtle' | 'ambient'
     let W = 1, H = 1, dpr = 1, raf = 0, last = 0, frame = 0
     let colDot = 'rgba(138,148,166,1)', colLink = 'rgba(167,178,196,1)'
     const pointer = { x: -1e4, y: -1e4, on: false }
-    let dots: Array<{ x: number; y: number; a: number; v: number; r: number; o: number; p: number; w: number; ox: number; oy: number }> = []
+    let dots: { x: number; y: number; a: number; v: number; r: number; o: number; p: number; w: number; ox: number; oy: number }[] = []
 
     const readColors = () => {
       const cs = getComputedStyle(document.documentElement)
@@ -94,7 +94,7 @@ export function NetBackground({ tier = 'subtle' }: { tier?: 'subtle' | 'ambient'
       g2d.lineWidth = NET_CFG.linkW
       g2d.strokeStyle = colLink
       for (let i = 0; i < dots.length; i++) for (let j = i + 1; j < dots.length; j++) {
-        const A = dots[i]!, B = dots[j]!
+        const A = dots[i], B = dots[j]
         const dx = A.x - B.x, dy = A.y - B.y, d2 = dx * dx + dy * dy
         if (d2 >= LD * LD) continue
         const f = 1 - Math.sqrt(d2) / LD
