@@ -136,6 +136,70 @@ const run = async () => {
     await page.context().close()
   }
 
+  /* ── 主线 4：手势——横滑翻卡 / 长按+横拖翻卡 / Sheet 下拖关闭 ── */
+  {
+    const gestureSeed = {
+      direction: { statement: '', domains: [], wake: '07:00', sleep: '23:30', work: null },
+      goals: [], routines: [],
+      tasks: [{ id: 't9', title: '手势测试任务', tier: 'anytime', status: 'planned', date: null, time: null, durMin: null, urgent: false, completedAt: null, note: null, goalId: null, routineId: null, createdAt: '', updatedAt: '' }],
+      habitLogs: [], inbox: [], reviews: {}, dayStats: {}, health: null, lastDay: new Date().toISOString().slice(0, 10),
+    }
+    const page = await freshPage(browser, gestureSeed)
+    await page.goto(`${BASE}/today`, { waitUntil: 'networkidle' })
+    const vp = await page.locator('.spager__viewport').boundingBox()
+
+    // 在 pager 内容区找一个「非按钮/输入」的拖拽起点（EmptyState 的动作按钮等合规忽略区要避开）
+    const start = await page.evaluate((box) => {
+      for (let dy = 8; dy < box.height - 8; dy += 6) {
+        const el = document.elementFromPoint(box.x + box.width / 2, box.y + dy)
+        if (!el) continue
+        if (!el.closest('button, input, textarea, select, a, [role="checkbox"]') && el.closest('.spager__viewport')) {
+          return { x: box.x + box.width / 2, y: box.y + dy }
+        }
+      }
+      return { x: box.x + box.width / 2, y: box.y + 10 }
+    }, vp)
+
+    // 1) 横滑翻卡（非控件起点 → 下一页=事件）
+    await page.mouse.move(start.x, start.y)
+    await page.mouse.down()
+    for (let i = 1; i <= 10; i++) await page.mouse.move(start.x - i * 30, start.y)
+    await page.mouse.up()
+    await page.waitForTimeout(500)
+    ok(await page.locator('button[role="tab"]:has-text("事件")').getAttribute('aria-selected') === 'true', 'E2E4 横滑翻到事件页')
+
+    // 2) 长按 + 横拖（页顶空白先滑回任务页 → 再行上长按起点横拖去事件）
+    await page.mouse.move(start.x, start.y)
+    await page.mouse.down()
+    for (let i = 1; i <= 10; i++) await page.mouse.move(start.x + i * 30, start.y)
+    await page.mouse.up()
+    await page.waitForTimeout(500)
+    // 长按行上起点 400ms+ 后横拖（pagerLock 使行左滑让位）；种子任务在随时段，先切过去
+    await page.locator('.spager__page').nth(0).getByRole('tab', { name: '随时' }).click()
+    await page.waitForTimeout(300)
+    const row = await page.locator('.tl-row').first().boundingBox()
+    await page.mouse.move(row.x + row.width / 2, row.y + row.height / 2)
+    await page.mouse.down()
+    await page.waitForTimeout(500)
+    for (let i = 1; i <= 10; i++) await page.mouse.move(row.x + row.width / 2 - i * 30, row.y + row.height / 2)
+    await page.mouse.up()
+    await page.waitForTimeout(500)
+    ok(await page.locator('button[role="tab"]:has-text("事件")').getAttribute('aria-selected') === 'true', 'E2E4 长按+横拖翻卡（行上起点）')
+
+    // 3) Sheet 下拖关闭（新建 → 拖柄下拖 200px）
+    await page.locator('button[aria-label="新建"]').first().click()
+    await page.waitForTimeout(500)
+    ok((await page.locator('.sheet').count()) === 1, 'E2E4 Sheet 打开')
+    const sheet = await page.locator('.sheet').boundingBox()
+    await page.mouse.move(sheet.x + sheet.width / 2, sheet.y + 20)
+    await page.mouse.down()
+    for (let i = 1; i <= 10; i++) await page.mouse.move(sheet.x + sheet.width / 2, sheet.y + 20 + i * 25)
+    await page.mouse.up()
+    await page.waitForTimeout(500)
+    ok((await page.locator('.sheet').count()) === 0, 'E2E4 Sheet 下拖关闭')
+    await page.context().close()
+  }
+
   await browser.close()
   console.log(failed === 0 ? 'E2E ALL PASS' : `E2E FAILED: ${failed}`)
   process.exit(failed === 0 ? 0 : 1)

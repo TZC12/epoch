@@ -97,9 +97,12 @@
   --dur-3: 250ms;   /* component 慢档：卡片浮现 */
   --dur-4: 350ms;   /* page/sheet */
   --dur-5: 500ms;   /* large visual：进度弧 */
+  --dur-out: 240ms; /* 退场（进场镜像，略短） */
+  --dur-snap: 260ms;/* pager 吸附 */
   --ease: cubic-bezier(0.32, 0.72, 0.24, 1);
   --ease-inout: cubic-bezier(0.6, 0.05, 0.28, 0.95);
   --ease-spring: cubic-bezier(0.34, 1.35, 0.6, 1);
+  --ease-drag: cubic-bezier(0.2, 0.9, 0.25, 1); /* 手势松手回弹 */
 
   /* ── 图标 7 档 ── */
   --ic-12: 12px; --ic-16: 16px; --ic-18: 18px; --ic-20: 20px;

@@ -2,15 +2,16 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DateNavigator } from '@/components/DateNavigator'
 import { DayProgress } from '@/components/ui/DayProgress'
-import { WeatherCard } from '@/components/WeatherCard'
-import { EventsReminder } from '@/components/EventsReminder'
+import { SegmentedPager } from '@/components/ui/SegmentedPager'
 import { TlRow } from '@/components/ui/TlRow'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Seg } from '@/components/ui/Seg'
-import { Sheet } from '@/components/ui/Sheet'
 import { Button } from '@/components/ui/Button'
 import { Chip } from '@/components/ui/Chip'
 import { IconButton } from '@/components/ui/IconButton'
+import { Insight } from '@/components/ui/Insight'
+import { HabitChip } from '@/components/ui/HabitChip'
+import { Sheet } from '@/components/ui/Sheet'
 import { Plus } from 'lucide-react'
 import { useSwipeReveal } from '@/components/ui/swipe'
 import { useToast } from '@/components/ui/Toast'
@@ -19,15 +20,15 @@ import { PlanMyDaySheet } from '@/features/plan/PlanMyDaySheet'
 import { AISuggestSheet } from '@/features/ai/AISuggestSheet'
 import { useData, isDoneToday } from '@/services/store'
 import { useHabitsToday } from '@/services/queries'
-import { HabitChip } from '@/components/ui/HabitChip'
-import { Insight } from '@/components/ui/Insight'
-import { rescheduleTask, updateTask, skipTask, toggleHabit } from '@/services/actions'
-import { toggleTask, deleteTask, restoreTask, captureInbox, deleteInboxItem, restoreInboxItem, convertInboxItem } from '@/services/actions'
+import {
+  toggleTask, deleteTask, restoreTask, captureInbox, deleteInboxItem, restoreInboxItem,
+  convertInboxItem, rescheduleTask, updateTask, skipTask, toggleHabit,
+} from '@/services/actions'
+import { useWeather, wmoIcon, wmoLabel } from '@/lib/weather-ui'
 import { dateKey, todayKey, addDays } from '@/lib/dates'
 import type { Task, InboxItem } from '@/services/types'
 import './home.css'
 
-type CardKey = 'tasks' | 'events' | 'inbox'
 type TaskFilter = 'todo' | 'done' | 'anytime'
 
 /** 严格未来的下一个星期几（0=周日）。 */
@@ -38,7 +39,7 @@ function nextWeekday(target: number): string {
   return dateKey(addDays(d, diff))
 }
 
-/** 收集箱行（复用左滑删除手势语义）。 */
+/** 收集箱行（左滑删除，手势与 TlRow 同源）。 */
 function InboxRow({ item, deleteLabel, onOpen, onDelete }: {
   item: InboxItem; deleteLabel: string; onOpen: () => void; onDelete: () => void
 }) {
@@ -64,16 +65,14 @@ function InboxRow({ item, deleteLabel, onOpen, onDelete }: {
 }
 
 /**
- * 主页（图三/图四映射：Today + Plan 合并为执行+收集一体）：
- * 日期导航 → 日进度条（取代仪表盘）→ 天气+事件提醒（图二）→ 三卡切换
- * 【任务｜事件｜收集箱】——任务卡内含 待办/已完成/随时 三段（图四）；
- * 收集箱卡吸收原 Plan 全部能力（捕获/安排/规划今天/AI 分拣）。
+ * 主页（§三重构）：Header（日期+天气一行）→ DayProgress 细条（服务时间轴）→
+ * SegmentedPager【任务|事件|收集箱】（Tap + 横滑 + 长按拖动切换，Timeline 属于内容层）→ 习惯条。
+ * 天气完整形态在 Progress；EventsReminder 已删除（与事件卡同源重复）。
  */
 export default function HomePage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { toast } = useToast()
   const [selected, setSelected] = useState(todayKey())
-  const [card, setCard] = useState<CardKey>('tasks')
   const [filter, setFilter] = useState<TaskFilter>('todo')
   const [sheetTarget, setSheetTarget] = useState<SheetTarget>(null)
   const [pmdOpen, setPmdOpen] = useState(false)
@@ -87,9 +86,10 @@ export default function HomePage() {
   const tasksAll = useData((s) => s.tasks)
   const inboxAll = useData((s) => s.inbox)
   const goals = useData((s) => s.goals)
+  const weather = useWeather()
+  const zh = i18n.language.startsWith('zh')
 
   const isToday = selected === todayKey()
-  /* 所选日的任务集：date 为空的任务只在"今天"视图出现（随时区语义） */
   const dayTasks = useMemo(() => {
     return tasksAll
       .filter((x) => x.status !== 'cancelled' && (x.date === selected || (x.date == null && isToday)))
@@ -100,18 +100,22 @@ export default function HomePage() {
   const goalName = (goalId: string | null): string | null =>
     goalId ? (goals.find((g) => g.id === goalId)?.title ?? null) : null
 
+  /* 守护语义：Main ≤3 */
+  const activeMains = dayTasks.filter(
+    (x) => x.tier === 'main' && !isDoneToday(x, x.date ?? todayKey()) && x.status !== 'skipped',
+  )
+  const heavy = isToday && activeMains.length > 3
+  const newestMain = activeMains[activeMains.length - 1]
+  const allDone = isToday && dayTasks.length > 0 && dayTasks.every((x) => isDoneToday(x, x.date ?? todayKey()))
+  const habitsToday = useHabitsToday()
+
   const onDelete = (task: Task): void => {
     const snap = deleteTask(task.id)
     if (snap) toast(t('common.deleted'), { action: { label: t('common.undo'), onClick: () => restoreTask(snap.item, snap.index) } })
   }
-
   const onCapture = (): void => {
-    if (captureInbox(capture)) {
-      setCapture('')
-      toast(t('plan.captured'), { tone: 'success' })
-    }
+    if (captureInbox(capture)) { setCapture(''); toast(t('plan.captured'), { tone: 'success' }) }
   }
-
   const onSavePlan = (): void => {
     if (!planItem) return
     if (convertInboxItem(planItem.id, { date: planDate, time: planTime })) toast(t('common.saved'), { tone: 'success' })
@@ -120,55 +124,46 @@ export default function HomePage() {
 
   const tomorrow = dateKey(addDays(new Date(), 1))
 
-  /* 守护语义（自 legacy Today 迁入）：Main ≤3，超出给修复出口 */
-  const activeMains = dayTasks.filter(
-    (x) => x.tier === 'main' && !isDoneToday(x, x.date ?? todayKey()) && x.status !== 'skipped',
-  )
-  const heavy = isToday && activeMains.length > 3
-  const newestMain = activeMains[activeMains.length - 1]
+  /* heavy 守护块（Main>3 → Move/Reduce/Skip） */
+  const heavyBlock = heavy && newestMain ? (
+    <Insight
+      title={t('today.heavy')}
+      actions={
+        <>
+          <Button size="sm" variant="quiet" onClick={() => rescheduleTask(newestMain.id, tomorrow)}>{t('today.heavyMove')}</Button>
+          <Button size="sm" variant="quiet" onClick={() => updateTask(newestMain.id, { tier: 'anytime' })}>{t('today.heavyReduce')}</Button>
+          <Button size="sm" variant="quiet" onClick={() => skipTask(newestMain.id)}>{t('today.heavySkip')}</Button>
+        </>
+      }
+    />
+  ) : null
 
-  /* 全完成时刻（spec：Everything is done.） */
-  const allDone = isToday && dayTasks.length > 0 && dayTasks.every((x) => isDoneToday(x, x.date ?? todayKey()))
-
-  const habitsToday = useHabitsToday()
-
-  /* ── 任务卡内容（图四：待办/已完成/随时 三段） ── */
-  const tasksCard = () => {
-    const list = dayTasks.filter((x) => {
-      const done = isDoneToday(x, x.date ?? todayKey())
-      if (filter === 'todo') return !done && x.time != null
-      if (filter === 'anytime') return !done && x.time == null
-      return done
-    })
-    return (
-      <>
-        {heavy && newestMain && (
-          <Insight
-            title={t('today.heavy')}
-            actions={
-              <>
-                <Button size="sm" variant="quiet" onClick={() => rescheduleTask(newestMain.id, tomorrow)}>{t('today.heavyMove')}</Button>
-                <Button size="sm" variant="quiet" onClick={() => updateTask(newestMain.id, { tier: 'anytime' })}>{t('today.heavyReduce')}</Button>
-                <Button size="sm" variant="quiet" onClick={() => skipTask(newestMain.id)}>{t('today.heavySkip')}</Button>
-              </>
-            }
-          />
-        )}
-        <div className="home-card__filter">
-          <Seg
-            options={[
-              { value: 'todo', label: t('home.fTodo') },
-              { value: 'done', label: t('home.fDone') },
-              { value: 'anytime', label: t('home.fAnytime') },
-            ]}
-            value={filter}
-            onChange={(v) => setFilter(v as TaskFilter)}
-            ariaLabel={t('home.tasksCard')}
-          />
-        </div>
-        {allDone && filter === 'todo' ? (
-          <EmptyState title={t('today.allDone')} sub={t('today.allDoneSub')} />
-        ) : list.length === 0 ? (
+  /* ── 页 1：任务（图四三段 + heavy 守护 + trailing 完成） ── */
+  const tasksPage = (
+    <>
+      {heavyBlock}
+      <div className="home-card__filter">
+        <Seg
+          options={[
+            { value: 'todo', label: t('home.fTodo') },
+            { value: 'done', label: t('home.fDone') },
+            { value: 'anytime', label: t('home.fAnytime') },
+          ]}
+          value={filter}
+          onChange={(v) => setFilter(v as TaskFilter)}
+          ariaLabel={t('home.tasksCard')}
+        />
+      </div>
+      {allDone && filter === 'todo' ? (
+        <EmptyState title={t('today.allDone')} sub={t('today.allDoneSub')} />
+      ) : (() => {
+        const list = dayTasks.filter((x) => {
+          const done = isDoneToday(x, x.date ?? todayKey())
+          if (filter === 'todo') return !done && x.time != null
+          if (filter === 'anytime') return !done && x.time == null
+          return done
+        })
+        return list.length === 0 ? (
           <EmptyState
             title={filter === 'done' ? t('home.emptyDone') : t('home.emptyTasks')}
             sub={!isToday ? t('home.futureHint') : undefined}
@@ -194,13 +189,13 @@ export default function HomePage() {
               />
             ))}
           </div>
-        )}
-      </>
-    )
-  }
+        )
+      })()}
+    </>
+  )
 
-  /* ── 事件卡：所选日全天事件流（时间线形态） ── */
-  const eventsCard = () => {
+  /* ── 页 2：事件（Timeline 属于内容层） ── */
+  const eventsPage = (() => {
     const events = dayTasks.filter((x) => x.time != null)
     return events.length === 0 ? (
       <EmptyState title={t('home.emptyEvents')} sub={!isToday ? t('home.futureHint') : undefined} />
@@ -225,10 +220,10 @@ export default function HomePage() {
         ))}
       </div>
     )
-  }
+  })()
 
-  /* ── 收集箱卡：原 Plan 全能力（捕获/行安排/规划今天/AI 分拣） ── */
-  const inboxCard = () => (
+  /* ── 页 3：收集箱（原 Plan 全能力） ── */
+  const inboxPage = (
     <>
       <input
         className="home-capture"
@@ -263,40 +258,51 @@ export default function HomePage() {
     </>
   )
 
+  /* Header 内联天气（§三.9 极简形态：☀16° 晴） */
+  const weatherInline = weather ? (
+    <span className="home-weather" title={t('weather.source')}>
+      {(() => { const WIcon = wmoIcon(weather.current.code); return <WIcon size={14} strokeWidth={1.8} aria-hidden="true" /> })()}
+      <span className="tnum">{weather.current.temp}°</span>
+      <span className="home-weather__desc">{wmoLabel(weather.current.code, zh)}</span>
+    </span>
+  ) : null
+  const todayDate = new Date(`${selected}T12:00:00`)
+  const dateLabel = zh
+    ? `${todayDate.getMonth() + 1}月${todayDate.getDate()}日 · 星期${['日', '一', '二', '三', '四', '五', '六'][todayDate.getDay()]}`
+    : todayDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
+
   return (
-    <div>
+    <div className="home">
+      {/* Header / Date Context：日期语义 + 极简天气（§三：天气只允许一行） */}
+      <header className="home-head">
+        <div>
+          <p className="eyebrow">{t('today.greeting')}</p>
+          <p className="home-head__date t-h3" aria-label={dateLabel}>{dateLabel}</p>
+        </div>
+        {weatherInline}
+      </header>
+
       <DateNavigator selected={selected} onSelect={setSelected} />
 
+      {/* Day Progress：细条无卡，作为时间轴刻度（§三.4-5） */}
       <div className="home-dayprog">
         <DayProgress wake={direction.wake ?? '07:00'} sleep={direction.sleep ?? '23:30'} />
       </div>
 
-      <div className="home-widgets">
-        {isToday && <WeatherCard />}
-        {isToday && <EventsReminder tasks={dayTasks} onOpen={(x) => setSheetTarget(x)} />}
-      </div>
+      {/* Primary Segmented Navigation + Current Content（§四/§五） */}
+      <SegmentedPager
+        ariaLabel={t('nav.today')}
+        tabs={[
+          { key: 'tasks', label: t('home.tasksCard'), content: tasksPage },
+          { key: 'events', label: t('home.eventsCard'), content: eventsPage },
+          { key: 'inbox', label: t('plan.inbox'), content: inboxPage },
+        ]}
+      />
 
-      {/* 三卡切换（图三：点上方三个选择切换卡片）+ 常驻新建 */}
-      <div className="home-cardnav">
-        <nav className="home-cards seg" aria-label={t('nav.today')}>
-          {([['tasks', t('home.tasksCard')], ['events', t('home.eventsCard')], ['inbox', t('plan.inbox')]] as const).map(([k, label]) => (
-            <button key={k} type="button" role="tab" aria-selected={card === k}
-              className={`seg__btn ${card === k ? 'on' : ''}`} onClick={() => setCard(k)}>
-              {label}
-            </button>
-          ))}
-        </nav>
-        <IconButton icon={<Plus size={18} strokeWidth={1.8} aria-hidden="true" />} label={t('today.addTask')} onClick={() => setSheetTarget('new')} />
-      </div>
-
-      <section className="home-card" aria-label={t('nav.today')}>
-        {card === 'tasks' ? tasksCard() : card === 'events' ? eventsCard() : inboxCard()}
-      </section>
-
-      {/* 习惯条（仅今天；打卡=日志） */}
+      {/* 习惯条（今天视图） */}
       {isToday && habitsToday.length > 0 && (
         <>
-          <h2 className="eyebrow sec-title">{t('today.habits')}</h2>
+          <h2 className="eyebrow home-sec-title">{t('today.habits')}</h2>
           <div className="habit-bar">
             {habitsToday.map(({ routine, done: habitDone }) => (
               <HabitChip
@@ -311,12 +317,16 @@ export default function HomePage() {
         </>
       )}
 
+      {/* 常驻新建（悬浮控件=玻璃许可区之一） */}
+      <div className="home-fab">
+        <IconButton icon={<Plus size={20} strokeWidth={1.8} aria-hidden="true" />} label={t('today.addTask')} onClick={() => setSheetTarget('new')} />
+      </div>
+
       <TaskSheet
         target={sheetTarget}
         onClose={() => setSheetTarget(null)}
         onSaved={(created) => {
-          /* 无时间的新任务落在"随时"段——自动切过去，避免默认待办视图看不见 */
-          if (!created.time) { setCard('tasks'); setFilter('anytime') }
+          if (!created.time) { setFilter('anytime') }
         }}
       />
       <PlanMyDaySheet open={pmdOpen} onClose={() => setPmdOpen(false)} />

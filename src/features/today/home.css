@@ -1,14 +1,27 @@
-/* HomePage（Today+Plan 合并，图三/图四映射）页面级布局。 */
+/* HomePage（§三重构）：Header→日期条→细条进度→Pager→习惯；密度 Dense。 */
+.home { display: flex; flex-direction: column; gap: var(--sp-4); }
 
-.home-dayprog { background: var(--surface); border-radius: var(--r-lg); }
-.home-widgets { display: flex; flex-direction: column; gap: var(--sp-3); }
-.home-widgets:empty { display: none; }
+/* Header / Date Context：日期语义 + 天气一行（Secondary Context 极简形态） */
+.home-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--sp-3); }
+.home-head__date { color: var(--text-primary); font-weight: 500; }
+.home-weather {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  color: var(--text-tertiary);
+  font-size: var(--fs-small);
+  padding-bottom: 2px;
+}
+.home-weather__desc { color: var(--text-tertiary); }
 
-/* 三卡切换条（复用 seg 视觉，宽度撑满） */
-.home-cards { width: 100%; }
-.home-cards .seg__btn { flex: 1; }
+/* Day Progress：细条无卡——时间轴刻度，不是英雄区（§三.4-5） */
+.home-dayprog {
+  padding: var(--sp-1) 0;
+  margin-top: calc(-1 * var(--sp-2));
+}
+.home-dayprog .dayprog { padding: 0; }
 
-.home-card { display: flex; flex-direction: column; gap: var(--sp-3); }
+/* 任务卡过滤段 */
 .home-card__filter { display: flex; }
 .home-card__pmd { display: flex; flex-direction: column; gap: var(--sp-2); }
 
@@ -26,13 +39,39 @@
 }
 .home-capture:focus { border-color: var(--ink); background: var(--surface); }
 
+/* 时间轴容器 */
+.tl { display: flex; flex-direction: column; gap: var(--sp-2); }
+
+/* 习惯条 */
+.habit-bar { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+.home-sec-title { margin: var(--sp-1) 0 var(--sp-3); }
+
+/* 常驻新建：悬浮控件（玻璃许可区之一） */
+.home-fab {
+  position: fixed;
+  right: max(var(--sp-4), env(safe-area-inset-right, 0px));
+  bottom: calc(var(--tabbar-h) + var(--sp-4) + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+}
+.home-fab .icon-btn {
+  width: 52px;
+  height: 52px;
+  background: var(--ink);
+  color: var(--ink-inverse);
+  box-shadow: var(--elev-floating);
+}
+.home-fab .icon-btn:hover { background: var(--ink); color: var(--ink-inverse); opacity: 0.88; }
+@media (min-width: 1024px) {
+  .home-fab { right: calc((100vw - 720px) / 2); }
+}
+
 /* 安排 sheet 内容 */
 .home-plansheet { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-2) 0; }
 .home-chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
-.home-plansheet__acts { display: flex; gap: var(--sp-2); }
+.home-plansheet__acts { display: flex; gap: var(--sp-2); width: 100%; }
 .home-plansheet__acts > * { flex: 1; }
 
-/* 收集箱行身（无 checkbox，其余手势/样式继承 .tl-row 系；自 plan.css 迁入） */
+/* 收集箱行身（无 checkbox，其余手势/样式继承 .tl-row 系） */
 .inbox-row__body {
   flex: 1;
   min-width: 0;
@@ -46,16 +85,3 @@
   cursor: pointer;
   text-align: left;
 }
-
-/* 时间轴容器（自 dash.css 迁入） */
-.tl { display: flex; flex-direction: column; gap: var(--sp-2); }
-
-/* 习惯条（自 dash.css 迁入） */
-.habit-bar { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
-
-/* 区块标题（自 dash.css 迁入） */
-.sec-title { margin: var(--sp-4) 0 var(--sp-3); }
-
-/* 三卡切换行 + 新建按钮 */
-.home-cardnav { display: flex; align-items: center; gap: var(--sp-2); }
-.home-cardnav .home-cards { flex: 1; }

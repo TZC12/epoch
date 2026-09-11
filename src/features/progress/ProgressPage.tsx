@@ -13,6 +13,7 @@ import { AISuggestSheet } from '@/features/ai/AISuggestSheet'
 import { captureInbox, saveReview } from '@/services/actions'
 import { weekKey } from '@/lib/dates'
 import { DotMatrix } from './DotMatrix'
+import { WeatherCard } from '@/components/WeatherCard'
 import './progress.css'
 
 /** 点阵一格的颜色语义（无假数据：没有记录就是没有记录）。 */
@@ -80,6 +81,11 @@ export default function ProgressPage() {
         <h1 className="t-h1">{t('progress.title')}</h1>
         <p className="t-caption" style={{ marginTop: 'var(--sp-1)' }}>{t('progress.sub')}</p>
       </header>
+
+      {/* 天气（Secondary Context 完整形态，自首页迁入——§三.8） */}
+      <div style={{ marginBottom: 'var(--sp-5)' }}>
+        <WeatherCard />
+      </div>
 
       {/* 数据表（图五映射）：日/周/月点阵柱 */}
       <div style={{ marginBottom: 'var(--sp-6)' }}>

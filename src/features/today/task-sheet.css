@@ -1,25 +1,42 @@
-/* sheet-task 表单：行式 chip 组 + 内联 dtp 面板。 */
-.tsheet { display: flex; flex-direction: column; gap: var(--sp-4); }
-.tsheet__row {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  flex-wrap: wrap;
-}
-.tsheet__row--col { flex-direction: column; align-items: stretch; }
+/* sheet-task 表单（§七/§八）：Field Groups + 数据行（非按钮化）+ Medium-Dense 密度。 */
+.tsheet { display: flex; flex-direction: column; gap: var(--sp-5); }
+.tsheet__group { display: flex; flex-direction: column; gap: var(--sp-3); }
 .tsheet__chips { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
 
-/* 时间/日期入口：sunken pill，选中后 accent 描边 */
-.tfield {
-  padding: var(--sp-2) var(--sp-3);
-  border: 1px solid transparent;
-  border-radius: var(--r-pill);
-  background: var(--surface-sunken);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: border-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+/* G1 标题：大号无边框输入（身份字段是表单主角） */
+.tsheet__title .field__input {
+  background: none;
+  font-size: var(--fs-h2);
+  font-weight: 500;
+  padding: var(--sp-2) 0;
 }
-.tfield--set { border-color: var(--accent-line); color: var(--text-primary); }
+.tsheet__title .field__input:focus { border-color: transparent; background: none; border-bottom: 1.5px solid var(--ink); border-radius: 0; }
+
+/* G3 数据行：label 左 / value 右 / chevron——Data Field ≠ Action Button */
+.trow-list { display: flex; flex-direction: column; }
+.trow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: var(--touch-min);
+  padding: var(--sp-2) var(--sp-1);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--divider);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  border-radius: 0;
+}
+.trow--static { cursor: default; }
+.trow__label { font-size: var(--fs-small); color: var(--text-secondary); width: 4.5em; flex-shrink: 0; }
+.trow__value { flex: 1; text-align: right; font-size: var(--fs-small); color: var(--text-primary); }
+.trow:not(.trow--set) .trow__value { color: var(--text-tertiary); }
+.trow__chev { color: var(--text-disabled); transition: transform var(--dur-2) var(--ease); }
+.trow__chev.open { transform: rotate(180deg); }
+.trow__presets { display: flex; gap: var(--sp-2); flex-wrap: wrap; justify-content: flex-end; }
+
+.tsheet__date { display: flex; flex-direction: column; gap: var(--sp-3); }
 
 /* 月历 */
 .dcal { display: flex; flex-direction: column; gap: var(--sp-2); }

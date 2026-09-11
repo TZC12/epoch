@@ -1,0 +1,51 @@
+/* Segmented Control + Swipeable Pager：指示 pill 与 track 同一 --pager-x 驱动。 */
+.spager { display: flex; flex-direction: column; gap: var(--sp-4); }
+
+/* ── 导航条：sunken 底 + 滑动黑 pill ── */
+.spager__nav {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: var(--surface-sunken);
+  border-radius: var(--r-pill);
+  padding: var(--sp-1);
+}
+.spager__pill {
+  position: absolute;
+  top: var(--sp-1); bottom: var(--sp-1);
+  left: var(--sp-1);
+  width: calc((100% - var(--sp-1) * 2) / var(--pager-n));
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  transform: translateX(calc(var(--pager-x) * 100%));
+  transition: none;
+}
+.spager.is-snapping .spager__pill { transition: transform var(--dur-snap) var(--ease); }
+.spager__tab {
+  position: relative;
+  z-index: 1;
+  min-height: 36px;
+  background: none;
+  border: 0;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color var(--dur-2) var(--ease);
+}
+.spager__tab:hover { color: var(--text-secondary); }
+.spager__tab[aria-selected='true'] { color: var(--ink-inverse); }
+
+/* ── 视口 + 轨道 ── */
+.spager__viewport { overflow: hidden; touch-action: pan-y; }
+.spager__track {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  transform: translateX(calc(var(--pager-x) * (-100% / var(--pager-n))));
+  transition: none;
+}
+.spager.is-snapping .spager__track { transition: transform var(--dur-snap) var(--ease); }
+.spager__page { width: 100%; flex-shrink: 0; min-width: 0; }

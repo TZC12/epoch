@@ -18,7 +18,7 @@
 .dotgrid__cell.is-full { background: var(--accent); }
 .dotgrid__cell.is-part { background: var(--text-disabled); }
 .dotgrid__cell.is-miss { background: var(--text-tertiary); opacity: 0.35; }
-.dotgrid__cell.is-urgent { background: var(--danger); opacity: 0.55; }
+.dotgrid__cell.is-urgent { background: var(--urgent); opacity: 0.5; }
 
 .legend {
   display: flex;

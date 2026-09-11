@@ -44,6 +44,8 @@ export function useSwipeReveal() {
   }
 
   const onPointerDown = (e: ReactPointerEvent): void => {
+    /* pager 长按武装期（body.pagerLock）：本手势让位给翻卡 */
+    if (document.body.dataset.pagerLock) return
     g.current = { startX: e.clientX, startY: e.clientY, locked: false, wasSwipe: false, lastDx: 0 }
     /* 不在 down 时 setPointerCapture：捕获会把后续 click 重定向到 inner，行身按钮的
        onOpen 永远收不到（真机点开详情失效）。捕获延迟到横向锁定（确认真滑动）时。 */
@@ -51,6 +53,7 @@ export function useSwipeReveal() {
 
   const onPointerMove = (e: ReactPointerEvent): void => {
     const cur = g.current
+    if (document.body.dataset.pagerLock) return
     if (cur.locked === false) {
       const dx = e.clientX - cur.startX
       const dy = e.clientY - cur.startY

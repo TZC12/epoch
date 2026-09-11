@@ -15,7 +15,8 @@
 }
 .chip:hover { color: var(--text-primary); }
 .chip:active { transform: scale(0.97); }
-.chip.on { background: var(--accent-soft); color: var(--accent-strong); }
+/* 选中态=墨色 pill（Paper Mono：绿仅完成/活跃语义；选择≠完成） */
+.chip.on { background: var(--ink); color: var(--ink-inverse); }
 
 .tag {
   display: inline-flex;

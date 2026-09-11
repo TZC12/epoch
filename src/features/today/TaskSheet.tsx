@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Chip } from '@/components/ui/Chip'
 import { useToast } from '@/components/ui/Toast'
 import { useFocus } from '@/features/focus/focusStore'
+import { ChevronDown } from 'lucide-react'
 import { createTask, updateTask, deleteTask, restoreTask, skipTask } from '@/services/actions'
 import { useData } from '@/services/store'
 import { todayKey, addDays, dateKey, WEEKDAY_ZH } from '@/lib/dates'
@@ -110,9 +111,7 @@ export function TaskSheet({ target, onClose, onSaved }: TaskSheetProps) {
   const focus = useFocus()
   // 注意：selector 必须返回稳定引用——先取原数组，filter 在组件层做（防无限重渲）
   const goalsAll = useData((s) => s.goals)
-  const routinesAll = useData((s) => s.routines)
   const goals = goalsAll.filter((g) => g.status === 'active')
-  const routines = routinesAll.filter((r) => !r.archived)
 
   const [title, setTitle] = useState('')
   const [tier, setTier] = useState<TaskTier>('block')
@@ -181,89 +180,82 @@ export function TaskSheet({ target, onClose, onSaved }: TaskSheetProps) {
   const tomorrow = dateKey(addDays(new Date(), 1))
 
   return (
-    <Sheet open={open} onClose={onClose} title={editing ? t('sheet.editTitle') : t('sheet.newTitle')}>
+    <Sheet open={open} onClose={onClose} tall title={editing ? t('sheet.editTitle') : t('sheet.newTitle')}>
       <div className="tsheet">
-        <Field
-          label={t('sheet.fieldTitle')}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="…"
-          autoFocus
-        />
+        {/* G1 · Identity —— What am I doing? */}
+        <section className="tsheet__group">
+          <span className="eyebrow">{t('sheet.gIdentity')}</span>
+          <Field
+            aria-label={t('sheet.fieldTitle')}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={t('sheet.titlePlaceholder')}
+            autoFocus
+            className="tsheet__title"
+          />
+        </section>
 
-        <div className="tsheet__row">
-          <span className="eyebrow">{t('sheet.typeLabel')}</span>
+        {/* G2 · Classification —— 重点/安排/随时 + 紧急 */}
+        <section className="tsheet__group">
+          <span className="eyebrow">{t('sheet.gClassification')}</span>
           <div className="tsheet__chips">
             <Chip on={tier === 'main'} onClick={() => setTier('main')} ariaLabel={t('sheet.tierMain')}>{t('sheet.tierMain')}</Chip>
             <Chip on={tier === 'block'} onClick={() => setTier('block')} ariaLabel={t('sheet.tierBlock')}>{t('sheet.tierBlock')}</Chip>
             <Chip on={tier === 'anytime'} onClick={() => setTier('anytime')} ariaLabel={t('sheet.tierAnytime')}>{t('sheet.tierAnytime')}</Chip>
             <Chip on={urgent} onClick={() => setUrgent(!urgent)} ariaLabel={t('sheet.urgent')}>{t('sheet.urgent')}</Chip>
           </div>
-        </div>
+        </section>
 
-        <div className="tsheet__row">
-          <button type="button" className={`tfield tnum ${time ? 'tfield--set' : ''}`} onClick={() => setPicker((p) => (p === 'time' ? 'none' : 'time'))}>
-            {t('sheet.timeLabel')} · {time ?? '—'}
-          </button>
-          <button type="button" className={`tfield tnum ${date ? 'tfield--set' : ''}`} onClick={() => setPicker((p) => (p === 'date' ? 'none' : 'date'))}>
-            {t('sheet.dateLabel')} · {date ? fmtShortDate(date, zh) : t('sheet.todayChip')}
-          </button>
-        </div>
-
-        {picker === 'time' && <TimeWheel value={time} onChange={(v) => { setTime(v) }} clearLabel={t('sheet.clearTime')} />}
-        {picker === 'date' && (
-          <div className="tsheet__date">
-            <div className="tsheet__chips">
-              <Chip on={date === today} onClick={() => setDate(today)}>{t('sheet.todayChip')}</Chip>
-              <Chip on={date === tomorrow} onClick={() => setDate(tomorrow)}>{t('sheet.tomorrowChip')}</Chip>
-              <Chip on={date == null} onClick={() => setDate(null)}>{t('sheet.clearDate')}</Chip>
+        {/* G3 · Scheduling —— 日期/时间/时长 = 一个 Schedule Group（数据行，非按钮） */}
+        <section className="tsheet__group">
+          <span className="eyebrow">{t('sheet.gScheduling')}</span>
+          <div className="trow-list">
+            <button type="button" className={`trow ${date ? 'trow--set' : ''}`} onClick={() => setPicker((p) => (p === 'date' ? 'none' : 'date'))}>
+              <span className="trow__label">{t('sheet.dateLabel')}</span>
+              <span className="trow__value tnum">{date ? fmtShortDate(date, zh) : t('sheet.todayChip')}</span>
+              <ChevronDown className={`trow__chev ${picker === 'date' ? 'open' : ''}`} size={16} strokeWidth={1.8} aria-hidden="true" />
+            </button>
+            <button type="button" className={`trow ${time ? 'trow--set' : ''}`} onClick={() => setPicker((p) => (p === 'time' ? 'none' : 'time'))}>
+              <span className="trow__label">{t('sheet.timeLabel')}</span>
+              <span className="trow__value tnum">{time ?? '—'}</span>
+              <ChevronDown className={`trow__chev ${picker === 'time' ? 'open' : ''}`} size={16} strokeWidth={1.8} aria-hidden="true" />
+            </button>
+            <div className="trow trow--static">
+              <span className="trow__label">{t('sheet.durLabel')}</span>
+              <div className="trow__presets">
+                {DUR_PRESETS.map((m) => (
+                  <Chip key={m} on={durMin === m} onClick={() => setDurMin(durMin === m ? null : m)}>{m}</Chip>
+                ))}
+              </div>
             </div>
-            <MonthGrid value={date} onChange={setDate} />
           </div>
-        )}
 
-        <div className="tsheet__row tsheet__row--col">
-          <span className="eyebrow">{t('sheet.durLabel')}</span>
-          <div className="tsheet__chips">
-            {DUR_PRESETS.map((m) => (
-              <Chip key={m} on={durMin === m} onClick={() => setDurMin(durMin === m ? null : m)}>{m}</Chip>
-            ))}
-          </div>
-          <Field
-            type="number"
-            inputMode="numeric"
-            min={0}
-            value={durMin ?? ''}
-            onChange={(e) => setDurMin(e.target.value === '' ? null : Math.max(0, Number(e.target.value)))}
-            aria-label={t('sheet.durLabel')}
-          />
-        </div>
+          {picker === 'date' && (
+            <div className="tsheet__date">
+              <div className="tsheet__chips">
+                <Chip on={date === today} onClick={() => setDate(today)}>{t('sheet.todayChip')}</Chip>
+                <Chip on={date === tomorrow} onClick={() => setDate(tomorrow)}>{t('sheet.tomorrowChip')}</Chip>
+                <Chip on={date == null} onClick={() => setDate(null)}>{t('sheet.clearDate')}</Chip>
+              </div>
+              <MonthGrid value={date} onChange={setDate} />
+            </div>
+          )}
+          {picker === 'time' && <TimeWheel value={time} onChange={(v) => { setTime(v) }} clearLabel={t('sheet.clearTime')} />}
+        </section>
 
-        {goals.length > 0 && (
-          <div className="tsheet__row tsheet__row--col">
-            <span className="eyebrow">{t('sheet.goalLabel')}</span>
+        {/* G4 · Alignment —— 目标（Why does this task matter?）+ 备注 */}
+        <section className="tsheet__group">
+          <span className="eyebrow">{t('sheet.gAlignment')}</span>
+          {goals.length > 0 && (
             <div className="tsheet__chips">
               <Chip on={goalId == null} onClick={() => setGoalId(null)}>{t('sheet.noneLabel')}</Chip>
               {goals.map((g) => (
                 <Chip key={g.id} on={goalId === g.id} onClick={() => setGoalId(g.id)}>{g.title}</Chip>
               ))}
             </div>
-          </div>
-        )}
-
-        {routines.length > 0 && (
-          <div className="tsheet__row tsheet__row--col">
-            <span className="eyebrow">{t('sheet.routineLabel')}</span>
-            <div className="tsheet__chips">
-              <Chip on={routineId == null} onClick={() => setRoutineId(null)}>{t('sheet.noneLabel')}</Chip>
-              {routines.map((r) => (
-                <Chip key={r.id} on={routineId === r.id} onClick={() => setRoutineId(r.id)}>{r.name}</Chip>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <Note label={t('sheet.noteLabel')} value={note} onChange={setNote} rows={2} placeholder="…" />
+          )}
+          <Note label={t('sheet.noteLabel')} value={note} onChange={setNote} rows={2} placeholder="…" />
+        </section>
       </div>
 
       <div className="tsheet__foot">

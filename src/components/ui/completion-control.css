@@ -1,0 +1,54 @@
+/* Trailing Completion Control：视觉 18px 圆点，命中区 44pt（§六）。 */
+.cc {
+  position: relative;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  border-radius: var(--r-full);
+  -webkit-tap-highlight-color: transparent;
+}
+.cc:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 2px; }
+
+.cc__dot {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--r-full);
+  border: 2px solid var(--text-disabled);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: border-color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease-spring);
+}
+.cc:hover .cc__dot { border-color: var(--text-tertiary); }
+.cc:active .cc__dot { transform: scale(0.88); }
+
+/* ◉：accent-soft 填充 + accent 描边（绿=完成的唯一语义） */
+.cc--on .cc__dot {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: scale(1);
+}
+/* ✓ 描边动画 */
+.cc__check { width: 12px; height: 12px; }
+.cc__check path {
+  stroke: var(--accent-strong);
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+}
+.cc--on .cc__check path {
+  animation: cc-draw 250ms var(--ease-spring) forwards;
+}
+@keyframes cc-draw { to { stroke-dashoffset: 0; } }
+
+/* reduced-motion：瞬时切换 */
+@media (prefers-reduced-motion: reduce) {
+  .cc__check path { animation: none; stroke-dashoffset: 0; }
+}

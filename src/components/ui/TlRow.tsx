@@ -1,4 +1,4 @@
-import { Checkbox } from './Checkbox'
+import { CompletionControl } from './CompletionControl'
 import { useSwipeReveal } from './swipe'
 import './tl-row.css'
 
@@ -20,7 +20,11 @@ export interface TlRowProps {
   onDelete?: () => void
 }
 
-/** 时间轴行（hero 行）：完成勾选 + 左滑露删除。手势规则见 useSwipeReveal。 */
+/**
+ * 任务行（hero 行，§六重构）：标题=Primary 左，完成=Trailing 右；
+ * 完成动画由 CompletionControl 承担（○→◉→✓+划线过渡）；
+ * 左滑露删除（手势仲裁：pager 锁定期间让位，见 useSwipeReveal）。
+ */
 export function TlRow({
   title, time, duration, urgent, done, goal, note,
   deleteLabel = '删除', checkLabel, onToggle, onOpen, onDelete,
@@ -54,7 +58,6 @@ export function TlRow({
         className={`tl-row__inner ${sw.dragging ? 'tl-row__inner--drag' : ''}`.trim()}
         {...sw.handlers}
       >
-        <Checkbox checked={!!done} onChange={() => onToggle?.()} label={checkLabel ?? title} />
         <button type="button" className="tl-row__body" onClick={onBodyClick}>
           <span className="tl-row__title t-small">{title}</span>
           {(meta || goal) && (
@@ -66,6 +69,7 @@ export function TlRow({
           )}
           {note && <span className="tl-row__note t-caption">{note}</span>}
         </button>
+        <CompletionControl checked={!!done} onChange={() => onToggle?.()} label={checkLabel ?? title} />
       </div>
     </div>
   )
