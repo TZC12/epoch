@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { ToastProvider } from '@/components/ui/Toast'
 import HomePage from '@/features/today/HomePage'
+import { DayProgress } from '@/components/ui/DayProgress'
 import { useData, initialData, isDoneToday } from '@/services/store'
 import * as A from '@/services/actions'
 import { todayKey } from '@/lib/dates'
@@ -34,11 +35,30 @@ describe('HomePage（UX 重构：Pager + trailing 完成 + 拖拽 Sheet）', () 
     expect(days[2]).toHaveClass('on')
   })
 
-  it('日进度条：起床/入睡两端 + 飞机标记（细条无卡）', () => {
+  it('Daily Journey：标签两端 + 当前节点（细条无卡，无飞机）', () => {
     renderPage()
     expect(document.querySelector('.home-dayprog .dayprog')).not.toBeNull()
     expect(document.querySelector('.home-dayprog .card')).toBeNull() // 不再是卡片
     expect(screen.getByText('07:00')).toBeInTheDocument()
+    expect(screen.getByText('起床')).toBeInTheDocument()
+    expect(screen.getByText('入睡')).toBeInTheDocument()
+    expect(document.querySelector('.dayprog__node')).not.toBeNull()
+    expect(document.querySelector('.dayprog__marker')).toBeNull() // 旧飞机已由节点取代
+  })
+
+  it('Journey 跨天与钳位（晚于入睡=100%，早于起床=0%，跨天段内正常推进）', () => {
+    const mk = (h: number, m: number): Date => new Date(2026, 8, 12, h, m)
+    const r1 = render(<DayProgress wake="07:00" sleep="23:30" now={mk(4, 23)} />)
+    expect((r1.container.querySelector('.dayprog__node') as HTMLElement).style.left).toBe('0%')
+    r1.unmount()
+    const r2 = render(<DayProgress wake="07:00" sleep="23:30" now={mk(23, 50)} />)
+    expect((r2.container.querySelector('.dayprog__node') as HTMLElement).style.left).toBe('100%')
+    r2.unmount()
+    const r3 = render(<DayProgress wake="22:00" sleep="06:00" now={mk(2, 0)} />) // 跨天：02:00 在 22:00→06:00 内
+    const left = parseFloat((r3.container.querySelector('.dayprog__node') as HTMLElement).style.left)
+    expect(left).toBeGreaterThan(0)
+    expect(left).toBeLessThan(100)
+    r3.unmount()
   })
 
   it('Pager 三页常驻：任务/事件/收集箱按页渲染，Tap 切换 aria-selected', () => {

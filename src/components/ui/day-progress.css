@@ -1,47 +1,58 @@
-/* DayProgress（图一映射）：起床→入睡的日航程条 */
+/* Daily Time Journey（§二）：标签置顶（起床/入睡 + 时刻），路径 + 当前节点。 */
 .dayprog {
   display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  padding: var(--sp-4) var(--sp-4);
+  flex-direction: column;
+  gap: var(--sp-2);
+  animation: dayprog-in var(--dur-3) var(--ease);
 }
-.dayprog__end { display: flex; flex-direction: column; align-items: flex-start; min-width: 52px; }
-.dayprog__end--right { align-items: flex-end; }
-.dayprog__cap { color: var(--text-primary); line-height: 1.1; }
-.dayprog__caplabel { color: var(--text-tertiary); }
 
+/* 标签行：起点左 / 终点右 */
+.dayprog__labels {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.dayprog__end { display: flex; flex-direction: column; gap: 1px; }
+.dayprog__end--r { align-items: flex-end; }
+.dayprog__time { font-size: var(--fs-small); font-weight: 500; color: var(--text-primary); }
+.dayprog__cap { color: var(--text-tertiary); }
+
+/* 路径：实线已过 + 节点 + 虚线余下 */
 .dayprog__track {
   position: relative;
-  flex: 1;
   height: 4px;
   display: flex;
   align-items: center;
+  margin: var(--sp-1) 0;
 }
 .dayprog__done {
   height: 4px;
   background: var(--ink);
   border-radius: var(--r-pill) 0 0 var(--r-pill);
+  transition: width var(--dur-3) var(--ease);
 }
 .dayprog__rest {
   height: 4px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--text-disabled) 0 6px,
-    transparent 6px 12px
-  );
+  background: repeating-linear-gradient(90deg, var(--text-disabled) 0 6px, transparent 6px 12px);
   border-radius: 0 var(--r-pill) var(--r-pill) 0;
 }
-.dayprog__marker {
+/* 当前节点：ink 实心 + 画布描边（轻微强调），位置随真实时间 30s 级更新 */
+.dayprog__node {
   position: absolute;
   top: 50%;
-  transform: translate(-50%, -50%);
-  width: 26px;
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--ink);
-  background: var(--surface);
+  width: 12px;
+  height: 12px;
   border-radius: var(--r-full);
-  box-shadow: var(--elev-surface);
+  background: var(--ink);
+  box-shadow: 0 0 0 3px var(--bg), var(--elev-surface);
+  transform: translate(-50%, -50%);
+  transition: left var(--dur-3) var(--ease);
+}
+.dayprog__node.is-wait { background: var(--text-tertiary); }
+
+@keyframes dayprog-in { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dayprog { animation: none; }
+  .dayprog__node, .dayprog__done { transition: none; }
 }

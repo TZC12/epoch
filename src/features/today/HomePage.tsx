@@ -258,7 +258,7 @@ export default function HomePage() {
     </>
   )
 
-  /* Header 内联天气（§三.9 极简形态：☀16° 晴） */
+  /* Header 内联天气（§三.9 极简形态：☁18° 大致晴） */
   const weatherInline = weather ? (
     <span className="home-weather" title={t('weather.source')}>
       {(() => { const WIcon = wmoIcon(weather.current.code); return <WIcon size={14} strokeWidth={1.8} aria-hidden="true" /> })()}
@@ -266,27 +266,30 @@ export default function HomePage() {
       <span className="home-weather__desc">{wmoLabel(weather.current.code, zh)}</span>
     </span>
   ) : null
-  const todayDate = new Date(`${selected}T12:00:00`)
-  const dateLabel = zh
-    ? `${todayDate.getMonth() + 1}月${todayDate.getDate()}日 · 星期${['日', '一', '二', '三', '四', '五', '六'][todayDate.getDay()]}`
-    : todayDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
+
+  /* 动态欢迎语（按时段；不重复系统时间——时间由下方 Journey 组件承担） */
+  const h = new Date().getHours()
+  const gKey = h < 5 ? 'gEvening' : h < 9 ? 'gMorning' : h < 12 ? 'gForenoon' : h < 18 ? 'gAfternoon' : 'gEvening'
+  const greeting = t(`today.${gKey}`)
 
   return (
     <div className="home">
-      {/* Header / Date Context：日期语义 + 极简天气（§三：天气只允许一行） */}
+      {/* Header / Greeting：欢迎语 + 极简天气（时间/日期语义由 Journey 与日期条承担） */}
       <header className="home-head">
-        <div>
-          <p className="eyebrow">{t('today.greeting')}</p>
-          <p className="home-head__date t-h3" aria-label={dateLabel}>{dateLabel}</p>
-        </div>
+        <h2 className="home-head__greeting t-h3">{greeting}</h2>
         {weatherInline}
       </header>
 
       <DateNavigator selected={selected} onSelect={setSelected} />
 
-      {/* Day Progress：细条无卡，作为时间轴刻度（§三.4-5） */}
+      {/* Daily Time Journey：起床 → 当前 → 入睡（细条，服务时间轴） */}
       <div className="home-dayprog">
-        <DayProgress wake={direction.wake ?? '07:00'} sleep={direction.sleep ?? '23:30'} />
+        <DayProgress
+          wake={direction.wake ?? '07:00'}
+          sleep={direction.sleep ?? '23:30'}
+          wakeLabel={t('me.wake')}
+          sleepLabel={t('me.sleep')}
+        />
       </div>
 
       {/* Primary Segmented Navigation + Current Content（§四/§五） */}

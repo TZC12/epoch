@@ -30,6 +30,10 @@ const zh = {
   },
   today: {
     greeting: '今天',
+    gMorning: '早上好',
+    gForenoon: '上午好',
+    gAfternoon: '下午好',
+    gEvening: '晚上好',
     allDone: '今天的事都做完了',
     allDoneSub: '去生活。明天见。',
     clear: '今天还是空的',
@@ -291,6 +295,10 @@ const en = {
   },
   today: {
     greeting: 'Today',
+    gMorning: 'Good morning',
+    gForenoon: 'Good morning',
+    gAfternoon: 'Good afternoon',
+    gEvening: 'Good evening',
     allDone: 'Everything is done.',
     allDoneSub: 'Go live your life. See you tomorrow.',
     clear: 'Your day is clear.',

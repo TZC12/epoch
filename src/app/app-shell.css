@@ -11,7 +11,8 @@
   width: 100%;
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: calc(var(--sp-5) + env(safe-area-inset-top, 0px)) var(--sp-4)
+  /* 全局水平对齐线：--page-x（首页/各页内容统一左右安全距离，§三/§八） */
+  padding: calc(var(--sp-5) + env(safe-area-inset-top, 0px)) var(--page-x)
     calc(var(--tabbar-h) + var(--sp-5) + env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
   overscroll-behavior-y: contain;

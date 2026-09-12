@@ -31,7 +31,8 @@
   align-items: center;
   background: var(--surface);
   border-radius: var(--r-md);
-  padding: var(--sp-1);
+  /* 行文本网格：左 --sp-3 与收集箱/全局内容线对齐；右 --sp-2 与完成控件留距 */
+  padding: var(--sp-1) var(--sp-2) var(--sp-1) var(--sp-3);
   touch-action: pan-y; /* 行=纵滚归浏览器、横滑归 JS（真机三轮结论，勿改） */
   transition: transform var(--dur-2) var(--ease);
 }
