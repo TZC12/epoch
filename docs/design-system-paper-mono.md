@@ -23,7 +23,9 @@
 
 ## 2. 组件族（components/ui，0 UI 库）
 
-Button(primary/quiet/ghost/danger/danger-text + sm/block/loading) · IconButton（强制 aria-label）· Card(flat/sunken/glass) · Field/Textarea（显式 label + error 态）· Seg（激活=黑 pill）· Chip/Tag · Sheet（唯一弹层，glass+modal）· Panel（唯一次级页）· Toast（success/error/info 左边条 + undo 动作）· Row · EmptyState（必有出口）· Gauge（细描边弧+数字下置）· Pbar（细线+圆端）· Checkbox · Metric · Insight · Note · TlRow（左滑删除+幽灵窗）· HabitChip · AIPreview（Preview→Confirm 环）。
+Button(primary/quiet/ghost/danger/danger-text + sm/block/loading) · IconButton（强制 aria-label）· Card(flat/sunken/glass) · Field/Textarea（显式 label + error 态）· Seg（激活=黑 pill）· Chip/Tag（选中态=墨色 pill）· Sheet v2（唯一弹层，glass+modal，拖柄下拖关闭+退场镜像）· Panel（唯一次级页）· Toast（success/error/info 左边条 + undo 动作）· Row · EmptyState（必有出口）· Gauge（细描边弧+数字下置）· Pbar（细线+圆端）· Checkbox · Metric · Insight · Note · TlRow（trailing 完成+左滑删除+幽灵窗）· HabitChip · AIPreview（Preview→Confirm 环）· SegmentedPager（跟手翻卡+滑动 pill）· CompletionControl（trailing 44pt）· DayProgress（Daily Journey）· DateNavigator。
+
+状态形变：勾选类状态对（□/○→✓）统一用 **MorphIcons**（MIT，0 依赖，~6.5KB core gzip，消费 Lucide IconNode——不引入第二图标族；节点数据精抄于 src/lib/morph-icons.ts）。弹簧 `snappy`、`reducedMotion="user"`。仅两处使用（CompletionControl/Checkbox）；chevron 旋转、导航箭头、文字按钮不适用形变（无增益不引入）。
 
 状态矩阵：交互组件 default/hover/pressed/focus(:focus-visible 全局)/disabled(.is-disabled)/loading(.is-loading，无 spinner) 全覆盖。
 

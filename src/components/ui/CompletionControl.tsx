@@ -1,3 +1,5 @@
+import { MorphIcon } from 'morphicons/react'
+import { circleNode, checkNode } from '@/lib/morph-icons'
 import './completion-control.css'
 
 export interface CompletionControlProps {
@@ -8,7 +10,7 @@ export interface CompletionControlProps {
 
 /**
  * Trailing 完成控件（§六重构）：视觉小圆点 18px，命中区 44pt。
- * 三段状态动画：○ →（填充+缩放 200ms）→ ◉ →（描边 250ms spring）→ ✓。
+ * ○→✓ 用 MorphIcons 弹簧形变（snappy，轻微过冲不弹跳；reducedMotion=user 跟随系统）。
  * role=checkbox（位置无关的可达性/测试锚点）。
  */
 export function CompletionControl({ checked, onChange, label }: CompletionControlProps) {
@@ -23,9 +25,12 @@ export function CompletionControl({ checked, onChange, label }: CompletionContro
       onPointerDown={(e) => e.stopPropagation()}
     >
       <span className="cc__dot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" className="cc__check">
-          <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <MorphIcon
+          icon={checked ? checkNode : circleNode}
+          spring="snappy"
+          reducedMotion="user"
+          className="cc__morph"
+        />
       </span>
     </button>
   )

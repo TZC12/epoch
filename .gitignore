@@ -34,3 +34,4 @@ tsconfig.tsbuildinfo
 .DS_Store
 *.logsnap-login.png
 .mimosa/
+mobile-ui-restore/

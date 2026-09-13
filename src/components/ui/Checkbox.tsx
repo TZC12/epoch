@@ -1,4 +1,5 @@
-import { Check } from 'lucide-react'
+import { MorphIcon } from 'morphicons/react'
+import { squareNode, checkNode } from '@/lib/morph-icons'
 import './checkbox.css'
 
 export interface CheckboxProps {
@@ -11,7 +12,7 @@ export interface CheckboxProps {
 
 /**
  * 完成勾选（唯一强调色语义：绿=完成/活跃）。
- * 视觉 22px 圆环 + 44px 热区；reveal 仅颜色/透明度过渡，无缩放无爆炸。
+ * 视觉 22px 方框 + 44px 热区；□→✓ 用 MorphIcons 弹簧形变（snappy；reducedMotion=user）。
  */
 export function Checkbox({ checked, onChange, label, disabled, className = '' }: CheckboxProps) {
   return (
@@ -25,7 +26,12 @@ export function Checkbox({ checked, onChange, label, disabled, className = '' }:
       onClick={() => onChange(!checked)}
     >
       <span className="ck__box" aria-hidden="true">
-        {checked && <Check size={13} strokeWidth={2.5} />}
+        <MorphIcon
+          icon={checked ? checkNode : squareNode}
+          spring="snappy"
+          reducedMotion="user"
+          className="ck__morph"
+        />
       </span>
     </button>
   )

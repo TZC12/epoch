@@ -32,6 +32,7 @@ export function TlRow({
   const sw = useSwipeReveal()
   const onBodyClick = (): void => {
     if (sw.justSwiped()) return                        /* 幽灵窗：滑完 450ms 内的合成 click 忽略 */
+    if (document.body.dataset.pagerGhost) { delete document.body.dataset.pagerGhost; return } /* 长按翻卡后的合成 click */
     if (sw.reveal) { sw.collapse(); return }           /* 已露出 → 点行身收回 */
     onOpen?.()
   }

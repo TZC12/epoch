@@ -1,4 +1,5 @@
-/* Trailing Completion Control：视觉 18px 圆点，命中区 44pt（§六）。 */
+/* Trailing Completion Control：视觉 18px 圆点，命中区 44pt（§六）。
+   ○→✓ 形变由 MorphIcon 承担（idle 圆环=Circle 描边，done=Check 描边 + 填充）。 */
 .cc {
   position: relative;
   width: var(--touch-min);
@@ -12,43 +13,30 @@
   cursor: pointer;
   border-radius: var(--r-full);
   -webkit-tap-highlight-color: transparent;
+  color: var(--text-disabled);          /* idle 圆环 */
+  transition: color var(--dur-2) var(--ease);
 }
+.cc:hover { color: var(--text-tertiary); }
 .cc:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 2px; }
 
 .cc__dot {
   width: 18px;
   height: 18px;
   border-radius: var(--r-full);
-  border: 2px solid var(--text-disabled);
+  border: 2px solid transparent;        /* 圆环来自 Circle 形变，容器不画圈 */
   display: flex;
   align-items: center;
   justify-content: center;
-  color: transparent;
   transition: border-color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease),
     transform var(--dur-2) var(--ease-spring);
 }
-.cc:hover .cc__dot { border-color: var(--text-tertiary); }
 .cc:active .cc__dot { transform: scale(0.88); }
 
-/* ◉：accent-soft 填充 + accent 描边（绿=完成的唯一语义） */
+/* ◉：accent-soft 填充 + accent 描边（绿=完成的唯一语义），✓ 形变落位 */
+.cc--on { color: var(--accent-strong); }
 .cc--on .cc__dot {
   border-color: var(--accent);
   background: var(--accent-soft);
-  transform: scale(1);
 }
-/* ✓ 描边动画 */
-.cc__check { width: 12px; height: 12px; }
-.cc__check path {
-  stroke: var(--accent-strong);
-  stroke-dasharray: 24;
-  stroke-dashoffset: 24;
-}
-.cc--on .cc__check path {
-  animation: cc-draw 250ms var(--ease-spring) forwards;
-}
-@keyframes cc-draw { to { stroke-dashoffset: 0; } }
 
-/* reduced-motion：瞬时切换 */
-@media (prefers-reduced-motion: reduce) {
-  .cc__check path { animation: none; stroke-dashoffset: 0; }
-}
+.cc__morph { width: 12px; height: 12px; }

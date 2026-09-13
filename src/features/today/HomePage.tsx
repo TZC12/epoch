@@ -46,6 +46,7 @@ function InboxRow({ item, deleteLabel, onOpen, onDelete }: {
   const sw = useSwipeReveal()
   const onBodyClick = (): void => {
     if (sw.justSwiped()) return
+    if (document.body.dataset.pagerGhost) { delete document.body.dataset.pagerGhost; return } /* 长按翻卡后的合成 click */
     if (sw.reveal) { sw.collapse(); return }
     onOpen()
   }

@@ -44,7 +44,8 @@
   display: flex;
   align-items: flex-start;
   width: 100%;
-  transform: translateX(calc(var(--pager-x) * (-100% / var(--pager-n))));
+  /* 每页 = 视口宽：translateX 百分比相对 track 自身宽（=视口宽），故每页 -100% */
+  transform: translateX(calc(var(--pager-x) * -100%));
   transition: none;
 }
 .spager.is-snapping .spager__track { transition: transform var(--dur-snap) var(--ease); }

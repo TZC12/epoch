@@ -167,6 +167,9 @@ const run = async () => {
     await page.mouse.up()
     await page.waitForTimeout(500)
     ok(await page.locator('button[role="tab"]:has-text("事件")').getAttribute('aria-selected') === 'true', 'E2E4 横滑翻到事件页')
+    // 可见性断言（防「状态切了但页没滑到位」回归：事件页必须真正进入视口）
+    const evBox = await page.locator('.spager__page').nth(1).boundingBox()
+    ok(evBox.x > -10 && evBox.x < 60, 'E2E4 事件页滑入视口（x≈0）')
 
     // 2) 长按 + 横拖（页顶空白先滑回任务页 → 再行上长按起点横拖去事件）
     await page.mouse.move(start.x, start.y)

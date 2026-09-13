@@ -75,6 +75,9 @@ export function SegmentedPager({ tabs, ariaLabel, initial = 0 }: { tabs: PagerTa
     const wasArmed = s.armed          /* 先取判定，再清理（cleanup 会重置 armed） */
     cleanup()
     if (!wasArmed) { setX(idxRef.current, true); return }
+    /* 武装过的拖动：抑制松手合成 click（否则行身会打开详情） */
+    document.body.dataset.pagerGhost = '1'
+    window.setTimeout(() => { delete document.body.dataset.pagerGhost }, 450)
     let next = idxRef.current
     if (s.dx < -width() / 3 || s.vel < -0.5) next = Math.min(tabs.length - 1, idxRef.current + 1)
     else if (s.dx > width() / 3 || s.vel > 0.5) next = Math.max(0, idxRef.current - 1)
@@ -102,7 +105,9 @@ export function SegmentedPager({ tabs, ariaLabel, initial = 0 }: { tabs: PagerTa
   const onPointerDown = (e: ReactPointerEvent): void => {
     if (tabs.length < 2 || g.current.pointerId !== -1) return
     const t = e.target as HTMLElement
-    if (t.closest('input, textarea, select, button, [role="checkbox"], a')) return
+    /* 输入类/链接/勾选框永不接管；按钮允许——长按+拖动是合法翻页起点，
+       其松手合成 click 由 pagerGhost 抑制（行身点击处检查） */
+    if (t.closest('input, textarea, select, [role="checkbox"], a')) return
     g.current.pointerId = e.pointerId
     g.current.startX = e.clientX
     g.current.startY = e.clientY
