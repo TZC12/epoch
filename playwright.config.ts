@@ -61,6 +61,13 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
+    // ───── PWA 离线（SW 注册 + 预缓存 + 断网启动）─────
+    {
+      name: 'pwa',
+      testMatch: /pwa\/.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+
     // ───── visual 7 viewport ─────
     {
       name: 'visual',
@@ -70,37 +77,38 @@ export default defineConfig({
     {
       name: 'vp-375',
       testMatch: /visual\/.*\.spec\.ts/,
-      use: { ...devices['iPhone SE'] },  // 375x667
+      // 统一用 Chromium 渲染（本机只装了 chromium），尺寸对齐 iPhone SE
+      use: { ...devices['Desktop Chrome'], viewport: { width: 375, height: 667 } },
     },
     {
       name: 'vp-390',
       testMatch: /visual\/.*\.spec\.ts/,
-      use: { ...devices['iPhone 13'] }, // 390x844
+      use: { ...devices['Desktop Chrome'], viewport: { width: 390, height: 844 } },
     },
     {
       name: 'vp-430',
       testMatch: /visual\/.*\.spec\.ts/,
-      use: { viewport: { width: 430, height: 932 } },
+      use: { ...devices['Desktop Chrome'], viewport: { width: 430, height: 932 } },
     },
     {
       name: 'vp-768',
       testMatch: /visual\/.*\.spec\.ts/,
-      use: { viewport: { width: 768, height: 1024 } },
+      use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 } },
     },
     {
       name: 'vp-1024',
       testMatch: /visual\/.*\.spec\.ts/,
-      use: { viewport: { width: 1024, height: 768 } },
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1024, height: 768 } },
     },
     {
       name: 'vp-1440',
       testMatch: /visual\/.*\.spec\.ts/,
-      use: { viewport: { width: 1440, height: 900 } },
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
     },
     {
       name: 'vp-1920',
       testMatch: /visual\/.*\.spec\.ts/,
-      use: { viewport: { width: 1920, height: 1080 } },
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1920, height: 1080 } },
     },
   ],
 })

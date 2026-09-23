@@ -5,12 +5,16 @@ import { AISuggestSheet } from '@/features/ai/AISuggestSheet'
 import { useData, initialData } from '@/services/store'
 import * as A from '@/services/actions'
 
-const okResponse = (body: unknown) => new Response(JSON.stringify(body), { status: 200 })
+/* 新链路：requestAI 走用户自带 OpenAI 兼容接口（ai-provider），响应为 choices[0].message.content 信封 */
+const okResponse = (payload: unknown) => new Response(JSON.stringify({
+  choices: [{ message: { content: JSON.stringify(payload) } }],
+}), { status: 200 })
 
 beforeEach(() => {
   localStorage.clear()
   useData.persist.clearStorage()
   A.__replaceStateForTests(structuredClone(initialData))
+  A.setAIConfig({ baseUrl: 'https://api.test.example/v1', apiKey: 'sk-test', model: 'test-model' })
 })
 
 afterEach(() => { vi.restoreAllMocks() })
@@ -40,7 +44,7 @@ describe('AI mutation 红线（Phase 5）', () => {
     await waitFor(() => expect(useData.getState().tasks).toHaveLength(1))
     expect(useData.getState().tasks[0]).toMatchObject({ title: '写周报', time: '10:00' })
     // 未勾选的 p2 记入拒绝记忆
-    const rejected = JSON.parse(localStorage.getItem('epoch-ai-rejected') ?? '[]')
+    const rejected = JSON.parse(localStorage.getItem('epoch-ai-rejected') ?? '[]') as string[]
     expect(rejected).toContain('adjust_note::下周少排一天会')
     void spy
   })
@@ -54,7 +58,7 @@ describe('AI mutation 红线（Phase 5）', () => {
   })
 
   it('越权动作类型（白名单外）→ 拒绝，零落库', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"proposals":[{"id":"p1","type":"delete_all_tasks","title":"清空"}]}', { status: 200 }))
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(okResponse({ proposals: [{ id: 'p1', type: 'delete_all_tasks', title: '清空' }] }))
     mount()
     await waitFor(() => expect(screen.getByText(/无法识别/)).toBeInTheDocument())
     expect(useData.getState().tasks).toHaveLength(0)
@@ -66,8 +70,8 @@ describe('AI mutation 红线（Phase 5）', () => {
     await waitFor(() => expect(screen.getByText(/无法识别/)).toBeInTheDocument())
   })
 
-  it('ai_not_configured(503) → 明确提示', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 503 }))
+  it('未配置接口 → 明确提示去「我的 → AI 接口」', async () => {
+    A.setAIConfig(null)
     mount()
     await waitFor(() => expect(screen.getByText(/未配置/)).toBeInTheDocument())
   })

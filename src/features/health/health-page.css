@@ -1,0 +1,79 @@
+/* HealthPage（概念稿 page6）：得分卡 + 2×2 指标 + 7 日步数柱 + 手动记录。 */
+.health { display: flex; flex-direction: column; gap: var(--sp-4); }
+
+.health-score {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-5);
+  border-radius: var(--r-lg);
+  background: var(--ink);
+  color: var(--ink-inverse);
+  box-shadow: var(--elev-floating);
+}
+.health-score .eyebrow { opacity: 0.6; color: currentColor; }
+.health-score__num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-display);
+  line-height: var(--lh-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.health-score__grade { color: currentColor; opacity: 0.8; margin: 0; }
+
+.health-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+}
+.health-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-md);
+  box-shadow: var(--elev-surface);
+  padding: var(--sp-4);
+  color: var(--text-tertiary);
+}
+.health-stat--wide { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: var(--sp-2); }
+.health-stat__label { color: var(--text-tertiary); }
+.health-stat__value { font-size: var(--fs-h3); color: var(--text-primary); font-weight: 500; }
+.health-stat--wide .health-stat__value { margin-left: auto; font-size: var(--fs-body); }
+.health-stat__delta { font-style: normal; color: var(--urgent); margin-left: var(--sp-2); font-size: var(--fs-caption); }
+
+.health-week {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-md);
+  box-shadow: var(--elev-surface);
+  padding: var(--sp-4);
+}
+.health-week__head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--sp-3); }
+.health-week__head h2 { margin: 0; color: var(--text-tertiary); }
+.health-bars { display: flex; align-items: flex-end; gap: var(--sp-2); height: 88px; }
+.health-bars__col {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-1);
+}
+.health-bars__col i {
+  width: 100%;
+  border-radius: var(--sp-1);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  transition: height var(--dur-3) var(--ease);
+}
+.health-bars__col i.on { background: var(--accent); border-color: transparent; }
+.health-bars__col b { font-weight: 400; color: var(--text-disabled); font-size: 10px; }
+.health-goal { margin: var(--sp-2) 0 0; color: var(--text-tertiary); }
+
+.health-form { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-2) 0; }
+.health-sheet__acts { display: flex; gap: var(--sp-2); width: 100%; }
+.health-sheet__acts > * { flex: 1; }

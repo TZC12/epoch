@@ -4,9 +4,10 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 0;
-  opacity: 0.55;                    /* subtle（默认） */
+  /* 背景层语义：.app 是 z-index:1 的层叠上下文，-1 让点阵绘在所有内容之下、body 底色之上（与 web 端 .dot-field 等价） */
+  z-index: -1;
+  opacity: 1;                       /* subtle（默认）：点/线自身 alpha 已做弱化，画布不再二次压暗 */
   transition: opacity var(--dur-5) var(--ease);
 }
-.netbg[data-tier='ambient'] { opacity: 0.78; }
+.netbg[data-tier='ambient'] { opacity: 1; }
 .netbg[data-tier='featured'] { opacity: 1; }

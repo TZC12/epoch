@@ -18,38 +18,44 @@
   overscroll-behavior-y: contain;
 }
 
-/* ── 底部导航（移动 + 平板）── */
+/* ── 底部导航（<1024）：悬浮居中圆胶囊（与网页端同款）──
+   三个图标等宽格子均匀分布；激活 = 前景色转主文本色 + 图标描边加粗，
+   无填充底、无滑动 pill——点图标即切页（2026-09-22 用户二次指示）。文字 sr-only 留给读屏。 */
 .app-tabbar {
+  --tab-dur: 150ms;
   position: fixed;
-  bottom: 0; left: 0; right: 0;
+  bottom: calc(var(--sp-3) + env(safe-area-inset-bottom, 0px));
+  left: var(--sp-3); right: var(--sp-3);
   z-index: 30;
   display: flex;
   align-items: stretch;
-  padding: var(--sp-2) var(--sp-3) calc(var(--sp-3) + env(safe-area-inset-bottom, 0px));
+  max-width: 380px;
+  margin: 0 auto;
+  padding: var(--sp-1);
+  border-radius: var(--r-pill);
   background: var(--glass);
   backdrop-filter: var(--blur);
   -webkit-backdrop-filter: var(--blur);
-  border-top: 1px solid var(--glass-border);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--elev-floating);
 }
 .app-tab {
   flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--sp-1);
-  min-height: var(--touch-min);
-  border-radius: var(--r-sm);
+  height: 48px;
+  border-radius: var(--r-pill);
   color: var(--text-tertiary);
   text-decoration: none;
-  font-size: var(--fs-caption);
-  font-weight: 500;
-  /* 导航零动效（2026-09-08 用户指示）：仅颜色过渡 */
-  transition: color var(--dur-1) var(--ease);
+  /* 导航零装饰动效（2026-09-08 用户指示）：仅颜色过渡 */
+  transition: color var(--tab-dur) var(--ease);
 }
-.app-tab span { line-height: 1; }
 .app-tab:hover { color: var(--text-secondary); }
 .app-tab.on { color: var(--text-primary); }
+@media (prefers-reduced-motion: reduce) {
+  .app-tab { transition: none !important; }
+}
 
 /* ── 桌面侧栏（≥1024）── */
 .app-sidebar { display: none; }
@@ -88,7 +94,21 @@
   .app-main { padding-bottom: var(--sp-8); }
 }
 
-/* 内容列在桌面加宽 */
+/* 桌面：内容列居中加宽 */
 @media (min-width: 1024px) {
   .app-main { max-width: 720px; }
+}
+
+/* 路由切换淡入（key=pathname 让每次切页都重新挂载）。
+   用 prefers-reduced-motion: no-preference 包住——视觉测试已 emulate reduce，
+   不触发，避免截图捕获到 opacity:0 的起始态造成基线漂移。
+   ⚠ 只许动 opacity：任何 transform/translate/scale 都会让本层成为
+   .home-fab 等 position:fixed 后代的包含块（fixed 相对内容块定位），
+   动画期间 FAB 会从视口右下漂到画面中部、结束再跳回——曾经的"加号卡 0.1 秒"。 */
+@media (prefers-reduced-motion: no-preference) {
+  .app-route-in { animation: route-in var(--dur-3) var(--ease) backwards; }
+}
+@keyframes route-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

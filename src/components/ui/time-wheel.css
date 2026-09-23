@@ -1,0 +1,17 @@
+/* 时间滚轮的排布：两列等宽并排 + 清除钮。皮全部来自官方 WheelPicker，这里不写颜色/圆角/描边。 */
+.twheel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  align-items: flex-start;
+}
+.twheel__cols {
+  display: flex;
+  gap: var(--sp-3);
+  width: 100%;
+}
+.twheel__cols > * {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 132px;   /* 两列各自太宽会显得空；iOS 的滚轮本来就是窄条 */
+}

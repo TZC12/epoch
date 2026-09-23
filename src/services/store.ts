@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { dateKey, todayKey } from '@/lib/dates'
+import { dateKey, todayKey, addDays } from '@/lib/dates'
 import type { DataState, Task, DayStat } from './types'
 
 /**
@@ -9,6 +9,7 @@ import type { DataState, Task, DayStat } from './types'
  */
 export const initialData: DataState = {
   direction: { statement: '', domains: [], wake: null, sleep: null, work: null },
+  profile: { nickname: '', avatar: null },
   goals: [],
   routines: [],
   tasks: [],
@@ -17,13 +18,45 @@ export const initialData: DataState = {
   reviews: {},
   dayStats: {},
   health: null,
+  fitSessions: [],
+  fitToday: null,
+  learnLangs: [],
+  learnActive: null,
+  learnEntries: [],
+  learnWords: [],
+  aiConfig: null,
+  notes: [],
+  noteFolders: [],
+  healthDays: {},
   lastDay: null,
 }
 
 export const useData = create<DataState>()(
   persist(() => initialData, {
     name: 'epoch-data-v2',
-    version: 1,
+    version: 6,
+    /* v1→v2：新增 fit/learn/notes/healthDays 分片；v2→v3：aiConfig + learnWords SRS 字段补齐；
+       v3→v4：note.tag（单标签字符串）→ note.tags（Token Field 多标签）；v4→v5：profile（昵称+自选头像）；
+       v5→v6：备忘文件夹（noteFolders 分片 + note.folderId，本机专属） */
+    migrate: (persisted) => {
+      const s = { ...initialData, ...(persisted as Partial<DataState>) }
+      const today = todayKey()
+      s.learnWords = (s.learnWords ?? []).map((w) => ({
+        ...w,
+        example: w.example ?? null, tag: w.tag ?? null,
+        box: w.box ?? 1, due: w.due ?? today, source: w.source ?? 'manual',
+      }))
+      s.notes = (s.notes ?? []).map((n) => {
+        const { tag: legacy, ...rest } = n as unknown as { tag?: string } & typeof n
+        const tags = Array.isArray(n.tags) ? n.tags : (legacy ? [legacy] : [])
+        /* v6：老快照没有 folderId；顺带挡掉指向已不存在文件夹的悬空引用 */
+        return { ...rest, tags, folderId: n.folderId ?? null }
+      })
+      s.noteFolders = (s.noteFolders ?? []).filter((f) =>
+        s.notes.filter((n) => n.folderId === f.id).length >= 2,
+      )
+      return s
+    },
   }),
 )
 
@@ -81,17 +114,11 @@ export function goalPct(goalId: string, tasks: Task[], logs: { routineId: string
   const rel = tasks.filter((t) => t.goalId === goalId && t.status !== 'cancelled')
   const doneN = rel.filter((t) => t.status === 'completed').length
   const rids = new Set(routines.filter((r) => r.goalId === goalId).map((r) => r.id))
-  const cutoff = dateKey(addDaysLocal(-7))
+  const cutoff = dateKey(addDays(new Date(), -7))
   const logN = rids.size > 0 ? logs.filter((l) => rids.has(l.routineId) && l.date > cutoff).length : 0
   const denom = rel.length + rids.size * 7
   if (denom === 0) return 0
   return Math.max(0, Math.min(100, Math.round(((doneN + logN) / denom) * 100)))
-}
-
-function addDaysLocal(n: number): Date {
-  const d = new Date()
-  d.setDate(d.getDate() + n)
-  return d
 }
 
 /* ── 跨日 rollover（对齐 legacy checkDayRollover：boot / 30s / visibilitychange） ── */

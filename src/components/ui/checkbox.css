@@ -10,9 +10,14 @@
   padding: 0;
   cursor: pointer;
   color: var(--border-strong);          /* idle 方框（形变起点） */
-  transition: color var(--dur-1) var(--ease);
+  /* 刻意不写自己的 transition：同特异性下组件 CSS 会整条覆盖 global.css 的按压契约
+     （实测 .ck 的 transitionProperty 只剩 color，scale 不进列表=按压瞬间跳）。
+     契约里已含 color/dur-1/--ease，行为不变。 */
 }
 .ck:hover { color: var(--text-disabled); }
+/* 过渡轨道（含 scale）走 global.css 的按压契约——.ck 之前不在名单里，
+   点下去只有颜色变化、零形变反馈，是同类控件里唯一的例外。 */
+.ck:active:not(:disabled) { scale: 0.92; }
 .ck__box {
   width: 22px;
   height: 22px;

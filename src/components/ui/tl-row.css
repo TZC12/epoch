@@ -1,42 +1,29 @@
-/* 时间轴行：Paper Mono flat 面；删除钮待命时 visibility:hidden（防行外溢出，真机结论）。 */
-.tl-row {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--r-md);
-}
-.tl-row__del-slot {
-  position: absolute;
-  top: 0; right: 0; bottom: 0;
-  width: 64px;
-  display: flex;
-  align-items: stretch;
-  visibility: hidden;
-}
-.tl-row--reveal .tl-row__del-slot { visibility: visible; }
+/* 时间轴行。
+   几何、位移、触控轴（touch-action）、露出动画全部交给 @beui/swipeable-list
+   （motion 引擎驱动 transform），这里只留三件它不该知道的事：
+     1) 完成 / 停用 / 紧急的状态语义（挂在行内容 .tl-row 上）；
+     2) 删除动作的皮（官方只给尺寸 + tone）；
+     3) .tl-row__inner 这个名字本身——SegmentedPager 靠它判定"手势起点在行上"。
+   ⚠ 别再往 .tl-row__inner 上加 transition: transform：motion 每帧写一次
+     inline transform，CSS 过渡只会让行拖在手指后面（真机验证过的抖法）。 */
+
 .tl-row__del {
-  flex: 1;
-  margin: var(--sp-1);
-  border: 0;
+  border: 0;               /* 本 App 不引 preflight，button 默认边框要自己抹掉 */
+  background: transparent;
+  padding: var(--sp-1);    /* 旧版是 pill 的 margin；宽度由官方 actionWidth 给 */
+  cursor: pointer;
+}
+.tl-row__del > span {
+  width: 100%;
+  height: 100%;
   border-radius: var(--r-sm);
   background: var(--danger-soft);
   color: var(--danger);
   font-size: var(--fs-small);
   font-weight: 500;
-  cursor: pointer;
 }
-.tl-row__del:active { background: var(--danger-soft); color: var(--danger-strong); }
-.tl-row__inner {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background: var(--surface);
-  border-radius: var(--r-md);
-  /* 行文本网格：左 --sp-3 与收集箱/全局内容线对齐；右 --sp-2 与完成控件留距 */
-  padding: var(--sp-1) var(--sp-2) var(--sp-1) var(--sp-3);
-  touch-action: pan-y; /* 行=纵滚归浏览器、横滑归 JS（真机三轮结论，勿改） */
-  transition: transform var(--dur-2) var(--ease);
-}
-.tl-row__inner--drag { transition: none; }
+.tl-row__del:active > span { color: var(--danger-strong); }
+
 .tl-row__body {
   flex: 1;
   min-width: 0;
@@ -49,8 +36,12 @@
   border: 0;
   cursor: pointer;
   text-align: left;
+  /* 按压反馈：之前整行可点却没有任何 :active 表现，
+     用户点下去不确定有没有被登记（BUTTON_STATE 要求 140ms 内可见） */
+  transition: opacity var(--dur-1) var(--ease);
 }
-.tl-row__title { color: var(--text-primary); }
+.tl-row__body:active { opacity: var(--op-secondary); }
+.tl-row__title { position: relative; color: var(--text-primary); }
 .tl-row__meta { color: var(--text-tertiary); }
 .tl-row__note {
   max-width: 100%;
@@ -59,9 +50,41 @@
   white-space: nowrap;
   color: var(--text-tertiary);
 }
-/* 完成态弱化：透明度下降 + 删除线。无大勾号无动画。 */
-.tl-row--done .tl-row__inner { opacity: var(--op-secondary); }
-.tl-row--done .tl-row__title { text-decoration: line-through; color: var(--text-tertiary); }
+/* 未露出时整条动作轨不画。官方用 inert 表达"这条轨现在不可达"，我们借它当样式钩子。
+   必须留着这条：完成/停用行的行面是半透明的（下面 :has 那两条 opacity），
+   不隐藏就会把待命的删除钮从行面底下透出来（真机截图实测到）。
+   旧版同一条规则叫 .tl-row__del-slot { visibility: hidden }。 */
+.tl-row > [inert] { visibility: hidden; }
+
+/* 完成态：透明度过渡 + 删除线「划过」。
+   之前是瞬间 line-through，用户看不出状态刚发生变化（SUCCESS_FEEDBACK 缺口）。
+   删除线用伪元素 scaleX 划过——text-decoration 无法动画，且 scaleX 走合成层不触发布局。
+   状态类挂在行内容（.tl-row--done，我们渲染的那层）上，而"整张行面淡出"要落在
+   它的祖先 .tl-row__inner 上——CSS 没有向上选择器，用 :has() 反向命中；
+   不能直接淡 .tl-row（那会把露出的删除轨一起淡掉，旧版不是这个口径）。 */
+.tl-row__inner:has(.tl-row--done) { opacity: var(--op-secondary); }
+.tl-row--done .tl-row__title { color: var(--text-tertiary); }
+/* 停用（计划页 switch 关）：淡出但可读——无删除线，划线=已完成专属语义 */
+.tl-row__inner:has(.tl-row--off) { opacity: 0.45; }
+.tl-row--off .tl-row__title { color: var(--text-tertiary); }
+.tl-row--done .tl-row__title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform-origin: left center;
+  animation: tl-strike var(--dur-2) var(--ease) both;
+}
+@keyframes tl-strike {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tl-row--done .tl-row__title::after { animation: none; }
+}
 /* 紧急：紫色状态点（用户指定的唯一紫色语义）。 */
 .tl-row--urgent .tl-row__title::before {
   content: '';

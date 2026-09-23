@@ -23,7 +23,9 @@ describe('PWA（manifest + SW）', () => {
   })
 
   it('manifest：standalone + 图标三项齐全', () => {
-    const m = JSON.parse(readFileSync(join(root, 'public/manifest.webmanifest'), 'utf8'))
+    // 文件级断言，类型与运行期无关；用最小 interface 代替 any。
+    interface ManifestShape { display: string; icons: { src: string }[]; start_url: string }
+    const m = JSON.parse(readFileSync(join(root, 'public/manifest.webmanifest'), 'utf8')) as ManifestShape
     expect(m.display).toBe('standalone')
     expect(m.icons.length).toBeGreaterThanOrEqual(3)
     for (const icon of m.icons) expect(existsSync(join(root, 'public', icon.src))).toBe(true)
@@ -36,6 +38,25 @@ describe('PWA（manifest + SW）', () => {
     expect(sw).toContain("url.pathname.startsWith('/api/')")
     expect(sw).toContain("url.origin !== self.location.origin")
     expect(sw).toContain("req.mode === 'navigate'")
+  })
+
+  it('sw.js：带 PRECACHE_ASSETS 注入点（postbuild 必须能落地清单）', () => {
+    // 占位符在构建前保留，构建后由 scripts/patch-sw.mjs 替换为实际清单。
+    // 这里断言的是 public/sw.js（源文件）仍含占位符，否则 patch 脚本会失败。
+    expect(sw).toContain('/* __PRECACHE_ASSETS__ */')
+  })
+
+  it('dist/sw.js：已注入构建产物清单（chunks + PWA 图标）', () => {
+    // CI 部署会校验 dist 产物；这里读 dist 验证 postbuild 跑过。
+    const distSwPath = join(root, 'dist/sw.js')
+    if (!existsSync(distSwPath)) {
+      // 没 build 过就跳过（local dev 缺 dist 是常态）
+      return
+    }
+    const distSw = readFileSync(distSwPath, 'utf8')
+    expect(distSw).not.toContain('/* __PRECACHE_ASSETS__ */')
+    expect(distSw).toMatch(/const PRECACHE_ASSETS = \[[^\]]+\]/)
+    expect(distSw).toContain('/icons/pwa-192.png')
   })
 
   it('SW 仅生产注册（dev 跳过）', () => {

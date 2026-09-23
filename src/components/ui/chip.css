@@ -11,10 +11,10 @@
   display: inline-flex;
   align-items: center;
   gap: var(--sp-1);
-  transition: background-color var(--dur-1) var(--ease), color var(--dur-1) var(--ease), transform var(--dur-1) var(--ease);
+  /* 过渡轨道由 global.css 的 .btn/.chip/.icon-btn/.hchip 契约统一给（含 scale） */
 }
 .chip:hover { color: var(--text-primary); }
-.chip:active { transform: scale(0.97); }
+.chip:active { scale: 0.97; }
 /* 选中态=墨色 pill（Paper Mono：绿仅完成/活跃语义；选择≠完成） */
 .chip.on { background: var(--ink); color: var(--ink-inverse); }
 
@@ -25,7 +25,8 @@
   border-radius: var(--r-pill);
   font-size: var(--fs-caption);
   font-weight: 500;
-  color: var(--text-tertiary);
+  /* 保持 Paper Mono 中性色，同时满足 surface-sunken 上 4.5:1 */
+  color: var(--text-secondary);
   background: var(--surface-sunken);
 }
 .tag--accent { color: var(--accent-strong); background: var(--accent-soft); }

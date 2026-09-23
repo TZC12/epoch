@@ -1,0 +1,30 @@
+/* Transitions.dev Spinning counter：列=裁切窗口（mask 柔化上下沿），strip=31 格卷轴。
+   cell 由组件行内 --reel-cell 给定；字号字体跟消费者（列 inherit）。 */
+.reel {
+  display: inline-flex;
+  align-items: center;
+  height: var(--reel-cell, 44px);
+  font-variant-numeric: tabular-nums;
+}
+.reel__col {
+  position: relative;
+  height: var(--reel-cell, 44px);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%);
+}
+.reel__strip {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+.reel__digit {
+  height: var(--reel-cell, 44px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reel__strip { transition: none !important; }
+}

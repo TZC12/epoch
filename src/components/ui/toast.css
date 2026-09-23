@@ -1,16 +1,37 @@
+/* Sonner 式堆叠 toast（Transitions.dev「Banner stacking」机制）。
+   全部 banner 绝对定位在盒底：depth0 最前，depth1/2 逐级上移 peek + 缩小 + 变淡 + 模糊；
+   悬停整列展开（间隙不属于任何元素，展开时把盒高撑到 3 行，leave 判定按盒边界）。
+   无彩色左条——弹窗除玻璃卡本身不允许有多余颜色。 */
 .toast-region {
+  --stack-open: 350ms;
+  --stack-close: 250ms;
+  --stack-rise: 60px;
+  --stack-blur: 2px;
+  --stack-scale: 0.97;
+  --stack-peek: 12px;
+  --stack-spread-gap: 8px;
+  --stack-depth-scale: 0.06;
+  --stack-depth-fade: 0.4;
+  --stack-depth1-blur: 1px;
+  --stack-depth2-blur: 2px;
+  --stack-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --stack-row: 64px;
   position: fixed;
   left: 50%;
   bottom: calc(var(--tabbar-h) + var(--sp-5) + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
   z-index: 80;
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-  pointer-events: none;
   width: min(calc(100vw - var(--sp-6)), var(--content-max));
+  height: var(--stack-row);
+  pointer-events: none;
 }
+.toast-region.is-spread { height: calc(var(--stack-row) * 3 + var(--stack-spread-gap) * 2); }
+
 .toast {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   gap: var(--sp-3);
@@ -23,9 +44,70 @@
   padding: var(--sp-3) var(--sp-4);
   font-size: var(--fs-small);
   color: var(--text-primary);
-  animation: toast-in var(--dur-3) var(--ease);
   pointer-events: auto;
+  transform-origin: 50% 50%;
+  filter: blur(0); /* 显式 blur(0)：blur→none 插值不可靠，会瞬切 */
+  will-change: transform, opacity, filter;
+  transition:
+    transform var(--stack-open) var(--stack-ease),
+    opacity var(--stack-open) var(--stack-ease),
+    filter var(--stack-open) var(--stack-ease);
 }
+.toast[data-depth='0'] { z-index: 3; transform: translateY(0) scale(1); opacity: 1; }
+.toast[data-depth='1'] {
+  z-index: 2;
+  transform-origin: 50% 100%;
+  transform: translateY(calc(var(--stack-peek) * -1)) scale(calc(1 - var(--stack-depth-scale)));
+  opacity: calc(1 - var(--stack-depth-fade));
+  filter: blur(var(--stack-depth1-blur));
+}
+.toast[data-depth='2'] {
+  z-index: 1;
+  transform-origin: 50% 100%;
+  transform: translateY(calc(var(--stack-peek) * -2)) scale(calc(1 - var(--stack-depth-scale) * 2));
+  opacity: calc(1 - var(--stack-depth-fade) * 1.6);
+  filter: blur(var(--stack-depth2-blur));
+}
+/* 展开：新的不动，旧的各爬一个 banner 高（100% = 自身高） */
+.toast-region.is-spread .toast[data-depth='1'],
+.toast-region.is-spread .toast[data-depth='2'] { opacity: 1; filter: blur(0); }
+.toast-region.is-spread .toast[data-depth='1'] {
+  transform: translateY(calc((100% + var(--stack-spread-gap)) * -1)) scale(1);
+}
+.toast-region.is-spread .toast[data-depth='2'] {
+  transform: translateY(calc((100% + var(--stack-spread-gap)) * -2)) scale(1);
+}
+/* 进场起点：无过渡摆到下方，下一帧摘掉 = 浮起 */
+.toast.is-enter {
+  transition: none;
+  transform: translateY(var(--stack-rise)) scale(var(--stack-scale));
+  opacity: 0;
+  filter: blur(var(--stack-blur));
+}
+/* 用户 dismissal / 到期：原路落回（下方） */
+.toast.is-exit {
+  z-index: 0;
+  transform: translateY(var(--stack-rise)) scale(var(--stack-scale));
+  opacity: 0;
+  filter: blur(var(--stack-blur));
+  transition:
+    transform var(--stack-close) var(--stack-ease),
+    opacity var(--stack-close) var(--stack-ease),
+    filter var(--stack-close) var(--stack-ease);
+}
+/* 被第 4 条挤出台阶：向堆的后方退场 */
+.toast.is-leaving {
+  z-index: 0;
+  transform-origin: 50% 100%;
+  transform: translateY(calc(var(--stack-peek) * -3)) scale(calc(1 - var(--stack-depth-scale) * 3));
+  opacity: 0;
+  filter: blur(var(--stack-blur));
+  transition:
+    transform var(--stack-close) var(--stack-ease),
+    opacity var(--stack-close) var(--stack-ease),
+    filter var(--stack-close) var(--stack-ease);
+}
+
 .toast__msg { flex: 1; }
 .toast__act {
   border: none; background: none; cursor: pointer;
@@ -36,9 +118,7 @@
 }
 .toast__act:hover { background: var(--surface-sunken); }
 
-/* 语义 = 左边条（不是彩虹底） */
-.toast--success { border-left: 3px solid var(--accent); }
-.toast--error { border-left: 3px solid var(--danger); }
-.toast--info { border-left: 3px solid var(--info); }
-
-@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .toast { transition: none !important; transform: none !important; filter: none !important; }
+  .toast.is-enter, .toast.is-exit, .toast.is-leaving { opacity: 0; }
+}

@@ -1,0 +1,32 @@
+/* Transitions.dev「Matrix dot loader」皮肤：Paper Mono。
+   16 格共享一条 background-color 脉冲（1200ms ease-in-out），variant 只是 --d 延迟表。
+   方形点保留"矩阵"质感；颜色走 ink token，深浅色自动跟随。 */
+.matrix {
+  --matrix-cycle: 1200ms;
+  --matrix-dot: 2px;
+  --matrix-base: color-mix(in srgb, var(--ink) 16%, transparent);
+  --matrix-active: var(--ink);
+  display: inline-grid;
+  grid-template-columns: repeat(4, var(--matrix-dot));
+  grid-auto-rows: var(--matrix-dot);
+  gap: var(--matrix-dot);
+  vertical-align: middle;
+}
+.matrix i {
+  display: block;
+  background: var(--matrix-base);
+  animation: matrix-pulse var(--matrix-cycle) ease-in-out infinite;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+/* 圆角变体（orbit/pulse）的空位：什么都不渲染 */
+.matrix i.is-gap { visibility: hidden; animation: none; }
+/* orbit 中心恒亮 */
+.matrix i.is-steady { animation: none; background: var(--matrix-active); }
+@keyframes matrix-pulse {
+  0%, 45%, 100% { background-color: var(--matrix-base); }
+  15% { background-color: var(--matrix-active); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .matrix i { animation: none !important; }
+}

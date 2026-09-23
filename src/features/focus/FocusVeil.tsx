@@ -4,9 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
 import { useToast } from '@/components/ui/Toast'
 import { useFocus } from './focusStore'
+import { fmtClock } from '@/lib/dates'
 import './focus.css'
-
-const fmt = (s: number): string => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 
 /**
  * Focus 全屏（spec：任务名/倒计时/Start，无装饰）。
@@ -33,7 +32,7 @@ export function FocusVeil() {
   return createPortal(
     <div className="focus-veil" role="dialog" aria-modal="true" aria-label={title}>
       <p className="focus-veil__task t-h3">{title}</p>
-      <div className={`focus-veil__time t-display tnum ${finished ? 'is-done' : ''}`}>{finished ? t('focus.done') : fmt(seconds)}</div>
+      <div className={`focus-veil__time t-display tnum ${finished ? 'is-done' : ''}`}>{finished ? t('focus.done') : fmtClock(seconds)}</div>
       <Button onClick={toggle} disabled={finished}>{running ? t('focus.pause') : t('focus.start')}</Button>
       <button type="button" className="focus-veil__quit t-small" onClick={onQuit}>{t('focus.quit')}</button>
     </div>,

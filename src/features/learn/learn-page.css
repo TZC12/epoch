@@ -1,0 +1,135 @@
+/* LearnPage（概念稿 page4）：今日学习卡 + 语言 chips + MODES + 生词管理。 */
+.learn { display: flex; flex-direction: column; gap: var(--sp-4); }
+.learn-sec-title { margin: var(--sp-1) 0 var(--sp-3); color: var(--text-tertiary); }
+
+.learn-today {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-md);
+  box-shadow: var(--elev-surface);
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.learn-today__head { display: flex; align-items: center; justify-content: space-between; }
+.learn-today__streak {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  color: var(--urgent);
+  font-size: var(--fs-caption);
+}
+.learn-today__nums { display: flex; gap: var(--sp-5); }
+.learn-today__num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-h1);
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+.learn-today__num i { font-style: normal; font-size: var(--fs-caption); color: var(--text-tertiary); margin-left: var(--sp-1); }
+.learn-today__goal { margin: 0; }
+
+.learn-langs { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.learn-mode-list { display: flex; flex-direction: column; }
+
+/* 复习卡片 */
+.learn-review { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-2) 0; }
+.learn-count { text-align: right; }
+.learn-card {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface-sunken);
+  border-radius: var(--r-lg);
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  cursor: pointer;
+  padding: var(--sp-5);
+}
+.learn-card__word { color: var(--text-primary); text-align: center; }
+.learn-card__mean { color: var(--accent); text-align: center; }
+.learn-card__hint { color: var(--text-disabled); }
+.learn-review__acts { display: flex; gap: var(--sp-2); }
+.learn-review__acts > * { flex: 1; }
+.learn-sheet__acts { display: flex; gap: var(--sp-2); width: 100%; }
+.learn-sheet__acts > * { flex: 1; }
+
+/* 计时 */
+.learn-timer { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-4) 0; }
+.learn-timer__clock {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-display);
+  text-align: center;
+  color: var(--text-primary);
+}
+
+/* 添加语言 / 生词 */
+.learn-add { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-2) 0; }
+.learn-add__presets { display: flex; gap: var(--sp-2); }
+.learn-word-add { display: flex; align-items: flex-start; gap: var(--sp-2); }
+.learn-word-add > *:first-child, .learn-word-add > *:nth-child(2) { flex: 1; min-width: 0; }
+/* 按钮与输入行（而非 label 行）对齐：下移 label 高（caption 行高）+ field gap */
+.learn-word-add > button { margin-top: calc(var(--fs-caption) * var(--lh-caption) + var(--sp-2)); }
+/* 错误行占位：任一侧报错时，另一侧输入框与按钮都不跟着错位（flex-end 时代的老 bug） */
+.learn-word-add .field:not(:has(.field__err))::after {
+  content: '';
+  display: block;
+  height: calc(var(--fs-caption) * var(--lh-caption));
+}
+.learn-words { display: flex; flex-direction: column; gap: var(--sp-1); margin-top: var(--sp-3); }
+.learn-word {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-1);
+  border-bottom: 1px solid var(--divider);
+}
+.learn-word__w { color: var(--text-primary); }
+.learn-word__m { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.learn-langmgmt { display: flex; justify-content: flex-end; }
+
+/* ── 词库导入 + SRS 复习 + AI 整理 ── */
+.learn-due { margin-top: var(--sp-1); }
+.learn-sec-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); }
+.learn-sec-acts { display: flex; gap: var(--sp-2); }
+.learn-import { display: flex; flex-direction: column; gap: var(--sp-3); }
+.learn-import input[type='file'] { font-size: var(--fs-small); color: var(--text-secondary); }
+.learn-word__tag {
+  margin-left: var(--sp-2);
+  padding: 1px var(--sp-2);
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  color: var(--text-tertiary);
+  font-size: var(--fs-micro);
+}
+.learn-card__ex { display: block; margin-top: var(--sp-2); color: var(--text-tertiary); font-style: italic; }
+
+.learn-card { transition: transform var(--dur-2) var(--ease-spring); }
+.learn-card:active { transform: scale(0.985); }
+
+/* 口语声浪：聆听按钮（voice-glow VoiceBeam 的开关） */
+.learn-mic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  align-self: center;
+  padding: var(--sp-2) var(--sp-4);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: var(--fs-small);
+  cursor: pointer;
+  transition: transform var(--dur-2) var(--ease-spring), border-color var(--dur-1) var(--ease), color var(--dur-1) var(--ease);
+}
+.learn-mic:active { transform: scale(0.94); }
+.learn-mic:disabled { opacity: var(--op-disabled); cursor: not-allowed; }
+.learn-mic--live { border-color: var(--ink); color: var(--text-primary); }

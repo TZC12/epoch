@@ -1,4 +1,8 @@
 .seg {
+  /* Transitions.dev Tabs sliding：pill 与文字用同一条曲线，视觉才成一体 */
+  --seg-dur: 250ms;
+  --seg-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
   display: flex;
   gap: var(--sp-1);
   background: var(--surface-sunken);
@@ -8,6 +12,8 @@
   max-width: 100%;
 }
 .seg__btn {
+  position: relative;
+  z-index: 1;
   border: none;
   background: none;
   border-radius: var(--r-pill);
@@ -15,12 +21,38 @@
   min-height: 32px;
   font-size: var(--fs-small);
   font-weight: 500;
-  color: var(--text-tertiary);
+  /* --text-secondary：seg 容器底是 --surface-sunken(#ece9e0)，
+     tertiary(#6f6c64) 在其上只有 4.31:1（axe serious）。secondary(#6a6862)
+     在 sunken 上 4.59:1 达标，且与 tertiary 的视觉差 <2%，层级感不丢。 */
+  color: var(--text-secondary);
   cursor: pointer;
   white-space: nowrap;
-  transition: color var(--dur-1) var(--ease), background-color var(--dur-2) var(--ease);
+  /* 按下不做 scale：button 在 pill 上方，按压缩放会让标签和滑轨打架；
+     反馈由 pill 的滑动 + 换色承担（与 Transitions.dev 参考一致）。 */
+  transition: color var(--seg-dur) var(--seg-ease);
 }
 .seg__btn:hover { color: var(--text-primary); }
-.seg__btn:active { transform: scale(0.97); }
 /* 激活 = 黑 pill 白字（Paper Mono 主强调） */
-.seg__btn.on { background: var(--ink); color: var(--ink-inverse); }
+.seg__btn.on { color: var(--ink-inverse); }
+
+/* 滑轨药丸：transform/width 由 Seg 的 JS 写在行内，这里只管补间。
+   配色沿用 Paper Mono（ink 药丸），不套用片段自带的浅灰主题。 */
+.seg__pill {
+  position: absolute;
+  top: var(--sp-1);
+  left: 0;
+  width: 0;
+  height: calc(100% - var(--sp-1) * 2);
+  background: var(--ink);
+  border-radius: var(--r-pill);
+  z-index: 0;
+  pointer-events: none;
+  transition:
+    transform var(--seg-dur) var(--seg-ease),
+    width var(--seg-dur) var(--seg-ease);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seg__pill, .seg__btn { transition: none !important; }
+}

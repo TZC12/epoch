@@ -26,6 +26,7 @@
   touch-action: none;           /* 拖柄/头部区拖拽归 JS；表单区由 body 恢复 pan-y */
 }
 .sheet--tall { height: 88dvh; max-height: 88dvh; }
+.sheet { transition: transform var(--dur-3) var(--ease-spring); } /* 拖拽释放 settle；drag 中由 .sheet--drag 置 none */
 .sheet--drag { transition: none; user-select: none; -webkit-user-select: none; }
 .sheet--closing { animation: sheet-down var(--dur-out) var(--ease) forwards; }
 .sheet__handle {
@@ -49,6 +50,14 @@
   flex-shrink: 0;
 }
 
-@keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
-@keyframes sheet-down { from { transform: translateY(0); opacity: 1; } to { transform: translateY(100%); opacity: 1; } }
+/* Panel reveal 补层（Transitions.dev）：在既有全程 Y 行程上叠 opacity + 2px 交叉模糊，
+   开/收同一条曲线，短模糊与位移同步收束。⚠ 只加在动画帧上，不动拖拽 transition 结构。 */
+@keyframes sheet-up {
+  from { transform: translateY(100%); opacity: 0; filter: blur(2px); }
+  to { transform: translateY(0); opacity: 1; filter: blur(0); }
+}
+@keyframes sheet-down {
+  from { transform: translateY(0); opacity: 1; filter: blur(0); }
+  to { transform: translateY(100%); opacity: 0; filter: blur(2px); }
+}
 @keyframes sheet-fade { from { opacity: 0; } to { opacity: 1; } }

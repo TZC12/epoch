@@ -36,7 +36,7 @@ export function Panel({ open, title, onBack, backLabel, right, children, footer 
       <div className="panel" role="dialog" aria-modal="true" aria-label={title} ref={ref} tabIndex={-1}>
         <header className="panel__head">
           <button type="button" className="panel__back" onClick={onBack} aria-label={backLabel ?? title}>
-            <ArrowLeft size={20} strokeWidth={1.8} aria-hidden="true" />
+            <ArrowLeft size={20} aria-hidden="true" />
           </button>
           <h2 className="panel__title t-h3">{title}</h2>
           <div className="panel__right">{right}</div>

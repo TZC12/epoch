@@ -29,7 +29,9 @@ export default function GoalPanel() {
   const [editOpen, setEditOpen] = useState(false)
 
   const goal = goals.find((g) => g.id === id)
-  const close = () => navigate(-1)
+  // react-router v7 的 navigate 返回 Promise<void>；onBack 期望 void 回调，
+  // 用 void 显式丢弃返回值，避免 no-misused-promises。
+  const close = (): void => { void navigate(-1) }
 
   if (!goal) {
     return (
@@ -50,7 +52,7 @@ export default function GoalPanel() {
       title={goal.title}
       onBack={close}
       backLabel={t('common.back')}
-      right={<IconButton size="sm" icon={<Pencil size={16} strokeWidth={1.8} aria-hidden="true" />} label={t('common.edit')} onClick={() => setEditOpen(true)} />}
+      right={<IconButton size="sm" icon={<Pencil size={16} aria-hidden="true" />} label={t('common.edit')} onClick={() => setEditOpen(true)} />}
     >
       <div className="goalp">
         {goal.kicker && <p className="eyebrow">{goal.kicker}</p>}

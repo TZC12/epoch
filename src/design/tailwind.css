@@ -1,0 +1,181 @@
+/* ═══════════════════════════════════════════════════════════════════
+   TAILWIND BRIDGE · 把既有设计 token 暴露成 utility，不新增第二套真值
+   ───────────────────────────────────────────────────────────────────
+   三条硬规则（都源于本 App 的既有事实，改动前先读）：
+
+   1) 不引 preflight。global.css 已有一套经真机验证的最小 reset
+      （box-sizing/margin/字体继承/placeholder/img 块级）。再叠 Tailwind 的
+      preflight 等于同一批元素两条规则，未迁移组件会集体变样——这是渐进迁移
+      期间最难查的一类回归。需要 preflight 的某条时，明确写进 global.css，
+      并且**写在 @layer base 里**：未分层的 * 规则按规则 3 会赢过所有 utility，
+      实测那条未分层的 `* { margin: 0 }` 把 margin 系 utility 全量打死
+      （官方 swipeable-list 的右动作槽靠 ml-auto 定位，直接贴到了行首）。
+
+   2) @theme inline（不是 @theme）。值全部是 var(--…) 且**运行时换**：
+      明暗轴 data-mode × 配色轴 data-palette = 4 套色板。
+      inline 让 utility 直接引到原变量上；用普通 @theme 会为每个 token 再发
+      一条 :root 变量，而 --font-sans / --ease-spring 这类同名项会自指成
+      `--font-sans: var(--font-sans)`（非法、静默失效）。
+
+   3) 层级顺序。未分层的手写 CSS 优先级高于任何 @layer，所以迁移期
+      "旧组件继续赢"是安全默认；每迁一个组件要把它那份 CSS 删掉，
+      utility 才真正生效——留着不删就是"改了没反应"的假象来源。
+
+   4) 同一族的 utility 只允许出现一个，用三元分支而不是叠加。
+      `duration-(--dur-out) duration-(--dur-4)` 并存时，胜者由 Tailwind 的
+      生成顺序决定，与 class 书写顺序无关——Accordion 首迁就栽在这里
+      （展开态拿到了收起的时长与曲线，肉眼看不出、逐帧采样立刻暴露）。
+      需要"按状态换值"就 `open ? A : B`；需要叠加的只能是不同族
+      （如 duration-* 与 ease-* 可以同写）。
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* ── 2026-09-22 策略变更：不再清空 Tailwind 默认刻度 ──
+   之前用 @theme { --color-*: initial … } 把默认刻度全清掉，只挂我们的 token，
+   好处是 p-5 / text-sm / bg-white 这类绕过设计系统的写法根本不生成。
+   代价实测过：beui/shadcn 生态全线依赖默认刻度与语义色名，原样落盘的组件
+   有 11/14 个 utility 生成不出来（bg-card / border-border / text-foreground /
+   gap-1.5 / rounded-2xl / h-5 / text-sm 全为 0 条）= 结构性裸样式。
+   现在改为「默认刻度保留 + 我们的名字叠加 + shadcn 语义色名映射到我们的 token」，
+   第三方组件开箱可用；设计系统的约束从"编译期禁止"退成"review 期约定"。 */
+@theme inline {
+  /* shadcn 语义色名 → 指向我们的运行时变量（inline 才吃得到 data-mode/data-palette 切换） */
+  --color-background: var(--bg);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--surface-raised);
+  --color-popover-foreground: var(--text-primary);
+  --color-primary: var(--ink);
+  --color-primary-foreground: var(--ink-inverse);
+  --color-secondary: var(--surface-sunken);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted: var(--surface-sunken);
+  --color-muted-foreground: var(--text-secondary);
+  /* shadcn 的 accent=中性高亮底，不是品牌色；品牌绿另起 brand，避免语义撞车 */
+  --color-accent: var(--surface-sunken);
+  --color-accent-foreground: var(--text-primary);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: var(--ink-inverse);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--text-primary);
+  --color-brand: var(--accent);
+  --color-brand-soft: var(--accent-soft);
+  --color-brand-line: var(--accent-line);
+  /* ── 表面与文字（语义名对齐 web 端 --color-* 命名，双端同一套叫法） ── */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunken: var(--surface-sunken);
+  --color-raised: var(--surface-raised);
+  --color-fg: var(--text-primary);
+  /* 不重复定义 --color-muted：上面 shadcn 段已把它映射成 surface-sunken（一层底），
+     同名再映射成 text-secondary 会静默盖掉前一条——已装的 stepper/accordion
+     都用 hover:bg-muted / focus-visible:bg-muted/25 要的就是那层底。
+     次要文字请走 text-muted-foreground 或 text-subtle。 */
+  --color-subtle: var(--text-tertiary);
+  --color-quiet: var(--text-disabled);
+  --color-line: var(--divider);
+  --color-edge: var(--border);
+  --color-edge-strong: var(--border-strong);
+  --color-glass: var(--glass);
+  --color-glass-edge: var(--glass-border);
+  --color-scrim: var(--overlay);
+
+  /* ── 强调与语义色 ── */
+  --color-ink: var(--ink);
+  --color-ink-contrast: var(--ink-inverse);
+  /* 品牌绿只走 brand-*：accent-* 已让给 shadcn 语义（中性高亮底），两套含义不能同名 */
+  --color-brand-strong: var(--accent-strong);
+  --color-good: var(--success);
+  --color-good-soft: var(--success-soft);
+  --color-warn: var(--warning);
+  --color-warn-soft: var(--warning-soft);
+  --color-bad: var(--danger);
+  --color-bad-strong: var(--danger-strong);
+  --color-bad-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-urgent: var(--urgent);
+
+  /* ── 字族（utility 名走 font-*，原变量名不变） ── */
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+
+  /* ── 字阶七级：整级搬进 utility（family/size/line-height/weight/tracking 一体），
+       与 global.css 的 .t-* 逐项对齐，否则迁移会静默掉字距/字重。
+       **不含 color**：.t-* 今天把颜色也一起设了，导致组件要反向覆盖
+       （.acc__title 就得把 .t-small 的 secondary 改回 primary）；
+       这里把颜色交还给 text-fg/text-subtle 等显式 utility，一行只说一件事。 ── */
+  --text-display: var(--fs-display);
+  --text-display--line-height: var(--lh-display);
+  --text-display--font-family: var(--font-display);
+  --text-display--font-weight: 400;
+  --text-display--letter-spacing: -0.01em;
+  --text-h1: var(--fs-h1);
+  --text-h1--line-height: var(--lh-h1);
+  --text-h1--font-family: var(--font-display);
+  --text-h1--font-weight: 600;
+  --text-h1--letter-spacing: -0.01em;
+  --text-h2: var(--fs-h2);
+  --text-h2--line-height: var(--lh-h2);
+  --text-h2--font-family: var(--font-display);
+  --text-h2--font-weight: 600;
+  --text-h2--letter-spacing: -0.005em;
+  --text-h3: var(--fs-h3);
+  --text-h3--line-height: var(--lh-h3);
+  --text-h3--font-family: var(--font-display);
+  --text-h3--font-weight: 600;
+  --text-h3--letter-spacing: 0;
+  --text-body: var(--fs-body);
+  --text-body--line-height: var(--lh-body);
+  --text-body--font-weight: 400;
+  --text-small: var(--fs-small);
+  --text-small--line-height: var(--lh-small);
+  --text-small--font-weight: 400;
+  --text-caption: var(--fs-caption);
+  --text-caption--line-height: var(--lh-caption);
+  --text-caption--font-weight: 400;
+
+  /* ── 间距八档（p-1..p-8 / gap-1..gap-8 / mt-3 全部来自本表；
+       刻意不保留 Tailwind 的 --spacing 乘数，这样 p-5、p-9 这类刻度外取值直接不生成） ── */
+  --spacing-0: 0px;
+  --spacing-1: var(--sp-1);
+  --spacing-2: var(--sp-2);
+  --spacing-3: var(--sp-3);
+  --spacing-4: var(--sp-4);
+  --spacing-5: var(--sp-5);
+  --spacing-6: var(--sp-6);
+  --spacing-7: var(--sp-7);
+  --spacing-8: var(--sp-8);
+
+  /* ── 圆角 5 档 + 圆形（--r-pill=99px 胶囊、--r-full=50% 圆） ── */
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+  --radius-pill: var(--r-pill);
+  --radius-circle: var(--r-full);
+  --radius-none: 0px;
+
+  /* ── 阴影 4 级 ── */
+  --shadow-surface: var(--elev-surface);
+  --shadow-float: var(--elev-floating);
+  --shadow-modal: var(--elev-modal);
+
+  /* ── 缓动（时长走 duration-<ms> utility，不占命名位） ── */
+  --ease-std: var(--ease);
+  --ease-inout: var(--ease-inout);
+  --ease-spring: var(--ease-spring);
+  --ease-drag: var(--ease-drag);
+
+  /* ── 断点：移动优先，1024 起桌面侧栏（与 app-shell.css 的 @media 同值） ── */
+  --breakpoint-desk: 1024px;
+}
+
+/* 组件层的自定义 utility 以后放这里（@utility / @layer components），
+   一屏内出现第二个"手写选择器"就是走偏信号——先回 token 表找名字。 */

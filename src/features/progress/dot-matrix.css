@@ -24,25 +24,37 @@
 
 .dotmatrix__chart {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: var(--sp-1);
   padding: var(--sp-4) 0 var(--sp-2);
 }
 .dotmatrix__col { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); }
-.dotmatrix__dots {
+
+/* 热度格：一格=一个周期，颜色深浅=完成多少（GitHub 贡献图口径）。
+   色相走 --accent（暖纸=暖绿、黑白灰=中性墨），底色 --surface-sunken 兜住空档，
+   四档在两套配色下都保有可辨层级。 */
+.dm-cell {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 5px; /* 微格专用：--r-sm(12) 在 ~18px 格子上过圆，读起来像药丸不是热度格 */
+  background: var(--surface-sunken);
+}
+.dm-cell.lv-1 { background: color-mix(in srgb, var(--accent) 22%, var(--surface-sunken)); }
+.dm-cell.lv-2 { background: color-mix(in srgb, var(--accent) 45%, var(--surface-sunken)); }
+.dm-cell.lv-3 { background: color-mix(in srgb, var(--accent) 70%, var(--surface-sunken)); }
+.dm-cell.lv-4 { background: var(--accent); }
+
+.dm-legend {
   display: flex;
-  flex-direction: column-reverse;   /* 从下往上堆叠（图五形态） */
-  gap: 3px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  color: var(--text-tertiary);
 }
-.dotmatrix__dots i {
-  width: 6px;
-  height: 6px;
-  border-radius: var(--r-full);
-  background: var(--divider);
-}
-.dotmatrix__dots i.is-on { background: var(--ink); }
-.dotmatrix__dots i.is-cur { background: var(--surface-sunken); }
-.dotmatrix__dots i.is-half { background: var(--text-disabled); }
-.dotmatrix__label { color: var(--text-disabled); white-space: nowrap; }
+.dm-legend .dm-cell { width: 10px; }
+.dm-legend span { margin: 0 var(--sp-1) 0 var(--sp-2); }
+
+.dotmatrix__label { color: var(--text-tertiary); white-space: nowrap; }
 .dotmatrix__label.is-cur { color: var(--text-primary); }
-.dotmatrix__foot { color: var(--text-disabled); }
+.dotmatrix__foot { color: var(--text-tertiary); }

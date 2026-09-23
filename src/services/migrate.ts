@@ -51,7 +51,7 @@ export function mapLegacyState(saved: LegacyState): Partial<DataState> {
   const now = new Date().toISOString()
   const today = todayKey()
 
-  const goals: Goal[] = (saved.goals ?? []).filter((g) => g && g.title).map((g) => ({
+  const goals: Goal[] = (saved.goals ?? []).filter((g) => g?.title).map((g) => ({
     id: g.id,
     title: g.title,
     kicker: g.kicker ?? null,
@@ -65,7 +65,7 @@ export function mapLegacyState(saved: LegacyState): Partial<DataState> {
   }))
   const goalIdByTitle = new Map(goals.map((g) => [g.title, g.id]))
 
-  const routines: Routine[] = (saved.routines ?? []).filter((r) => r && r.name).map((r) => ({
+  const routines: Routine[] = (saved.routines ?? []).filter((r) => r?.name).map((r) => ({
     id: r.id,
     goalId: null,
     name: r.name,
@@ -96,7 +96,7 @@ export function mapLegacyState(saved: LegacyState): Partial<DataState> {
     }
   }
 
-  const tasks: Task[] = (saved.tasks ?? []).filter((t) => t && t.title).map((t) => ({
+  const tasks: Task[] = (saved.tasks ?? []).filter((t) => t?.title).map((t) => ({
     id: t.id,
     title: t.title,
     tier: ((t.tier as TaskTier) === 'main' || t.tier === 'anytime' ? t.tier : 'block') as TaskTier,
@@ -105,6 +105,7 @@ export function mapLegacyState(saved: LegacyState): Partial<DataState> {
     time: t.time ?? null,
     durMin: t.dur ?? null,
     urgent: !!t.urgent,
+    category: null,
     completedAt: t.done ? now : null,
     note: t.notes ?? null,
     goalId: t.goal ? (goalIdByTitle.get(t.goal) ?? null) : null,
@@ -113,7 +114,7 @@ export function mapLegacyState(saved: LegacyState): Partial<DataState> {
     updatedAt: now,
   }))
 
-  const inbox: InboxItem[] = (saved.inbox ?? []).filter((i) => i && i.title).map((i) => ({
+  const inbox: InboxItem[] = (saved.inbox ?? []).filter((i) => i?.title).map((i) => ({
     id: i.id,
     title: i.title,
     hint: i.hintEm ?? i.hint ?? null,

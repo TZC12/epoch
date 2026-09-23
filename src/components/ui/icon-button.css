@@ -7,11 +7,16 @@
   border-radius: var(--r-pill);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: color var(--dur-1) var(--ease), background-color var(--dur-1) var(--ease),
-    transform var(--dur-1) var(--ease);
+  /* 过渡轨道（含 scale）走 global.css 的按压契约；这里只定档位——图标钮目标小，压得更明显 */
 }
 .icon-btn:hover { color: var(--text-primary); background: var(--surface-sunken); }
-.icon-btn:active { transform: scale(0.96); }
-.icon-btn svg { width: var(--ic-20); height: var(--ic-20); stroke-width: 1.8; }
+.icon-btn:active { scale: 0.9; }
+/* 描边不在此处写死——全局档位由 main.tsx 的 LucideProvider 持有，CSS 覆盖会让它失去单一真值 */
+.icon-btn svg { width: var(--ic-20); height: var(--ic-20); }
 .icon-btn--sm { width: 32px; height: 32px; }
+/* iOS 44px 触控最小：用 ::before 撑出 6px 热区，视觉 32×32 不变 */
+.icon-btn--sm { position: relative; }
+.icon-btn--sm::before {
+  content: ''; position: absolute; inset: -6px;
+}
 .icon-btn--sm svg { width: var(--ic-16); height: var(--ic-16); }

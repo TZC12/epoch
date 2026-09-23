@@ -31,11 +31,13 @@
   border-radius: var(--r-pill);
   font-size: var(--fs-small);
   font-weight: 500;
-  color: var(--text-tertiary);
+  /* 同 seg.css：pager 底为 sunken(#ece9e0)，tertiary 只有 4.31:1，
+     提到 secondary(4.59:1) 达标。选中态是黑 pill 白字，不受影响。 */
+  color: var(--text-secondary);
   cursor: pointer;
   transition: color var(--dur-2) var(--ease);
 }
-.spager__tab:hover { color: var(--text-secondary); }
+.spager__tab:hover { color: var(--text-primary); }
 .spager__tab[aria-selected='true'] { color: var(--ink-inverse); }
 
 /* ── 视口 + 轨道 ── */

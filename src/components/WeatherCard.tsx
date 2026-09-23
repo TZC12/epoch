@@ -33,7 +33,7 @@ export function WeatherCard() {
           return (
             <div key={h.time} className="wcard__hour">
               <span className="t-caption tnum">{h.time}</span>
-              <Icon size={16} strokeWidth={1.6} aria-hidden="true" />
+              <Icon size={16} aria-hidden="true" />
               <span className="t-caption tnum">{h.temp}°</span>
             </div>
           )

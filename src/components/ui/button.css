@@ -16,10 +16,11 @@
   letter-spacing: 0;
   cursor: pointer;
   user-select: none;
-  transition: transform var(--dur-1) var(--ease), background-color var(--dur-1) var(--ease),
-    color var(--dur-1) var(--ease), opacity var(--dur-1) var(--ease);
+  /* 过渡轨道（含 scale）由 global.css 的 .btn/.chip/.icon-btn/.hchip 契约统一给；
+     这里只定本组件的压缩档位。原先另写了一份 transform: scale(0.98) + transition，
+     与全局的 scale 轨道是两个属性 → 叠加成 0.9408，且 transform 不在过渡列表里=瞬间跳变。 */
 }
-.btn:active:not(:disabled) { transform: scale(0.98); }
+.btn:active:not(:disabled) { scale: 0.96; }
 
 .btn--sm { min-height: 32px; padding: 0 var(--sp-4); font-size: var(--fs-caption); }
 .btn--block { width: 100%; }
@@ -46,3 +47,8 @@
 
 /* icon-only 变体 */
 .btn--icon { min-width: var(--touch-min); width: var(--touch-min); padding: 0; }
+
+/* loading：spinner 才是主导动效。
+   全局 .is-loading 会再加一层 breathe（整按钮呼吸）——同一区域只允许一个主导连续动效，
+   这里关掉；同时把 opacity 从 --op-disabled(0.38) 提上来，否则 spinner 根本看不清。 */
+.btn.is-loading { animation: none; opacity: 0.72; cursor: progress; }

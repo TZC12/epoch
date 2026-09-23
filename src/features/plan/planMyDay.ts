@@ -1,4 +1,4 @@
-import { dateKey, todayKey } from '@/lib/dates'
+import { todayKey, fmtMinutes } from '@/lib/dates'
 import type { Task, Routine, InboxItem, Direction } from '@/services/types'
 
 /**
@@ -30,8 +30,6 @@ const toMin = (hhmm: string): number => {
   return (h || 0) * 60 + (m || 0)
 }
 
-const fmt = (min: number): string =>
-  `${String(Math.floor(min / 60) % 24).padStart(2, '0')}:${String(Math.round(min) % 60).padStart(2, '0')}`
 
 const clampDur = (min: number): number => Math.max(15, Math.min(min, 120))
 
@@ -109,7 +107,7 @@ export function buildSuggestedDay(input: PlanMyDayInput): Suggestion[] {
       const next = queue[0]
       if (at + next.durMin > to) break
       out.push({
-        key: `fill-${next.ref.inboxId ?? next.ref.taskId}`, time: fmt(at), title: next.title,
+        key: `fill-${next.ref.inboxId ?? next.ref.taskId}`, time: fmtMinutes(at), title: next.title,
         durMin: next.durMin, source: next.ref.inboxId ? 'inbox' : 'task',
         reason: next.ref.inboxId ? '来自收集箱' : '今天要做，还没定时间',
         ...next.ref,
@@ -135,4 +133,3 @@ export function buildSuggestedDay(input: PlanMyDayInput): Suggestion[] {
   return out.sort((a, b) => a.time.localeCompare(b.time))
 }
 
-export const __planDayDateKey = dateKey

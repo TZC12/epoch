@@ -4,13 +4,18 @@
    - reduced-motion 一处收口
    规则：这里之外的组件 CSS 禁止再写 font-size/letter-spacing 硬值。 */
 
-/* ── Reset（最小） ── */
-*, *::before, *::after { box-sizing: border-box; }
-* { margin: 0; }
+/* ── Reset（最小）——必须待在 @layer base 里 ──
+   未分层规则的优先级高于任何 @layer（tailwind.css 硬规则 3）。写在外面等于
+   给全站压一条"任何 utility 都赢不了"的底：实测 .ml-auto 被算成 margin-left:0px，
+   官方 swipeable-list 的右侧动作槽因此贴到行首。挪进 base 后
+   utility > base，而我们各组件的未分层手写规则照样盖得住 base。 */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+}
 html, body, #root { height: 100%; }
 body {
-  font-family: 'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text',
-    'PingFang SC', 'HarmonyOS Sans SC', 'MiSans', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  font-family: var(--font-sans);
   background: var(--bg);
   color: var(--text-secondary);
   font-size: var(--fs-body);
@@ -25,17 +30,21 @@ img, svg, canvas { display: block; max-width: 100%; }
 ::placeholder { color: var(--text-disabled); }
 input, textarea, button { font-family: inherit; }
 
-/* 数字一律等宽（仪表/计时/百分比） */
-.tnum, .metric-v, .gauge-val { font-variant-numeric: tabular-nums; }
+/* 数字一律等宽（仪表/计时/百分比）——等宽字族，编辑风数据感 */
+.tnum, .metric-v, .gauge-val { font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
 
 /* ── 排版七级 utilities（docs §5.3；组件不自带字号） ── */
-.t-display { font-size: var(--fs-display); line-height: var(--lh-display); font-weight: 300; letter-spacing: -0.015em; color: var(--text-primary); }
-.t-h1      { font-size: var(--fs-h1);      line-height: var(--lh-h1);      font-weight: 600; letter-spacing: -0.015em; color: var(--text-primary); }
-.t-h2      { font-size: var(--fs-h2);      line-height: var(--lh-h2);      font-weight: 600; letter-spacing: -0.01em;  color: var(--text-primary); }
-.t-h3      { font-size: var(--fs-h3);      line-height: var(--lh-h3);      font-weight: 600; letter-spacing: -0.005em; color: var(--text-primary); }
+.t-display { font-family: var(--font-display); font-size: var(--fs-display); line-height: var(--lh-display); font-weight: 400; letter-spacing: -0.01em; color: var(--text-primary); }
+.t-h1      { font-family: var(--font-display); font-size: var(--fs-h1);      line-height: var(--lh-h1);      font-weight: 600; letter-spacing: -0.01em;  color: var(--text-primary); }
+.t-h2      { font-family: var(--font-display); font-size: var(--fs-h2);      line-height: var(--lh-h2);      font-weight: 600; letter-spacing: -0.005em; color: var(--text-primary); }
+.t-h3      { font-family: var(--font-display); font-size: var(--fs-h3);      line-height: var(--lh-h3);      font-weight: 600; letter-spacing: 0;        color: var(--text-primary); }
 .t-body    { font-size: var(--fs-body);    line-height: var(--lh-body);    font-weight: 400; color: var(--text-secondary); }
 .t-small   { font-size: var(--fs-small);   line-height: var(--lh-small);   font-weight: 400; color: var(--text-secondary); }
 .t-caption { font-size: var(--fs-caption); line-height: var(--lh-caption); font-weight: 400; color: var(--text-tertiary); }
+
+/* 排版美学（design-ui）：标题平衡换行、正文避免孤字 */
+.t-display, .t-h1, .t-h2, .t-h3 { text-wrap: balance; }
+.t-body, .t-small { text-wrap: pretty; }
 
 /* eyebrow：区块小标签（唯一字距特例；en 大写） */
 .eyebrow {
@@ -49,9 +58,38 @@ input, textarea, button { font-family: inherit; }
 :lang(zh-CN) .eyebrow, [lang='zh'] .eyebrow { text-transform: none; }
 
 /* ── 交互基线（正则 gate 依赖，勿改字面量） ── */
-:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
+/* 文本域自带焦点态（.field__input:focus 描边变墨 / focus-within 容器变色），
+   浏览器把文本输入永远视为 focus-visible——再叠 2px 外环就是截图里的双圈。 */
+input:focus-visible, textarea:focus-visible, select:focus-visible, [contenteditable='true']:focus-visible { outline: none; }
 button, [role='button'], .chip, .seg > button { touch-action: manipulation; }
+
+/* 触感反馈（design-ui）：主控件的**过渡轨道**统一在这里给——哪些属性动、多长、什么曲线。
+   压缩量值刻意**不在这里定**：各组件自己写 scale:，否则全局默认会反过来吃掉组件档位
+   （icon-btn 要 0.9、chip 要 0.97）。
+   ⚠ 用 scale 不用 transform：两者是不同属性，写成 transform: scale() 会和这里的
+   scale 轨道叠加而不是覆盖（实测 .btn 被压到 0.9408），且 transform 不在过渡列表里=瞬间跳变。
+   .seg > button 故意排除：滑轨 tabs 的按压 scale 会和 pill 滑动打架（见 seg.css）。 */
+.btn, .chip, .icon-btn, .hchip, .ck {
+  transition-property: scale, background-color, color, border-color, opacity;
+  transition-duration: var(--dur-2), var(--dur-1), var(--dur-1), var(--dur-1), var(--dur-1);
+  transition-timing-function: var(--ease-spring), var(--ease), var(--ease), var(--ease), var(--ease);
+}
 [hidden] { display: none !important; }
+
+/* 读屏专用（视觉隐藏、无障碍树保留）：胶囊导航的图标文字等 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
 
 /* 滚动条安静化 */
 .no-scrollbar { scrollbar-width: none; }
@@ -73,3 +111,10 @@ button, [role='button'], .chip, .seg > button { touch-action: manipulation; }
     transition-duration: var(--dur-0) !important;
   }
 }
+
+
+/* ── 共享：目标行（me / progress 共用） ── */
+.goal-list { display: flex; flex-direction: column; }
+.goal-row { display: flex; flex-direction: column; gap: var(--sp-1); }
+.goal-row + .goal-row { margin-top: var(--sp-2); }
+.goal-row .row { border-bottom: none; padding-bottom: 0; }

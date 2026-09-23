@@ -32,7 +32,7 @@ export function Row({ title, sub, right, rightIcon, chevron, onClick, className 
         {sub && <div className="row__sub t-caption">{sub}</div>}
       </div>
       {right && <div className="row__right t-caption tnum">{right}</div>}
-      {chevron && <ChevronRight className="row__chev" size={16} strokeWidth={1.8} aria-hidden="true" />}
+      {chevron && <ChevronRight className="row__chev" size={16} aria-hidden="true" />}
     </div>
   )
 }

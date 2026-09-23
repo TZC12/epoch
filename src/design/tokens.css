@@ -6,54 +6,65 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── 表面（实心纸面：色阶分层，无边框无阴影） ── */
-  --bg: #F7F8FA;               /* 画布 */
-  --surface: #FFFFFF;          /* 卡片 */
-  --surface-sunken: #F2F4F7;   /* 内嵌块：输入底 / 次级区 / 代码块 */
-  --surface-raised: #FFFFFF;   /* 悬浮物底（配合 glass 用） */
+  /* ── 表面（暖纸编辑风：与 web 端同源色板） ── */
+  --bg: #f3f2ed;               /* 画布（暖米白） */
+  /* shadcn 生态里有些组件直接写裸变量（beui liquid.tsx 的 fill="var(--background)"），
+     不走 utility，所以这两个别名必须在 :root 上真实存在。
+     指向 --bg/--text-primary 而非抄值：明暗轴与配色轴切换时它们自己会跟着变。 */
+  --background: var(--bg);
+  --foreground: var(--text-primary);
+  --surface: #fffcf7;          /* 卡片（暖白） */
+  --surface-sunken: #ece9e0;   /* 内嵌块：输入底 / 次级区 */
+  --surface-raised: #ffffff;   /* 悬浮物底 */
 
-  /* ── 文字（大纲 §10 直采；层级=明度） ── */
-  --text-primary: #17191D;
-  --text-secondary: #666B73;
-  --text-tertiary: #9DA2AA;
-  --text-disabled: #C4C8CE;
+  /* ── 文字（暖墨；层级=明度） ── */
+  --text-primary: #171614;
+  --text-secondary: #6a6862;
+  --text-tertiary: #6f6c64;   /* AA 4.5:1 on --bg（原 #9a9790 仅 ~2.5:1） */
+  --text-disabled: #c4c1b8;
 
-  /* ── 强调（黑=主操作；绿=仅完成/活跃） ── */
-  --ink: #17191D;              /* 主按钮底、激活态 */
-  --ink-inverse: #F7F8FA;      /* 主按钮字 */
-  --accent: #5BAE82;
-  --accent-strong: #3C8A61;
-  --accent-soft: rgba(91, 174, 130, 0.12);
-  --accent-line: rgba(91, 174, 130, 0.32);
+  /* ── 强调（墨黑=主操作；陶土=标记/紧急；暖绿=完成/活跃） ── */
+  --ink: #1c1b19;
+  --ink-inverse: #fffcf7;
+  --accent: #3d6a4c;
+  --accent-strong: #2e5239;
+  --accent-soft: rgba(61, 106, 76, 0.12);
+  --accent-line: rgba(61, 106, 76, 0.35);
 
-  /* ── 语义色（仅状态提示/边条使用，不做装饰） ── */
-  --success: #5BAE82;
-  --success-soft: rgba(91, 174, 130, 0.12);
-  --warning: #E8A13D;
-  --warning-soft: rgba(232, 161, 61, 0.14);
-  --danger: #C46464;
-  --danger-strong: #B04E4E;
-  --danger-soft: rgba(196, 100, 100, 0.11);
-  --info: #5B7FD7;
+  /* ── 语义色 ── */
+  --success: #3d6a4c;
+  --success-soft: rgba(61, 106, 76, 0.12);
+  --warning: #9a6b2f;
+  --warning-soft: rgba(154, 107, 47, 0.14);
+  --danger: #9c3f2c;
+  --danger-strong: #7e2f1f;
+  --danger-soft: rgba(156, 63, 44, 0.11);
+  --info: #5b7fd7;
   --info-soft: rgba(91, 127, 215, 0.12);
-  --urgent: #7C5CFF;
+  --urgent: #b85a32;           /* 陶土标记色（对齐 web --color-mark） */
 
   /* ── 线与分隔 ── */
-  --divider: rgba(23, 25, 29, 0.07);
-  --border: rgba(23, 25, 29, 0.10);       /* 仅悬浮层描边 */
-  --border-strong: rgba(23, 25, 29, 0.16);
+  --divider: rgba(23, 22, 20, 0.08);
+  --border: rgba(23, 22, 20, 0.12);
+  --border-strong: rgba(23, 22, 20, 0.18);
 
-  /* ── Glass（唯一 blur 区：底部导航 / Sheet / Modal / AI 面 / 浮层） ── */
-  --glass: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(23, 25, 29, 0.06);
+  /* ── Glass（唯一 blur 区） ── */
+  --glass: rgba(255, 252, 247, 0.72);
+  --glass-border: rgba(23, 22, 20, 0.06);
   --blur: blur(24px) saturate(1.5);
-  --overlay: rgba(23, 25, 29, 0.36);
+  --overlay: rgba(23, 22, 20, 0.36);
 
-  /* ── 粒子背景（中性，存在但不被注意到） ── */
-  --net-dot: #8A94A6;
-  --net-link: #A7B2C4;
+  /* ── 粒子背景（暖中性；与 web .dot-field 同为「fg 网点」语义：明度按 fg 调，不是浅灰） ── */
+  --net-dot: #6f6c64;
+  --net-link: #7d7a70;
 
   /* ── Typography 七级（docs §5.3 定版；每级五项齐全） ── */
+  /* 字族三件套（与 web 端同源：衬线标题 / 无衬线正文 / 等宽数字） */
+  --font-sans: 'Instrument Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'PingFang SC', 'HarmonyOS Sans SC', 'MiSans', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  --font-display: 'Newsreader', 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
   --fs-display: 40px;  --lh-display: 1.1;   /* hero 数字（细字重大数字） */
   --fs-h1: 32px;       --lh-h1: 1.2;
   --fs-h2: 24px;       --lh-h2: 1.3;
@@ -82,9 +93,9 @@
 
   /* ── Elevation 4 级（Paper Mono：卡片 flat；阴影只给真悬浮物） ── */
   --elev-flat: none;
-  --elev-surface: 0 1px 2px rgba(23, 25, 29, 0.04);
-  --elev-floating: 0 8px 32px rgba(23, 25, 29, 0.10);
-  --elev-modal: 0 24px 64px rgba(23, 25, 29, 0.16);
+  --elev-surface: 0 1px 2px rgba(23, 22, 20, 0.05);
+  --elev-floating: 0 8px 32px rgba(23, 22, 20, 0.10);
+  --elev-modal: 0 24px 64px rgba(23, 22, 20, 0.16);
 
   /* ── Opacity ── */
   --op-disabled: 0.38;
@@ -101,7 +112,7 @@
   --dur-snap: 260ms;/* pager 吸附 */
   --ease: cubic-bezier(0.32, 0.72, 0.24, 1);
   --ease-inout: cubic-bezier(0.6, 0.05, 0.28, 0.95);
-  --ease-spring: cubic-bezier(0.34, 1.35, 0.6, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);   /* 按压释放/拖拽 settle 统一回弹（与液体 FAB 同曲线） */
   --ease-drag: cubic-bezier(0.2, 0.9, 0.25, 1); /* 手势松手回弹 */
 
   /* ── 图标 7 档 ── */
@@ -119,47 +130,124 @@
 
 /* ═══ 深色（data-mode 覆盖；档位与结构不变，只换值） ═══ */
 [data-mode='dark'] {
-  --bg: #0D0F12;
-  --surface: #14171B;
-  --surface-sunken: #1A1E23;
-  --surface-raised: #1A1E23;
+  --bg: #161511;
+  --surface: #1d1c17;
+  --surface-sunken: #24221b;
+  --surface-raised: #24221b;
 
-  --text-primary: #F5F6F7;
-  --text-secondary: #A4A9B1;
-  --text-tertiary: #6E737B;
-  --text-disabled: #4A4F57;
+  --text-primary: #f4f1e9;
+  --text-secondary: #b3afa4;
+  --text-tertiary: #8a867a;
+  --text-disabled: #55524a;
 
-  --ink: #F5F6F7;              /* 主按钮反白 */
-  --ink-inverse: #0D0F12;
-  --accent: #6FBF93;
-  --accent-strong: #85C9A3;
-  --accent-soft: rgba(111, 191, 147, 0.14);
-  --accent-line: rgba(111, 191, 147, 0.30);
+  --ink: #f4f1e9;
+  --ink-inverse: #161511;
+  --accent: #7fa88c;
+  --accent-strong: #97bda3;
+  --accent-soft: rgba(127, 168, 140, 0.14);
+  --accent-line: rgba(127, 168, 140, 0.32);
 
-  --success: #6FBF93;
-  --success-soft: rgba(111, 191, 147, 0.14);
-  --warning: #EDB268;
-  --warning-soft: rgba(237, 178, 104, 0.16);
-  --danger: #D57C7C;
-  --danger-strong: #E29B9B;
-  --danger-soft: rgba(213, 124, 124, 0.16);
-  --info: #7E96DF;
-  --info-soft: rgba(126, 150, 223, 0.16);
-  --urgent: #9B82FF;
+  --success: #7fa88c;
+  --success-soft: rgba(127, 168, 140, 0.14);
+  --warning: #d0a05e;
+  --warning-soft: rgba(208, 160, 94, 0.16);
+  --danger: #d08672;
+  --danger-strong: #dfa190;
+  --danger-soft: rgba(208, 134, 114, 0.16);
+  --info: #8fa3d8;
+  --info-soft: rgba(143, 163, 216, 0.16);
+  --urgent: #d0805a;
 
-  --divider: rgba(245, 246, 247, 0.07);
-  --border: rgba(245, 246, 247, 0.10);
-  --border-strong: rgba(245, 246, 247, 0.16);
+  --divider: rgba(244, 241, 233, 0.08);
+  --border: rgba(244, 241, 233, 0.12);
+  --border-strong: rgba(244, 241, 233, 0.18);
 
-  --glass: rgba(20, 23, 27, 0.72);
-  --glass-border: rgba(245, 246, 247, 0.07);
-  --overlay: rgba(0, 0, 0, 0.52);
+  --glass: rgba(29, 28, 23, 0.72);
+  --glass-border: rgba(244, 241, 233, 0.07);
+  --overlay: rgba(0, 0, 0, 0.55);
 
-  --net-dot: #5A6475;
-  --net-link: #3A4150;
+  --net-dot: #7d786b;
+  --net-link: #55524a;
 
-  --elev-surface: 0 1px 2px rgba(0, 0, 0, 0.28);
-  --elev-floating: 0 8px 32px rgba(0, 0, 0, 0.40);
-  --elev-modal: 0 24px 64px rgba(0, 0, 0, 0.55);
+  --elev-surface: 0 1px 2px rgba(0, 0, 0, 0.30);
+  --elev-floating: 0 8px 32px rgba(0, 0, 0, 0.42);
+  --elev-modal: 0 24px 64px rgba(0, 0, 0, 0.58);
+  color-scheme: dark;
+}
+
+/* ═══ 配色轴（data-palette）：mono=黑白灰（默认）· warm=温馨（:root 底）═══
+   与明暗轴正交：4 组合。mono 下强调/完成语义收敛为中性深色（墨），
+   danger/warning/info 等功能色保留——黑白灰指皮肤，不指可用性。
+   字体同轴切换：mono 主题标题用无衬线（参考图风格），warm 保留衬线。 */
+[data-palette='mono']:not([data-mode='dark']) {
+  --bg: #f6f6f7;
+  --surface: #ffffff;
+  --surface-sunken: #f0f0f2;
+  --surface-raised: #ffffff;
+
+  --text-primary: #16161a;
+  --text-secondary: #5f5f68;
+  --text-tertiary: #797981;
+  --text-disabled: #c7c7cd;
+
+  --ink: #1b1b1f;
+  --ink-inverse: #fafafa;
+  --accent: #3f3f46;
+  --accent-strong: #18181b;
+  --accent-soft: rgba(24, 24, 27, 0.07);
+  --accent-line: rgba(24, 24, 27, 0.22);
+  --success: #3f3f46;
+  --success-soft: rgba(24, 24, 27, 0.07);
+  --urgent: #52525b;
+
+  --divider: rgba(22, 22, 26, 0.08);
+  --border: rgba(22, 22, 26, 0.12);
+  --border-strong: rgba(22, 22, 26, 0.18);
+
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(22, 22, 26, 0.06);
+  --overlay: rgba(22, 22, 26, 0.36);
+
+  --net-dot: #85858d;
+  --net-link: #94949c;
+
+  --font-display: var(--font-sans);
+  --font-mono: var(--font-sans);   /* 数字改无衬线+tabular-nums（tnum 类自带），对齐参考图 */
+}
+
+[data-palette='mono'][data-mode='dark'] {
+  --bg: #0f0f11;
+  --surface: #171719;
+  --surface-sunken: #1e1e21;
+  --surface-raised: #1a1a1d;
+
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-tertiary: #8f8f98;
+  --text-disabled: #4b4b52;
+
+  --ink: #f4f4f5;
+  --ink-inverse: #18181b;
+  --accent: #c9c9d1;
+  --accent-strong: #e4e4e9;
+  --accent-soft: rgba(228, 228, 233, 0.12);
+  --accent-line: rgba(228, 228, 233, 0.28);
+  --success: #c9c9d1;
+  --success-soft: rgba(228, 228, 233, 0.12);
+  --urgent: #b8b8c0;
+
+  --divider: rgba(244, 244, 245, 0.09);
+  --border: rgba(244, 244, 245, 0.13);
+  --border-strong: rgba(244, 244, 245, 0.2);
+
+  --glass: rgba(23, 23, 25, 0.72);
+  --glass-border: rgba(244, 244, 245, 0.07);
+  --overlay: rgba(0, 0, 0, 0.55);
+
+  --net-dot: #6f6f78;
+  --net-link: #4b4b52;
+
+  --font-display: var(--font-sans);
+  --font-mono: var(--font-sans);
   color-scheme: dark;
 }

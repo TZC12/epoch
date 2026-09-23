@@ -10,7 +10,14 @@ type Period = 'daily' | 'weekly' | 'monthly'
 
 interface Column { label: string; keys: string[]; isLast: boolean }
 
-const MAX_DOTS = 10   /* 每列最多点数（超出截断，图五形态） */
+/** 完成数 → 5 档热度（0=空、1-2、3-5、6-9、≥10 封顶）。 */
+function heatLevel(done: number): number {
+  if (done <= 0) return 0
+  if (done <= 2) return 1
+  if (done <= 5) return 2
+  if (done <= 9) return 3
+  return 4
+}
 
 /**
  * 点阵数据表（图五映射）：任务完成数据，日/周/月三档切换。
@@ -49,7 +56,7 @@ export function DotMatrix() {
         let first: Date | null = null
         for (let d = 6; d >= 0; d--) {
           const day = addDays(now, -(w * 7) - d)
-          if (!first) first = day
+          first ??= day
           keys.push(dateKey(day))
         }
         cols.push(mk(weekStart(first!), keys, w === 0))
@@ -90,7 +97,7 @@ export function DotMatrix() {
             { value: 'monthly', label: t('progress.pMonthly') },
           ]}
           value={period}
-          onChange={(v) => setPeriod(v as Period)}
+          onChange={(v) => setPeriod(v)}
           ariaLabel={t('progress.dataTable')}
         />
       </div>
@@ -98,20 +105,23 @@ export function DotMatrix() {
       <div className="dotmatrix__chart" role="img" aria-label={t('progress.dataTable')}>
         {columns.map((c, ci) => {
           const done = completedForKeys(c.keys, stats, tasks, today)
-          const dots = Math.min(MAX_DOTS, done)
           /* 位置化稀疏标注（与"今天"无关，午夜边界不分裂）：隔列 + 恒显末列 */
           const showLabel = columns.length <= 8 || ci % 2 === 1 || ci === columns.length - 1
           return (
             <div key={ci} className={`dotmatrix__col ${c.isLast ? 'is-last' : ''}`}>
-              <div className="dotmatrix__dots">
-                {Array.from({ length: MAX_DOTS }, (_, ri) => (
-                  <i key={ri} className={ri < dots ? 'is-on' : ''} />
-                ))}
-              </div>
+              <i
+                className={`dm-cell lv-${heatLevel(done)}`}
+                title={`${c.label} · ${done} ${t('progress.dataUnit')}`}
+              />
               <span className={`dotmatrix__label t-caption tnum ${c.isLast ? 'is-cur' : ''}`}>{showLabel ? c.label : ''}</span>
             </div>
           )
         })}
+      </div>
+      <div className="dm-legend" aria-hidden="true">
+        <span className="t-caption">{t('progress.heatLess')}</span>
+        {[0, 1, 2, 3, 4].map((l) => <i key={l} className={`dm-cell lv-${l}`} />)}
+        <span className="t-caption">{t('progress.heatMore')}</span>
       </div>
       <p className="t-caption dotmatrix__foot">{t('progress.dataFoot')}</p>
     </section>

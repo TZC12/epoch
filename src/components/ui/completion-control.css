@@ -1,5 +1,5 @@
 /* Trailing Completion Control：视觉 18px 圆点，命中区 44pt（§六）。
-   ○→✓ 形变由 MorphIcon 承担（idle 圆环=Circle 描边，done=Check 描边 + 填充）。 */
+   勾选=stroke-draw（Transitions.dev Checkbox check）：--check-len 由 JS 挂载时量出。 */
 .cc {
   position: relative;
   width: var(--touch-min);
@@ -23,20 +23,53 @@
   width: 18px;
   height: 18px;
   border-radius: var(--r-full);
-  border: 2px solid transparent;        /* 圆环来自 Circle 形变，容器不画圈 */
+  border: 2px solid currentColor;       /* idle 圆环 */
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease),
+  transition: border-color var(--check-box) var(--check-ease), background-color var(--check-box) var(--check-ease),
     transform var(--dur-2) var(--ease-spring);
 }
 .cc:active .cc__dot { transform: scale(0.88); }
 
-/* ◉：accent-soft 填充 + accent 描边（绿=完成的唯一语义），✓ 形变落位 */
+/* ◉：accent-soft 填充 + accent 描边（绿=完成的唯一语义），✓ 描边绘制落位 */
 .cc--on { color: var(--accent-strong); }
 .cc--on .cc__dot {
   border-color: var(--accent);
   background: var(--accent-soft);
 }
 
-.cc__morph { width: 12px; height: 12px; }
+/* ✓ stroke-draw：未勾=藏（dashoffset 拉满，150ms 回抽），勾上=绘（350ms） */
+.cc { --check-box: 150ms; --check-draw: 350ms; --check-uncheck: 150ms; --check-ease: cubic-bezier(0.22, 1, 0.36, 1); }
+.cc__dot svg { overflow: visible; }
+.cc__dot svg path {
+  stroke-dasharray: var(--check-len, 15);
+  stroke-dashoffset: var(--check-len, 15);
+  transition: stroke-dashoffset var(--check-uncheck) var(--check-ease);
+}
+.cc--on .cc__dot svg path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset var(--check-draw) var(--check-ease);
+}
+
+/* Success check 登场（Transitions.dev）：勾选瞬间 ✓ 整体 fade+旋转归位+去模糊+微 bob。
+   18px 控件按比例收敛：bob 6px / blur 4px；初始挂载的已完成行不播（静态 ✓）。 */
+.cc__pop {
+  display: block;
+  overflow: visible;
+  transform-origin: center;
+  animation:
+    cc-fade 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    cc-rotate 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    cc-blur 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    cc-bob 500ms cubic-bezier(0.34, 1.35, 0.64, 1) forwards;
+}
+@keyframes cc-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cc-rotate { from { transform: rotate(80deg); } to { transform: rotate(0deg); } }
+@keyframes cc-blur { from { filter: blur(4px); } to { filter: blur(0); } }
+@keyframes cc-bob { from { translate: 0 6px; } to { translate: 0 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cc, .cc__dot, .cc__dot svg path { transition: none !important; }
+  .cc__pop { animation: none !important; }
+}

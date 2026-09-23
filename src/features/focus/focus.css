@@ -9,6 +9,11 @@
   justify-content: center;
   gap: var(--sp-5);
   padding: var(--sp-6);
+  /* 全屏遮罩在 iPhone 全面屏需让出顶部动态岛/底部 home-indicator 区域 */
+  padding-top: calc(var(--sp-6) + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(var(--sp-6) + env(safe-area-inset-bottom, 0px));
+  padding-left: calc(var(--sp-6) + env(safe-area-inset-left, 0px));
+  padding-right: calc(var(--sp-6) + env(safe-area-inset-right, 0px));
   animation: focus-in var(--dur-3) var(--ease);
 }
 .focus-veil__task { color: var(--text-secondary); text-align: center; overflow-wrap: anywhere; }

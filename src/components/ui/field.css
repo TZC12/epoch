@@ -1,23 +1,42 @@
-.field { display: flex; flex-direction: column; gap: var(--sp-2); }
-.field__label { color: var(--text-tertiary); }
+/* 输入域。
+   Field 的**外观照 @beui/input 官方原样**（胶囊描边 + 焦点 ring + 错误态由官方驱动），
+   本文件不再给它画皮。留下的只有两类东西：
+     1) 排版与节奏：.field 的 flex 列 + 间距、共享的 label / hint / err 字号色；
+        TokenField 和 Textarea 仍按这些类名取样式。
+     2) Textarea 的皮：官方没有 textarea 版本，按官方输入框同一条语言写。
 
-.field__input {
+   ⚠ 别再往 .field / .field__input / .field__err 上加输入框视觉规则（背景、描边、圆角、内边距）：
+     它们是未分层规则，会盖过官方那层 utility——登录页"装了官方却什么都没变"就是这么来的。
+     页面级特例（TaskSheet 的大号标题输入）请去 task-sheet.css 里写。 */
+
+.field { display: flex; flex-direction: column; gap: var(--sp-2); }
+
+.field__label { color: var(--text-tertiary); }
+.field__err { font-size: var(--fs-caption); color: var(--danger); }
+/* 节奏：label→input 8px（从属，较紧），input→hint 4px（归属，极紧）。
+   之前两者都是 8px，等间距=无节奏；现在用负 margin 把 hint/err 拉近 input。 */
+.field__hint { font-size: var(--fs-caption); color: var(--text-tertiary); margin-top: calc(var(--sp-1) * -1); }
+
+/* Textarea：官方是 h-11 胶囊，多行不能照抄那个圆角，取同一条语言——
+   surface 底 + --border 描边，聚焦时前景 40% 描边 + 2px ring（= 官方 ring-ring/40）。 */
+.field__textarea {
   width: 100%;
-  background: var(--surface-sunken);
-  border: 1.5px solid transparent;
-  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
   padding: var(--sp-3) var(--sp-4);
   font-size: var(--fs-body);
+  font-family: inherit;
   color: var(--text-primary);
-  outline: none;
-  transition: border-color var(--dur-1) var(--ease), background-color var(--dur-1) var(--ease);
+  resize: vertical;
+  min-height: 72px;
+  transition: border-color var(--dur-1) var(--ease), box-shadow var(--dur-1) var(--ease);
 }
-.field__input:hover { background: var(--divider); }
-.field__input:focus { border-color: var(--ink); background: var(--surface); }
-.field__input:disabled { opacity: var(--op-disabled); cursor: not-allowed; }
-
-.field--error .field__input { border-color: var(--danger); background: var(--danger-soft); }
-.field__err { font-size: var(--fs-caption); color: var(--danger); }
-.field__hint { font-size: var(--fs-caption); color: var(--text-tertiary); }
-
-.field__textarea { resize: vertical; min-height: 72px; font-family: inherit; }
+.field__textarea:focus {
+  border-color: color-mix(in oklab, var(--text-primary) 40%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--text-primary) 40%, transparent);
+}
+.field--error .field__textarea {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--danger) 25%, transparent);
+}

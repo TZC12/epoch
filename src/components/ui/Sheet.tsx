@@ -83,7 +83,9 @@ export function Sheet({ open, onClose, title, children, footer, tall }: SheetPro
     } else {
       ref.current.style.transform = 'translateY(0)'    /* 回弹（有 transition） */
       const el = ref.current
-      window.setTimeout(() => { el.style.transform = '' }, 320)
+      const settleTimer = window.setTimeout(() => { el.style.transform = '' }, 320)
+      // 不在 cleanup 里清：320ms 内 sheet 一般未卸载；超 320ms 时 id 已自然失效
+      void settleTimer
     }
     d.dy = 0; d.vel = 0
   }

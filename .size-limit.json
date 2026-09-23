@@ -30,21 +30,50 @@
     "gzip": true
   },
   {
-    "name": "AI suggest sheet (lazy)",
-    "path": "dist/assets/AISuggestSheet-*.js",
+    "name": "motion vendor (beui 官方组件)",
+    "path": "dist/assets/vendor-motion-*.js",
+    "limit": "48 KB",
+    "gzip": true
+  },
+  {
+    "name": "icons vendor (lucide-react 1.x)",
+    "path": "dist/assets/vendor-icons-*.js",
+    "limit": "8 KB",
+    "gzip": true
+  },
+  {
+    "name": "AI preview (lazy)",
+    "path": "dist/assets/AIPreview-*.js",
     "limit": "20 KB",
     "gzip": true
   },
   {
-    "name": "page chunks (each)",
-    "path": [
-      "dist/assets/TodayPage-*.js",
-      "dist/assets/PlanPage-*.js",
-      "dist/assets/ProgressPage-*.js",
-      "dist/assets/MePage-*.js",
-      "dist/assets/GoalPanel-*.js",
-      "dist/assets/HealthPanel-*.js"
-    ],
+    "name": "page chunk · HomePage",
+    "path": "dist/assets/HomePage-*.js",
+    "limit": "8 KB",
+    "gzip": true
+  },
+  {
+    "name": "page chunk · ProgressPage",
+    "path": "dist/assets/ProgressPage-*.js",
+    "limit": "8 KB",
+    "gzip": true
+  },
+  {
+    "name": "page chunk · MePage",
+    "path": "dist/assets/MePage-*.js",
+    "limit": "8 KB",
+    "gzip": true
+  },
+  {
+    "name": "page chunk · GoalPanel",
+    "path": "dist/assets/GoalPanel-*.js",
+    "limit": "8 KB",
+    "gzip": true
+  },
+  {
+    "name": "page chunk · HealthPage",
+    "path": "dist/assets/HealthPage-*.js",
     "limit": "8 KB",
     "gzip": true
   },
@@ -52,6 +81,30 @@
     "name": "main CSS",
     "path": "dist/assets/index-*.css",
     "limit": "25 KB",
+    "gzip": true
+  },
+  {
+    "name": "page chunk · TaskSheet (lazy)",
+    "path": "dist/assets/TaskSheet-*.js",
+    "limit": "24 KB",
+    "gzip": true
+  },
+  {
+    "name": "page chunk · LearnPage (lazy)",
+    "path": "dist/assets/LearnPage-*.js",
+    "limit": "24 KB",
+    "gzip": true
+  },
+  {
+    "name": "lazy chunk · MatrixBackground (矩阵背景)",
+    "path": "dist/assets/MatrixBackground-*.js",
+    "limit": "6 KB",
+    "gzip": true
+  },
+  {
+    "name": "lazy chunk · TimeWheel (官方鼓轮+两列适配)",
+    "path": "dist/assets/TimeWheel-*.js",
+    "limit": "6 KB",
     "gzip": true
   }
 ]

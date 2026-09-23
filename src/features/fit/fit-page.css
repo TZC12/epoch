@@ -1,0 +1,72 @@
+/* FitPage（概念稿 page3）：本周 ink hero + 今日训练计时 + 课程目录。 */
+.fit { display: flex; flex-direction: column; gap: var(--sp-4); }
+.fit-sec-title { display: inline-flex; align-items: center; gap: var(--sp-2); margin: var(--sp-1) 0 var(--sp-3); color: var(--text-tertiary); }
+
+.fit-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-5);
+  border-radius: var(--r-lg);
+  background: var(--ink);
+  color: var(--ink-inverse);
+  box-shadow: var(--elev-floating);
+}
+.fit-hero__num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-display);
+  line-height: var(--lh-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.fit-hero__unit { font-size: var(--fs-h3); font-weight: 400; opacity: 0.7; margin-left: var(--sp-2); }
+
+.fit-bars { display: flex; align-items: flex-end; gap: var(--sp-2); height: 56px; }
+.fit-bars__col {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+.fit-bars__col i {
+  width: 100%;
+  border-radius: var(--sp-1);
+  background: color-mix(in srgb, var(--ink-inverse) 22%, transparent);
+  display: block;
+  transition: height var(--dur-3) var(--ease);
+}
+.fit-bars__col i.on { background: color-mix(in srgb, var(--accent) 60%, var(--ink-inverse)); }
+
+.fit-hero__stats {
+  display: flex;
+  gap: var(--sp-5);
+  font-size: var(--fs-caption);
+  opacity: 0.85;
+}
+.fit-hero__stats b { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--fs-body); font-weight: 500; }
+
+.fit-today {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-md);
+  box-shadow: var(--elev-surface);
+  padding: var(--sp-4);
+}
+.fit-today__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-2); margin-bottom: var(--sp-3); }
+.fit-today__empty { padding: var(--sp-2) 0 var(--sp-3); margin: 0; }
+.fit-today__bar { margin-bottom: var(--sp-3); }
+
+.fit-timer__clock {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-h1);
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+.fit-timer__target { margin-bottom: var(--sp-3); }
+.fit-timer__acts { display: flex; gap: var(--sp-2); }
+.fit-timer__acts > * { flex: 1; }
+
+.fit-courses { display: flex; flex-direction: column; }
+.fit-course--on .row__right { color: var(--accent); }

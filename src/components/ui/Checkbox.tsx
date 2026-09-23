@@ -30,6 +30,7 @@ export function Checkbox({ checked, onChange, label, disabled, className = '' }:
           icon={checked ? checkNode : squareNode}
           spring="snappy"
           reducedMotion="user"
+          strokeWidth={1.8}          /* morphicons 默认 2，与全局 lucide 档位对齐（同一套 Lucide 节点数据） */
           className="ck__morph"
         />
       </span>

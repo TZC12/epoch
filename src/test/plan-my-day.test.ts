@@ -43,7 +43,7 @@ describe('buildSuggestedDay（真生成，无假模板）', () => {
   it('随时任务优先于收集箱入空档', () => {
     const s = buildSuggestedDay({
       ...base,
-      tasks: [{ id: 't1', title: '整理笔记', tier: 'anytime', status: 'planned', date: null, time: null, durMin: 45, urgent: false, completedAt: null, note: null, goalId: null, routineId: null, createdAt: '2026-09-08T00:00:00Z', updatedAt: '' }],
+      tasks: [{ id: 't1', title: '整理笔记', tier: 'anytime', status: 'planned', date: null, time: null, durMin: 45, urgent: false, category: null, completedAt: null, note: null, goalId: null, routineId: null, createdAt: '2026-09-08T00:00:00Z', updatedAt: '' }],
       inbox: [{ id: 'i1', title: '回邮件', hint: null, status: 'open', source: 'capture', convertedTaskId: null, createdAt: '' }],
     })
     const fills = s.filter((x) => x.source !== 'routine')
@@ -61,7 +61,7 @@ describe('buildSuggestedDay（真生成，无假模板）', () => {
     const s = buildSuggestedDay({
       ...base,
       tasks: [
-        { id: 't0', title: '已排会', tier: 'block', status: 'scheduled', date: '2026-09-09', time: '19:00', durMin: 60, urgent: false, completedAt: null, note: null, goalId: null, routineId: null, createdAt: '', updatedAt: '' },
+        { id: 't0', title: '已排会', tier: 'block', status: 'scheduled', date: '2026-09-09', time: '19:00', durMin: 60, urgent: false, category: null, completedAt: null, note: null, goalId: null, routineId: null, createdAt: '', updatedAt: '' },
       ],
       inbox: [{ id: 'i1', title: 'A', hint: null, status: 'open', source: 'capture', convertedTaskId: null, createdAt: '' },
               { id: 'i2', title: 'B', hint: null, status: 'open', source: 'capture', convertedTaskId: null, createdAt: '' }],

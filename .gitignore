@@ -14,8 +14,11 @@ tsconfig.tsbuildinfo
 .zcode/
 
 # WorkBuddy / 编辑器本地文件
+.workbuddy-ai/
 .workbuddy/plans/
 .workbuddy/memory/
+outputs/
+screenshot_*.png
 .trae
 .agents
 .workbuddy/connectors/
@@ -35,3 +38,4 @@ tsconfig.tsbuildinfo
 *.logsnap-login.png
 .mimosa/
 mobile-ui-restore/
+test-results/

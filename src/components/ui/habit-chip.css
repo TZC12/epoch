@@ -1,17 +1,37 @@
-/* 习惯 chip：sunken pill；done=accent-soft 底 + accent 字。仅颜色过渡。 */
+/* 习惯 chip：sunken pill；done=accent-soft 底 + accent 字。
+   按下有轻微反馈（opacity），hover 与选中态各自独立 transition，
+   同一个区域只一个主导连续动效——这里只有 transition，没有额外 keyframe。 */
 .hchip {
   display: inline-flex;
   align-items: baseline;
   gap: var(--sp-2);
-  padding: var(--sp-2) var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);   /* ≥44px 触控目标 */
   border: 1px solid transparent;
   border-radius: var(--r-pill);
   background: var(--surface-sunken);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: background-color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+  /* 过渡轨道（含 scale）走 global.css 的按压契约 */
 }
+.hchip:hover:not(:disabled):not(.hchip--on) { background: var(--divider); }
+.hchip:active:not(:disabled) { scale: 0.97; opacity: var(--op-secondary); }
 .hchip__name { color: var(--text-secondary); }
 .hchip__sub { color: var(--text-tertiary); }
 .hchip--on { border-color: var(--accent-line); background: var(--accent-soft); }
 .hchip--on .hchip__name { color: var(--accent-strong); }
+.hchip--backlog { border-color: color-mix(in srgb, var(--urgent) 40%, transparent); border-style: dashed; }
+.hchip__tag {
+  color: var(--urgent);
+  padding: 0 4px;
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--urgent) 12%, transparent);
+}
+/* 连击 = Flame + 数字，与 learn-today__streak 同款排布与着色（emoji 时代的自带颜色由 --urgent 承接） */
+.hchip__streak {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  color: var(--urgent);
+  white-space: nowrap;
+}
 .hchip:disabled { opacity: var(--op-disabled); cursor: not-allowed; }

@@ -36,17 +36,17 @@ export function DateNavigator({ selected, onSelect }: DateNavigatorProps) {
     <div className="datenav">
       <div className="datenav__month">
         <button type="button" className="datenav__nav" onClick={() => shiftMonth(-1)} aria-label={t('a11y.prevMonth')}>
-          <ChevronLeft size={16} strokeWidth={1.8} />
+          <ChevronLeft size={16} />
         </button>
         <span className="datenav__monthlabel t-small tnum">{monthLabel}</span>
         <button type="button" className="datenav__nav" onClick={() => shiftMonth(1)} aria-label={t('a11y.nextMonth')}>
-          <ChevronRight size={16} strokeWidth={1.8} />
+          <ChevronRight size={16} />
         </button>
       </div>
 
       <div className="datenav__strip">
         <button type="button" className="datenav__nav" onClick={() => shiftDay(-1)} aria-label={t('a11y.prevDay')}>
-          <ChevronLeft size={16} strokeWidth={1.8} />
+          <ChevronLeft size={16} />
         </button>
         <div className="datenav__days">
           {days.map((d) => {
@@ -68,7 +68,7 @@ export function DateNavigator({ selected, onSelect }: DateNavigatorProps) {
           })}
         </div>
         <button type="button" className="datenav__nav" onClick={() => shiftDay(1)} aria-label={t('a11y.nextDay')}>
-          <ChevronRight size={16} strokeWidth={1.8} />
+          <ChevronRight size={16} />
         </button>
       </div>
     </div>

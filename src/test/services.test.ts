@@ -225,7 +225,7 @@ describe('completedForKeys/completedAllTime（M9 单一聚合源，口径不可�
         '2026-09-01': { done: 2, total: 3, urgent: false },
         '2026-09-02': { done: 3, total: 4, urgent: false },
       },
-      tasks: [{ id: 't9', title: '今日事', tier: 'main', status: 'completed', date: null, time: null, durMin: null, urgent: false, completedAt: new Date(`${todayKey()}T10:00:00`).toISOString(), note: null, goalId: null, routineId: null, createdAt: '', updatedAt: '' }],
+      tasks: [{ id: 't9', title: '今日事', tier: 'main', status: 'completed', date: null, time: null, durMin: null, urgent: false, category: null, completedAt: new Date(`${todayKey()}T10:00:00`).toISOString(), note: null, goalId: null, routineId: null, createdAt: '', updatedAt: '' }],
     })
     const s = useData.getState()
     expect(completedForKeys(['2026-09-01'], s.dayStats, s.tasks, todayKey())).toBe(2)

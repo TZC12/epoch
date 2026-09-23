@@ -3,9 +3,23 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
   padding: var(--sp-7) var(--sp-5);
+  /* 空状态轻揭示：低频出现，可以比数据密集区稍有余地（160-240ms） */
+  animation: empty-in var(--dur-3) var(--ease) both;
 }
+/* 插画容器：64-80px 高度，currentColor 描边，由调用方控制尺寸 */
+.empty__art {
+  color: var(--text-disabled);
+  margin-bottom: var(--sp-2);
+  opacity: 0.7;
+}
+.empty__art svg { width: 72px; height: auto; display: block; }
 .empty__title { color: var(--text-secondary); }
 .empty__sub { max-width: 32ch; }
 .empty__act { margin-top: var(--sp-3); }
+
+@keyframes empty-in {
+  from { opacity: 0; transform: translateY(var(--sp-1)); }
+  to { opacity: 1; transform: translateY(0); }
+}

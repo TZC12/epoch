@@ -8,12 +8,6 @@
 .dir-card__statement { color: var(--text-primary); overflow-wrap: anywhere; }
 .dir-card__domains { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
 
-/* 目标行 */
-.goal-list { display: flex; flex-direction: column; }
-.goal-row { display: flex; flex-direction: column; gap: var(--sp-1); }
-.goal-row + .goal-row { margin-top: var(--sp-2); }
-.goal-row .row { border-bottom: none; padding-bottom: 0; }
-
 /* 系统区偏好行 */
 .pref {
   display: flex;
@@ -25,6 +19,9 @@
 }
 .pref:last-of-type { border-bottom: none; }
 .pref__label { color: var(--text-primary); font-weight: 500; }
+/* 竖排 pref（昵称输入这类占满宽度的控件）与右侧按钮组 */
+.pref--stack { flex-direction: column; align-items: stretch; gap: var(--sp-2); padding: var(--sp-4) 0; }
+.pref__acts { display: flex; gap: var(--sp-2); flex-shrink: 0; }
 
 /* sheet 内表单与按钮排 */
 .me-dir-form { display: flex; flex-direction: column; gap: var(--sp-4); }
@@ -36,41 +33,36 @@
 .sec-head .sec-title { margin-bottom: 0; }
 
 /* ── 图六映射：头像 + 三指标 + 白卡分组 ── */
-.me-head { display: flex; flex-direction: column; align-items: center; gap: var(--sp-4); margin-bottom: var(--sp-5); }
+.me-head { display: flex; flex-direction: column; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-5); }
 .me-head__avatar {
   width: 88px;
   height: 88px;
+  border: 0;
+  padding: 0;
   border-radius: var(--r-full);
   background: var(--surface-sunken);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   font-size: var(--fs-h1);
   font-weight: 300;
   color: var(--text-tertiary);
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--divider);
+  transition: box-shadow var(--dur-1) var(--ease), transform var(--dur-1) var(--ease);
 }
+.me-head__avatar:hover { box-shadow: inset 0 0 0 1.5px var(--text-disabled); }
+.me-head__avatar:active { transform: scale(0.97); }
+.me-head__avatar.has-img { background: none; }
+.me-head__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.me-head__name { color: var(--text-primary); font-weight: 500; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .me-head__metrics { display: flex; gap: var(--sp-7); }
 .me-head__metric { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .me-head__metric .t-h3 { color: var(--text-primary); font-weight: 500; }
 
-/* 白卡分组（行 + 可展开面板） */
-.me-group {
-  background: var(--surface);
-  border-radius: var(--r-lg);
-  padding: var(--sp-2) var(--sp-4);
-  display: flex;
-  flex-direction: column;
-}
-.me-group .row { border-bottom: 1px solid var(--divider); border-radius: 0; }
-.me-group .row:last-child { border-bottom: none; }
-.me-group__panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-  padding: var(--sp-2) 0 var(--sp-3);
-  align-items: flex-end;
-}
-.me-group__panel > .goal-list, .me-group__panel > div { width: 100%; }
-.me-group__panel .goal-list, .me-group__panel > div:not(.goal-list) { width: 100%; }
+/* 手风琴面板内的"新建"动作排（面板本身由 Accordion 供 padding） */
+.me-panel__acts { display: flex; justify-content: flex-end; margin-bottom: var(--sp-2); }
 
 .pref__label { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.me-chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); }

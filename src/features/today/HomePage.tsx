@@ -1,137 +1,146 @@
-import { useMemo, useState } from 'react'
+import { Suspense, useMemo, useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { DateNavigator } from '@/components/DateNavigator'
-import { DayProgress } from '@/components/ui/DayProgress'
-import { SegmentedPager } from '@/components/ui/SegmentedPager'
-import { TlRow } from '@/components/ui/TlRow'
+import { SquarePen, CalendarDays, ChartNoAxesColumn } from 'lucide-react'
+import { LiquidFab } from '@/components/ui/LiquidFab'
+import { ReelCounter } from '@/components/ui/ReelCounter'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { Seg } from '@/components/ui/Seg'
 import { Button } from '@/components/ui/Button'
-import { Chip } from '@/components/ui/Chip'
 import { IconButton } from '@/components/ui/IconButton'
 import { Insight } from '@/components/ui/Insight'
 import { HabitChip } from '@/components/ui/HabitChip'
-import { Sheet } from '@/components/ui/Sheet'
-import { Plus } from 'lucide-react'
-import { useSwipeReveal } from '@/components/ui/swipe'
+import { TipGroup } from '@/components/ui/Tooltip'
+import { TlRowList } from '@/components/ui/TlRow'
+import { Dropdown, ddTriggerProps } from '@/components/ui/Dropdown'
+import { PhysicsConfetti } from '@/components/ui/PhysicsConfetti'
 import { useToast } from '@/components/ui/Toast'
+import { LoaderBar } from '@/components/ui/Feedback'
 import { TaskSheet, type SheetTarget } from './TaskSheet'
-import { PlanMyDaySheet } from '@/features/plan/PlanMyDaySheet'
-import { AISuggestSheet } from '@/features/ai/AISuggestSheet'
+import { lazy } from 'react'
+/* PlanMyDaySheet：「安排我的一天」二级流程，点开才需要。
+   TaskSheet 保持同步加载——它是「点任务行 → 编辑」的核心路径，
+   做成异步会把最高频交互从同步变异步（首点要等 chunk），属体验回归。 */
+const PlanMyDaySheet = lazy(() => import('@/features/plan/PlanMyDaySheet').then(m => ({ default: m.PlanMyDaySheet })))
 import { useData, isDoneToday } from '@/services/store'
-import { useHabitsToday } from '@/services/queries'
-import {
-  toggleTask, deleteTask, restoreTask, captureInbox, deleteInboxItem, restoreInboxItem,
-  convertInboxItem, rescheduleTask, updateTask, skipTask, toggleHabit,
-} from '@/services/actions'
+import { useHabitsToday, useHealthToday, useFitToday, useLearnToday } from '@/services/queries'
+import { toggleTask, deleteTask, restoreTask, rescheduleTask, updateTask, skipTask, toggleHabit } from '@/services/actions'
 import { useWeather, wmoIcon, wmoLabel } from '@/lib/weather-ui'
 import { dateKey, todayKey, addDays } from '@/lib/dates'
-import type { Task, InboxItem } from '@/services/types'
+import type { Task } from '@/services/types'
 import './home.css'
 
-type TaskFilter = 'todo' | 'done' | 'anytime'
-
-/** 严格未来的下一个星期几（0=周日）。 */
-function nextWeekday(target: number): string {
-  const d = new Date()
-  let diff = (target - d.getDay() + 7) % 7
-  if (diff === 0) diff = 7
-  return dateKey(addDays(d, diff))
-}
-
-/** 收集箱行（左滑删除，手势与 TlRow 同源）。 */
-function InboxRow({ item, deleteLabel, onOpen, onDelete }: {
-  item: InboxItem; deleteLabel: string; onOpen: () => void; onDelete: () => void
-}) {
-  const sw = useSwipeReveal()
-  const onBodyClick = (): void => {
-    if (sw.justSwiped()) return
-    if (document.body.dataset.pagerGhost) { delete document.body.dataset.pagerGhost; return } /* 长按翻卡后的合成 click */
-    if (sw.reveal) { sw.collapse(); return }
-    onOpen()
-  }
-  return (
-    <div className={`inbox-row tl-row ${sw.reveal ? 'tl-row--reveal' : ''}`}>
-      <div className="tl-row__del-slot" aria-hidden={!sw.reveal}>
-        <button type="button" className="tl-row__del" tabIndex={sw.reveal ? 0 : -1} onClick={onDelete}>{deleteLabel}</button>
-      </div>
-      <div ref={sw.innerRef} className={`tl-row__inner ${sw.dragging ? 'tl-row__inner--drag' : ''}`.trim()} {...sw.handlers}>
-        <button type="button" className="inbox-row__body" onClick={onBodyClick}>
-          <span className="tl-row__title t-small">{item.title}</span>
-          {item.hint && <span className="tl-row__meta t-caption">{item.hint}</span>}
-        </button>
-      </div>
-    </div>
-  )
-}
-
 /**
- * 主页（§三重构）：Header（日期+天气一行）→ DayProgress 细条（服务时间轴）→
- * SegmentedPager【任务|事件|收集箱】（Tap + 横滑 + 长按拖动切换，Timeline 属于内容层）→ 习惯条。
- * 天气完整形态在 Progress；EventsReminder 已删除（与事件卡同源重复）。
+ * Today（概念稿 page1：今日总览）：眉题行（TODAY·日期 + 天气 + 进展入口）→
+ * 大标题 + 问候 → SELF-DISCIPLINE hero（老虎机百分比，CTA→Plan）→
+ * MODULES 四卡（计划/健康/健身/学习，真实派生数据，跳对应页）→
+ * 今日任务（右侧完成勾选 + 左滑删除，≤5 条 + 查看全部）→ 习惯条 → FAB/sheets。
+ * 收集箱区块已按用户要求撤下（数据层保留：备忘页与 AI 整理仍可用）。
  */
 export default function HomePage() {
   const { t, i18n } = useTranslation()
   const { toast } = useToast()
-  const [selected, setSelected] = useState(todayKey())
-  const [filter, setFilter] = useState<TaskFilter>('todo')
+  const navigate = useNavigate()
   const [sheetTarget, setSheetTarget] = useState<SheetTarget>(null)
   const [pmdOpen, setPmdOpen] = useState(false)
-  const [aiSortOpen, setAiSortOpen] = useState(false)
-  const [capture, setCapture] = useState('')
-  const [planItem, setPlanItem] = useState<InboxItem | null>(null)
-  const [planDate, setPlanDate] = useState<string | null>(null)
-  const [planTime, setPlanTime] = useState<string | null>(null)
+  const [planOpen, setPlanOpen] = useState(false)
+  const [burst, setBurst] = useState(0)
+  const [ddPos, setDdPos] = useState<{ top: number; left: number } | null>(null)
+  const ctaRef = useRef<HTMLButtonElement | null>(null)
+  const heroRef = useRef<HTMLElement | null>(null)
 
-  const direction = useData((s) => s.direction)
+  const today = todayKey()
   const tasksAll = useData((s) => s.tasks)
-  const inboxAll = useData((s) => s.inbox)
   const goals = useData((s) => s.goals)
   const weather = useWeather()
   const zh = i18n.language.startsWith('zh')
 
-  const isToday = selected === todayKey()
   const dayTasks = useMemo(() => {
     return tasksAll
-      .filter((x) => x.status !== 'cancelled' && (x.date === selected || (x.date == null && isToday)))
+      .filter((x) => x.status !== 'cancelled' && (x.date === today || (x.date == null)))
       .sort((a, b) => (a.time ?? '99:99').localeCompare(b.time ?? '99:99'))
-  }, [tasksAll, selected, isToday])
+  }, [tasksAll, today])
 
-  const inbox = inboxAll.filter((i) => i.status === 'open')
   const goalName = (goalId: string | null): string | null =>
     goalId ? (goals.find((g) => g.id === goalId)?.title ?? null) : null
 
   /* 守护语义：Main ≤3 */
   const activeMains = dayTasks.filter(
-    (x) => x.tier === 'main' && !isDoneToday(x, x.date ?? todayKey()) && x.status !== 'skipped',
+    (x) => x.tier === 'main' && !isDoneToday(x, x.date ?? today) && x.status !== 'skipped',
   )
-  const heavy = isToday && activeMains.length > 3
+  const heavy = activeMains.length > 3
   const newestMain = activeMains[activeMains.length - 1]
-  const allDone = isToday && dayTasks.length > 0 && dayTasks.every((x) => isDoneToday(x, x.date ?? todayKey()))
   const habitsToday = useHabitsToday()
+
+  /* 自律进度：今日「任务 + 到期习惯」的完成比（hero 卡与计划模块共用）。 */
+  const selfDiscipline = useMemo(() => {
+    const tDone = dayTasks.filter((x) => isDoneToday(x, x.date ?? today)).length
+    const hDone = habitsToday.filter((h) => h.done).length
+    const total = dayTasks.length + habitsToday.length
+    const done = tDone + hDone
+    return { pct: total ? Math.round((done / total) * 100) : 0, done, total, tDone }
+  }, [dayTasks, habitsToday, today])
+
+  const healthToday = useHealthToday()
+  const fitToday = useFitToday()
+  const learnToday = useLearnToday()
+
+  const pendingTasks = useMemo(
+    () => dayTasks.filter((x) => !isDoneToday(x, x.date ?? today) && x.status !== 'skipped'),
+    [dayTasks, today],
+  )
+
+  /* hero CTA 弹卡时间轴：今天任务按时间序，done=实心点 / skipped=虚点 / 待办=空心点 */
+  const timeline = useMemo(
+    () => dayTasks.map((x) => ({ task: x, done: isDoneToday(x, x.date ?? today) })),
+    [dayTasks, today],
+  )
 
   const onDelete = (task: Task): void => {
     const snap = deleteTask(task.id)
     if (snap) toast(t('common.deleted'), { action: { label: t('common.undo'), onClick: () => restoreTask(snap.item, snap.index) } })
   }
-  const onCapture = (): void => {
-    if (captureInbox(capture)) { setCapture(''); toast(t('plan.captured'), { tone: 'success' }) }
+
+  /**
+   * 清屏判定。⚠ 必须 getState() 现读：toggleTask 就地变异条目（persist 浅合并），
+   * 渲染闭包里的 tasksAll 数组在事件处理器内是旧引用，判定会漏发。
+   */
+  const allClear = (): boolean => {
+    const list = useData.getState().tasks.filter((x) => x.status !== 'cancelled' && (x.date === today || x.date == null))
+    return list.length > 0 && list.every((x) => isDoneToday(x, x.date ?? today) || x.status === 'skipped')
   }
-  const onSavePlan = (): void => {
-    if (!planItem) return
-    if (convertInboxItem(planItem.id, { date: planDate, time: planTime })) toast(t('common.saved'), { tone: 'success' })
-    setPlanItem(null)
+  const celebrateIfCleared = (wasAllClear: boolean): boolean => {
+    if (wasAllClear || !allClear()) return false
+    setBurst((n) => n + 1)
+    return true
   }
 
-  const tomorrow = dateKey(addDays(new Date(), 1))
+  /**
+   * 勾选完成：给真实反馈 + 撤销。撤销 = 再 toggle 一次（toggleTask 是纯开关，天然可逆）。
+   * 勾掉最后一个 → PhysicsConfetti 爆发 + 清屏文案 toast（仍带撤销）。
+   */
+  const onToggleTask = (task: Task): void => {
+    const wasDone = isDoneToday(task, task.date ?? today)
+    const wasAllClear = allClear()
+    toggleTask(task.id)
+    if (!wasDone) {
+      const undo = { action: { label: t('common.undo'), onClick: () => toggleTask(task.id) } }
+      if (celebrateIfCleared(wasAllClear)) toast(t('today.allDone'), { tone: 'success', ...undo })
+      else toast(t('common.completed'), { tone: 'success', ...undo })
+    }
+  }
 
-  /* heavy 守护块（Main>3 → Move/Reduce/Skip） */
+  const onToggleHabit = (routineId: string): void => {
+    const wasAllClear = allClear()
+    toggleHabit(routineId)
+    celebrateIfCleared(wasAllClear)
+  }
+
   const heavyBlock = heavy && newestMain ? (
     <Insight
       title={t('today.heavy')}
       actions={
         <>
-          <Button size="sm" variant="quiet" onClick={() => rescheduleTask(newestMain.id, tomorrow)}>{t('today.heavyMove')}</Button>
+          <Button size="sm" variant="quiet" onClick={() => rescheduleTask(newestMain.id, dateKey(addDays(new Date(), 1)))}>{t('today.heavyMove')}</Button>
           <Button size="sm" variant="quiet" onClick={() => updateTask(newestMain.id, { tier: 'anytime' })}>{t('today.heavyReduce')}</Button>
           <Button size="sm" variant="quiet" onClick={() => skipTask(newestMain.id)}>{t('today.heavySkip')}</Button>
         </>
@@ -139,232 +148,178 @@ export default function HomePage() {
     />
   ) : null
 
-  /* ── 页 1：任务（图四三段 + heavy 守护 + trailing 完成） ── */
-  const tasksPage = (
-    <>
-      {heavyBlock}
-      <div className="home-card__filter">
-        <Seg
-          options={[
-            { value: 'todo', label: t('home.fTodo') },
-            { value: 'done', label: t('home.fDone') },
-            { value: 'anytime', label: t('home.fAnytime') },
-          ]}
-          value={filter}
-          onChange={(v) => setFilter(v as TaskFilter)}
-          ariaLabel={t('home.tasksCard')}
-        />
-      </div>
-      {allDone && filter === 'todo' ? (
-        <EmptyState title={t('today.allDone')} sub={t('today.allDoneSub')} />
-      ) : (() => {
-        const list = dayTasks.filter((x) => {
-          const done = isDoneToday(x, x.date ?? todayKey())
-          if (filter === 'todo') return !done && x.time != null
-          if (filter === 'anytime') return !done && x.time == null
-          return done
-        })
-        return list.length === 0 ? (
-          <EmptyState
-            title={filter === 'done' ? t('home.emptyDone') : t('home.emptyTasks')}
-            sub={!isToday ? t('home.futureHint') : undefined}
-            action={isToday ? <Button variant="quiet" onClick={() => setSheetTarget('new')}>{t('today.addTask')}</Button> : undefined}
-          />
-        ) : (
-          <div className="tl">
-            {list.map((task) => (
-              <TlRow
-                key={task.id}
-                title={task.title}
-                time={task.time}
-                duration={task.durMin}
-                tier={task.tier}
-                urgent={task.urgent}
-                done={filter === 'done'}
-                goal={goalName(task.goalId)}
-                note={task.note}
-                deleteLabel={t('common.delete')}
-                onToggle={() => toggleTask(task.id)}
-                onOpen={() => setSheetTarget(task)}
-                onDelete={() => onDelete(task)}
-              />
-            ))}
-          </div>
-        )
-      })()}
-    </>
-  )
+  /* 眉题日期：TODAY · 9月21日 周日 */
+  const now = new Date()
+  const dateLabel = zh
+    ? `${now.getMonth() + 1}月${now.getDate()}日 周${'日一二三四五六'[now.getDay()]}`
+    : now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })
 
-  /* ── 页 2：事件（Timeline 属于内容层） ── */
-  const eventsPage = (() => {
-    const events = dayTasks.filter((x) => x.time != null)
-    return events.length === 0 ? (
-      <EmptyState title={t('home.emptyEvents')} sub={!isToday ? t('home.futureHint') : undefined} />
-    ) : (
-      <div className="tl">
-        {events.map((task) => (
-          <TlRow
-            key={task.id}
-            title={task.title}
-            time={task.time}
-            duration={task.durMin}
-            tier={task.tier}
-            urgent={task.urgent}
-            done={isDoneToday(task, task.date ?? todayKey())}
-            goal={goalName(task.goalId)}
-            note={task.note}
-            deleteLabel={t('common.delete')}
-            onToggle={() => toggleTask(task.id)}
-            onOpen={() => setSheetTarget(task)}
-            onDelete={() => onDelete(task)}
-          />
-        ))}
-      </div>
-    )
-  })()
+  /* 动态欢迎语（按时段） */
+  const h = now.getHours()
+  const gKey = h < 5 ? 'gEvening' : h < 9 ? 'gMorning' : h < 12 ? 'gForenoon' : h < 18 ? 'gAfternoon' : 'gEvening'
+  const greeting = t(`today.${gKey}`)
 
-  /* ── 页 3：收集箱（原 Plan 全能力） ── */
-  const inboxPage = (
-    <>
-      <input
-        className="home-capture"
-        value={capture}
-        onChange={(e) => setCapture(e.target.value)}
-        onKeyDown={(e) => { if (e.key === 'Enter') onCapture() }}
-        placeholder={t('plan.capturePlaceholder')}
-        aria-label={t('plan.inbox')}
-      />
-      <div className="home-card__pmd">
-        <Button block variant="quiet" onClick={() => setPmdOpen(true)}>{t('today.planMyDay')}</Button>
-        {inbox.length > 0 && <Button block variant="ghost" onClick={() => setAiSortOpen(true)}>{t('ai.inboxTitle')}</Button>}
-      </div>
-      {inbox.length === 0 ? (
-        <EmptyState title={t('plan.nothing')} />
-      ) : (
-        <div className="tl">
-          {inbox.map((item) => (
-            <InboxRow
-              key={item.id}
-              item={item}
-              deleteLabel={t('common.delete')}
-              onOpen={() => { setPlanItem(item); setPlanDate(selected); setPlanTime(null) }}
-              onDelete={() => {
-                const snap = deleteInboxItem(item.id)
-                if (snap) toast(t('common.deleted'), { action: { label: t('common.undo'), onClick: () => restoreInboxItem(snap.item, snap.index) } })
-              }}
-            />
-          ))}
-        </div>
-      )}
-    </>
-  )
-
-  /* Header 内联天气（§三.9 极简形态：☁18° 大致晴） */
   const weatherInline = weather ? (
     <span className="home-weather" title={t('weather.source')}>
-      {(() => { const WIcon = wmoIcon(weather.current.code); return <WIcon size={14} strokeWidth={1.8} aria-hidden="true" /> })()}
+      {(() => { const WIcon = wmoIcon(weather.current.code); return <WIcon size={14} aria-hidden="true" /> })()}
       <span className="tnum">{weather.current.temp}°</span>
       <span className="home-weather__desc">{wmoLabel(weather.current.code, zh)}</span>
     </span>
   ) : null
 
-  /* 动态欢迎语（按时段；不重复系统时间——时间由下方 Journey 组件承担） */
-  const h = new Date().getHours()
-  const gKey = h < 5 ? 'gEvening' : h < 9 ? 'gMorning' : h < 12 ? 'gForenoon' : h < 18 ? 'gAfternoon' : 'gEvening'
-  const greeting = t(`today.${gKey}`)
+  /* 计划/健身/学习已从底部导航撤下——MODULES 卡是唯一入口，
+     悬停气泡（TipGroup，一点一组、之间滑行）补足"点进去是什么"。 */
+  const modules = [
+    { to: '/plan', label: t('modules.plan'), tip: t('modules.tipPlan'), value: `${selfDiscipline.tDone}/${dayTasks.length}`, unit: t('modules.planUnit') },
+    { to: '/health', label: t('modules.health'), tip: t('modules.tipHealth'), value: healthToday.day ? String(healthToday.score) : '—', unit: healthToday.day ? t('modules.healthUnit') : '' },
+    { to: '/fit', label: t('modules.fit'), tip: t('modules.tipFit'), value: String(fitToday.doneKcal), unit: t('modules.fitUnit') },
+    { to: '/learn', label: t('modules.learn'), tip: t('modules.tipLearn'), value: String(learnToday.words), unit: t('modules.learnUnit') },
+  ]
 
   return (
     <div className="home">
-      {/* Header / Greeting：欢迎语 + 极简天气（时间/日期语义由 Journey 与日期条承担） */}
       <header className="home-head">
-        <h2 className="home-head__greeting t-h3">{greeting}</h2>
-        {weatherInline}
+        <div className="home-head__col">
+          <div className="eyebrow home-head__eyebrow">
+            <span>{t('today.eyebrow')} · {dateLabel}</span>
+            {weatherInline}
+          </div>
+          <h1 className="t-h1 home-head__title">{t('today.overview')}</h1>
+          <p className="t-small home-head__greeting">{greeting}</p>
+        </div>
+        <div className="home-head__acts">
+          <IconButton icon={<ChartNoAxesColumn size={20} aria-hidden="true" />} label={t('nav.progress')} onClick={() => { void navigate('/progress') }} />
+        </div>
       </header>
 
-      <DateNavigator selected={selected} onSelect={setSelected} />
+      <section className="sd-hero" ref={heroRef} aria-label={t('today.selfDiscipline')}>
+        <div className="sd-hero__body">
+          <span className="eyebrow sd-hero__eyebrow">{t('today.heroLabel')}</span>
+          <div className="sd-hero__num">
+            <ReelCounter value={selfDiscipline.pct} className="sd-hero__reel" />
+            <span className="sd-hero__pct">%</span>
+          </div>
+          <div className="sd-hero__sub">
+            {t('today.heroSub')} · {selfDiscipline.done}/{selfDiscipline.total}
+          </div>
+          <button className="sd-hero__cta" {...ddTriggerProps(planOpen, () => {
+            if (!planOpen && heroRef.current) {
+              const h = heroRef.current.getBoundingClientRect()
+              setDdPos({ top: Math.round(h.top + 12), left: Math.round(h.left + h.width / 2) })
+            }
+            setPlanOpen((v) => !v)
+          }, (el) => { ctaRef.current = el })}>
+            {t('today.heroCta')}
+          </button>
+          <Dropdown open={planOpen} onClose={() => setPlanOpen(false)} label={t('today.timelineTitle')} className="plan-dd" trigger={ctaRef.current} pos={ddPos}>
+            <p className="eyebrow plan-dd__title">{t('today.timelineTitle')}</p>
+            {timeline.length === 0 ? (
+              <p className="plan-dd__empty">{t('today.timelineEmpty')}</p>
+            ) : (
+              <ol className="plan-dd__tl">
+                {timeline.map(({ task, done }) => (
+                  <li key={task.id} className={`plan-dd__item${done ? ' is-done' : ''}${task.status === 'skipped' ? ' is-skipped' : ''}`}>
+                    <time className="plan-dd__time tnum" dateTime={task.date ?? today}>{task.time ?? '—'}</time>
+                    <span className="plan-dd__lane" aria-hidden="true"><span className="plan-dd__dot" /></span>
+                    <span className="plan-dd__name">{task.title}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+            <Link to="/plan" className="plan-dd__all" onClick={() => setPlanOpen(false)}>{t('today.viewAll')} →</Link>
+          </Dropdown>
+        </div>
+      </section>
 
-      {/* Daily Time Journey：起床 → 当前 → 入睡（细条，服务时间轴） */}
-      <div className="home-dayprog">
-        <DayProgress
-          wake={direction.wake ?? '07:00'}
-          sleep={direction.sleep ?? '23:30'}
-          wakeLabel={t('me.wake')}
-          sleepLabel={t('me.sleep')}
-        />
-      </div>
+      {/* MODULES 四卡（真实派生数据 → 各功能页） */}
+      <section className="home-mods-sec" aria-label={t('modules.title')}>
+        <h2 className="eyebrow home-sec-title">{t('modules.title')}</h2>
+        <TipGroup className="home-mods tip-group--grid">
+          {modules.map((m) => (
+            <Link key={m.to} to={m.to} className="home-mod" data-tip={m.tip}>
+              <span className="home-mod__label t-caption">{m.label}</span>
+              <span className="home-mod__num tnum">{m.value}<span className="home-mod__unit">{m.unit}</span></span>
+            </Link>
+          ))}
+        </TipGroup>
+      </section>
 
-      {/* Primary Segmented Navigation + Current Content（§四/§五） */}
-      <SegmentedPager
-        ariaLabel={t('nav.today')}
-        tabs={[
-          { key: 'tasks', label: t('home.tasksCard'), content: tasksPage },
-          { key: 'events', label: t('home.eventsCard'), content: eventsPage },
-          { key: 'inbox', label: t('plan.inbox'), content: inboxPage },
-        ]}
-      />
+      {/* 今日任务（右勾选 + 左滑删除，≤5 条 + 查看全部） */}
+      <section className="home-tasks-sec" aria-label={t('today.tasksTitle')}>
+        <div className="home-sec-head">
+          <h2 className="eyebrow">{t('today.tasksTitle')}</h2>
+          <Link to="/plan" className="home-sec-head__all">{t('today.viewAll')}</Link>
+        </div>
+        {heavyBlock}
+        {dayTasks.length === 0 ? (
+          <EmptyState
+            title={t('today.clear')}
+            action={<Button variant="quiet" onClick={() => setSheetTarget('new')}>{t('today.addTask')}</Button>}
+          />
+        ) : pendingTasks.length === 0 ? (
+          <EmptyState title={t('today.allDone')} sub={t('today.allDoneSub')} />
+        ) : (
+          <div className="tl">
+            <TlRowList
+              rows={pendingTasks.slice(0, 5).map((task) => ({
+                id: task.id,
+                title: task.title,
+                time: task.time,
+                urgent: task.urgent,
+                goal: [goalName(task.goalId), task.category ? t(`cats.${task.category}`) : null].filter(Boolean).join(' · ') || null,
+                deleteLabel: t('common.delete'),
+                onToggle: () => onToggleTask(task),
+                onOpen: () => setSheetTarget(task),
+                onDelete: () => onDelete(task),
+              }))}
+            />
+          </div>
+        )}
+        <div className="home-card__pmd">
+          <Button block variant="quiet" onClick={() => setPmdOpen(true)}>{t('today.planMyDay')}</Button>
+        </div>
+      </section>
 
-      {/* 习惯条（今天视图） */}
-      {isToday && habitsToday.length > 0 && (
-        <>
+      {/* 习惯条 */}
+      {habitsToday.length > 0 && (
+        <section aria-label={t('today.habits')}>
           <h2 className="eyebrow home-sec-title">{t('today.habits')}</h2>
           <div className="habit-bar">
-            {habitsToday.map(({ routine, done: habitDone }) => (
+            {habitsToday.map(({ routine, done: habitDone, status, streak }) => (
               <HabitChip
                 key={routine.id}
                 name={routine.name}
                 sub={routine.sub ?? undefined}
                 done={habitDone}
-                onToggle={() => toggleHabit(routine.id)}
+                streak={streak}
+                backlog={status === 'backlog'}
+                onToggle={() => onToggleHabit(routine.id)}
               />
             ))}
           </div>
-        </>
+        </section>
       )}
 
-      {/* 常驻新建（悬浮控件=玻璃许可区之一） */}
-      <div className="home-fab">
-        <IconButton icon={<Plus size={20} strokeWidth={1.8} aria-hidden="true" />} label={t('today.addTask')} onClick={() => setSheetTarget('new')} />
-      </div>
+      {/* 常驻新建：液体融合 FAB（共用组件，计划页同款）。
+          菜单首项用 SquarePen 不用 Plus：中心钮本身就是加号（展开时旋转 45° 成 ×），
+          子项再放一个加号就是两个加号叠在一起；"写一条任务"也确实是书写而不是加法。 */}
+      <LiquidFab menuLabel={t('today.fabMenu')} items={[
+        { key: 'new', label: t('today.addTask'), icon: <SquarePen size={18} aria-hidden="true" />, onClick: () => setSheetTarget('new') },
+        { key: 'pmd', label: t('today.planMyDay'), icon: <CalendarDays size={18} aria-hidden="true" />, onClick: () => setPmdOpen(true) },
+      ]} />
 
       <TaskSheet
         target={sheetTarget}
         onClose={() => setSheetTarget(null)}
-        onSaved={(created) => {
-          if (!created.time) { setFilter('anytime') }
-        }}
+        onSaved={() => undefined}
       />
-      <PlanMyDaySheet open={pmdOpen} onClose={() => setPmdOpen(false)} />
-      <AISuggestSheet ability="sort_inbox" open={aiSortOpen} onClose={() => setAiSortOpen(false)} title={t('ai.inboxTitle')} />
-
-      {/* 收集箱行 → 安排 sheet */}
-      <Sheet
-        open={planItem != null}
-        onClose={() => setPlanItem(null)}
-        title={t('plan.planTitle')}
-        footer={
-          <div className="home-plansheet__acts">
-            <Button variant="quiet" onClick={() => setPlanItem(null)}>{t('common.cancel')}</Button>
-            <Button onClick={onSavePlan}>{t('plan.schedule')}</Button>
-          </div>
-        }
-      >
-        {planItem && (
-          <div className="home-plansheet">
-            <h2 className="t-h3">{planItem.title}</h2>
-            <div className="home-chips">
-              <Chip on={planDate === selected} onClick={() => setPlanDate(selected)}>{t('sheet.todayChip')}</Chip>
-              <Chip on={planDate === tomorrow} onClick={() => setPlanDate(tomorrow)}>{t('sheet.tomorrowChip')}</Chip>
-              <Chip on={planDate === nextWeekday(6)} onClick={() => setPlanDate(nextWeekday(6))}>{t('plan.thisWeekend')}</Chip>
-              <Chip on={planDate === nextWeekday(1)} onClick={() => setPlanDate(nextWeekday(1))}>{t('plan.nextMonday')}</Chip>
-            </div>
-            <div className="home-chips">
-              {['08:00', '10:00', '14:00', '16:00', '20:00'].map((tm) => (
-                <Chip key={tm} on={planTime === tm} onClick={() => setPlanTime(planTime === tm ? null : tm)}>{tm}</Chip>
-              ))}
-            </div>
-          </div>
-        )}
-      </Sheet>
+      {pmdOpen && (
+        <Suspense fallback={<LoaderBar />}>
+          <PlanMyDaySheet open onClose={() => setPmdOpen(false)} />
+        </Suspense>
+      )}
+      {/* 全部完成的物理事件：一次性彩带爆发（burst 计数自增即发射） */}
+      <PhysicsConfetti burst={burst} />
     </div>
   )
 }

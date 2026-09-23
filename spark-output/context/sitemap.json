@@ -1,0 +1,36 @@
+{
+  "skill": "sitemap",
+  "generated_at": "2026-09-21T11:40:00+08:00",
+  "project_name": "Epoch 移动端 · 账号体系与数据上云",
+  "platform": "mobile",
+  "primary_navigation": [
+    { "id": "today", "label": "今天", "route": "/today", "icon_hint": "sun", "children": [] },
+    { "id": "plan", "label": "计划", "route": "/plan", "icon_hint": "list-todo", "children": [] },
+    { "id": "fit", "label": "健身", "route": "/fit", "icon_hint": "dumbbell", "children": [] },
+    { "id": "learn", "label": "学习", "route": "/learn", "icon_hint": "book-open", "children": [] },
+    { "id": "notes", "label": "备忘", "route": "/notes", "icon_hint": "sticky-note", "children": [] },
+    { "id": "account", "label": "我的", "route": "/me", "icon_hint": "user", "children": [{ "id": "auth", "label": "登录/注册", "route": "/login", "icon_hint": "log-in" }] }
+  ],
+  "pages": [
+    { "id": "page-login", "route": "/login", "label": "登录/注册", "purpose": "用户名或邮箱 + 统一密码 登录；注册自动建 username 档案", "parent": "auth", "access": "public", "related_features": ["auth"], "related_stories": [] },
+    { "id": "page-today", "route": "/today", "label": "今天", "purpose": "今日总览（登录后数据按账号隔离）", "parent": "today", "access": "authenticated", "related_features": ["sync"], "related_stories": [] },
+    { "id": "page-plan", "route": "/plan", "label": "计划", "purpose": "日程规划", "parent": "plan", "access": "authenticated", "related_features": ["sync"], "related_stories": [] },
+    { "id": "page-fit", "route": "/fit", "label": "健身", "purpose": "训练记录（新入云）", "parent": "fit", "access": "authenticated", "related_features": ["sync-0006"], "related_stories": [] },
+    { "id": "page-learn", "route": "/learn", "label": "学习", "purpose": "词库/复习记录（新入云；AI Key 仅本机）", "parent": "learn", "access": "authenticated", "related_features": ["sync-0006"], "related_stories": [] },
+    { "id": "page-notes", "route": "/notes", "label": "备忘", "purpose": "笔记（新入云）", "parent": "notes", "access": "authenticated", "related_features": ["sync-0006"], "related_stories": [] },
+    { "id": "page-health", "route": "/health", "label": "健康", "purpose": "每日身体记录（新入云）", "parent": "today", "access": "authenticated", "related_features": ["sync-0006"], "related_stories": [] },
+    { "id": "page-progress", "route": "/progress", "label": "进展", "purpose": "统计与日历", "parent": "account", "access": "authenticated", "related_features": ["sync"], "related_stories": [] },
+    { "id": "page-me", "route": "/me", "label": "我的", "purpose": "账号信息、退出登录、AI 接口（本机）", "parent": "account", "access": "authenticated", "related_features": ["auth"], "related_stories": [] }
+  ],
+  "key_flows": [
+    { "name": "注册并进入", "page_sequence": ["page-login", "page-today"] },
+    { "name": "登录并恢复云端数据", "page_sequence": ["page-login", "page-today", "page-plan"] },
+    { "name": "本机模式逃生（网络不可达时）", "page_sequence": ["page-login", "page-today"] },
+    { "name": "退出并切换账号", "page_sequence": ["page-me", "page-login"] }
+  ],
+  "metadata": {
+    "depth_max": 2,
+    "page_count": 9,
+    "platform_notes": "Mobile 5-Tab 不变；/login 为唯一 public 路由；其余全部 authenticated（含本机模式豁免）。RLS 按 auth.uid() 隔离；AI API Key 永不上云。"
+  }
+}

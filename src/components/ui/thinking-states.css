@@ -1,0 +1,70 @@
+/* Transitions.dev「Thinking states」皮肤：Paper Mono（base=text-tertiary，shimmer 高光=ink）。
+   字号/字重由使用方在 .think 上给类（如 t-h3）；sizer 必须与可见行同字体才量得准。 */
+.think {
+  --think-swap: 150ms;
+  --think-distance: 8px;
+  --think-blur: 2px;
+  --think-shimmer: 2000ms;
+  position: relative;
+  display: inline-block;
+  text-align: center;
+}
+.think__sizer { display: block; visibility: hidden; white-space: nowrap; }
+.think__line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: block;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  transform: translateY(0);
+  filter: blur(0);
+  opacity: 1;
+  transition:
+    transform var(--think-swap) ease-in-out,
+    filter var(--think-swap) ease-in-out,
+    opacity var(--think-swap) ease-in-out;
+  will-change: transform, filter, opacity;
+}
+/* shimmer 只扫字形（background-clip: text），副本永远等于可见行 */
+.think__line::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%, transparent 40%,
+    var(--ink) 50%,
+    transparent 60%, transparent 100%
+  );
+  background-size: 400% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: think-shimmer var(--think-shimmer) linear infinite;
+}
+@keyframes think-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0% 0; }
+}
+/* 出场行浮在盒上方，两半同时动画 */
+.think__line.is-exit {
+  transform: translateY(calc(var(--think-distance) * -1));
+  filter: blur(var(--think-blur));
+  opacity: 0;
+}
+.think__line.is-enter-start {
+  transition: none;
+  transform: translateY(var(--think-distance));
+  filter: blur(var(--think-blur));
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .think__line { transition: none !important; transform: none !important; filter: none !important; }
+  .think__line::before { display: none !important; }
+}

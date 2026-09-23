@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AIPreview, type AIProposal } from '@/components/ui/AIPreview'
 import { useToast } from '@/components/ui/Toast'
@@ -22,14 +22,18 @@ export function AISuggestSheet({ ability, open, onClose, title }: { ability: AIA
   const [accepted, setAccepted] = useState<ReadonlySet<string>>(new Set())
   const [dtoById, setDtoById] = useState<Map<string, AIProposalDTO>>(new Map())
 
+  // 组件级 AbortController：用户取消、Sheet 关闭、组件卸载都会中止 in-flight 请求
+  // requestAI 当前实现不接 abort signal（待 follow-up），但 alive 标志足以阻止 res 落库
+  const aliveRef = useRef(true)
+  useEffect(() => () => { aliveRef.current = false }, [])
   useEffect(() => {
     if (!open) return
-    let alive = true
+    aliveRef.current = true
     setLoading(true)
     setFailed(null)
     setAccepted(new Set())
     void requestAI(ability).then((res) => {
-      if (!alive) return
+      if (!aliveRef.current) return
       setLoading(false)
       if (!res.ok) {
         setFailed(res.error)
@@ -44,7 +48,6 @@ export function AISuggestSheet({ ability, open, onClose, title }: { ability: AIA
       setDtoById(map)
       setItems(list)
     })
-    return () => { alive = false }
   }, [open, ability, toast])
 
   const rememberUnpicked = (appliedIds: string[]): void => {

@@ -1,0 +1,31 @@
+/* ═══ 反馈原语（Spinner / StateText / LoaderBar）═══
+   加载动效的其余形态一律走 components/motion/loader（beui 官方 17 变体）——这里不再手写第二套。
+   全部基于 transform + opacity，reduced-motion 全局收口。 */
+
+.fb-spin {
+  display: inline-block;
+  border: 2px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  border-top-color: var(--ink);
+  border-radius: var(--r-full);
+  animation: fb-spin-rotate 720ms linear infinite;
+  vertical-align: middle;
+}
+@keyframes fb-spin-rotate { to { transform: rotate(360deg); } }
+
+/* 线性不确定进度（GitHub 经典 top-loading-bar 模式，如 NProgress / pace） */
+.ld-bar { position: fixed; top: 0; left: 0; right: 0; height: 2px; overflow: hidden; z-index: 60; background: transparent; display: block; }
+.ld-bar__fill { position: absolute; top: 0; bottom: 0; width: 36%; border-radius: 2px; background: var(--ink); animation: ld-bar-sweep 1100ms var(--ease) infinite; }
+@keyframes ld-bar-sweep { 0% { transform: translateX(-110%); } 100% { transform: translateX(390%); } }
+
+.fb-state { display: flex; align-items: center; gap: var(--sp-2); margin: 0; }
+.fb-state__icon { font-size: var(--fs-h3); line-height: 1; }
+.fb-state__text { color: var(--text-secondary); }
+.fb-state--processing .fb-state__text { color: var(--info); }
+.fb-state--success .fb-state__text { color: var(--success); }
+.fb-state--error .fb-state__text { color: var(--danger); }
+.fb-state--warning .fb-state__text { color: var(--warning); }
+
+@media (prefers-reduced-motion: reduce) {
+  .fb-spin { animation-duration: 1800ms; }
+  .ld-bar__fill { animation: none; width: 100%; opacity: 0.3; }
+}

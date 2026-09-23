@@ -49,3 +49,13 @@ if (typeof window !== 'undefined' && typeof window.scrollTo !== 'function') {
 if (typeof Element !== 'undefined' && typeof Element.prototype.scrollIntoView !== 'function') {
   Element.prototype.scrollIntoView = () => {}
 }
+
+/* jsdom 无 ResizeObserver（liquid-gooey 等用）——no-op stub */
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  class ROStub {
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+  }
+  globalThis.ResizeObserver = ROStub as unknown as typeof ResizeObserver
+}

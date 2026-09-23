@@ -7,12 +7,12 @@ import './netbg.css'
  * 达标：rAF 单循环、页面隐藏即停、reduced-motion 只画静态一帧、DPR≤2、颜色走 --net-* token。
  */
 const NET_CFG = {
-  countByViewport: [[1280, 50], [768, 36], [0, 20]] as const,
-  dotR: [0.6, 1.25],
-  dotA: [0.10, 0.26],
+  countByViewport: [[1280, 84], [768, 64], [0, 80]] as const,
+  dotR: [0.9, 1.7],
+  dotA: [0.26, 0.5],
   breathe: 0.2,
   linkDist: 130,
-  linkA: 0.08,
+  linkA: 0.16,
   linkW: 0.6,
   speed: [0.1, 0.22],
   repulseR: 90,
@@ -26,6 +26,8 @@ export function NetBackground({ tier = 'subtle' }: { tier?: 'subtle' | 'ambient'
   useEffect(() => {
     const cv = ref.current
     if (!cv) return
+    // 测试视觉回归时关掉背景，让基线对齐组件层而非粒子层。
+    if (typeof window !== 'undefined' && (window as unknown as { __EPOCH_TEST_NO_BG__?: boolean }).__EPOCH_TEST_NO_BG__) return
     const g2d = cv.getContext?.('2d')
     if (!g2d) return
     const rmq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -126,8 +128,8 @@ export function NetBackground({ tier = 'subtle' }: { tier?: 'subtle' | 'ambient'
     const start = () => { if (!raf && !rmq.matches) { last = 0; raf = requestAnimationFrame(loop) } }
     const stop = () => { if (raf) { cancelAnimationFrame(raf); raf = 0 } }
 
-    const onVis = () => { document.hidden ? stop() : start() }
-    const onRm = () => { rmq.matches ? (stop(), render()) : start() }
+    const onVis = () => { if (document.hidden) stop(); else start() }
+    const onRm = () => { if (rmq.matches) { stop(); render() } else start() }
     const onMove = (e: PointerEvent) => {
       if (e.pointerType && e.pointerType !== 'mouse') return
       pointer.x = e.clientX; pointer.y = e.clientY; pointer.on = true

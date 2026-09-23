@@ -1,16 +1,35 @@
 /* sheet-task 表单（§七/§八）：Field Groups + 数据行（非按钮化）+ Medium-Dense 密度。 */
-.tsheet { display: flex; flex-direction: column; gap: var(--sp-5); }
+/* 整张 sheet 的呼吸：sp-5→sp-6。sp-6(32) 在 4-8-12-16-24-32 节奏里属"组间大留白"，
+   与组内 sp-3(12) 区分；之前 sp-5(24) 视觉上和组内差不多，导致标题块紧贴下方分类。 */
+.tsheet { display: flex; flex-direction: column; gap: var(--sp-6); }
 .tsheet__group { display: flex; flex-direction: column; gap: var(--sp-3); }
 .tsheet__chips { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+/* 标题块（身份）作为主角，下边距大于普通组到组的间距 */
+.tsheet__title { display: flex; flex-direction: column; gap: var(--sp-2); }
+.tsheet__title .field { gap: var(--sp-2); }
 
-/* G1 标题：大号无边框输入（身份字段是表单主角） */
+/* G1 标题：大号无边框输入（身份字段是表单主角）；
+   底边线常驻（未聚焦=透明占位），focus 只换色不叠线——旧规则 border-color:transparent
+   与 border-bottom 同现，1.5px 间隙叠出双黑线（用户截图）。
+   Field 换官方引擎后自带胶囊描边与焦点 ring，这一页要的是通栏大标题，
+   所以在页面内把它撤掉（未分层规则盖得住 utility），只留底边线。 */
+.tsheet__title .field > div:has(> .field__input) {
+  border: 0;
+  border-radius: 0;
+  height: auto;
+  box-shadow: none;
+}
 .tsheet__title .field__input {
+  height: auto;
   background: none;
   font-size: var(--fs-h2);
   font-weight: 500;
   padding: var(--sp-2) 0;
+  border-radius: 0;
+  border-bottom: 1.5px solid var(--divider);
+  transition: border-color var(--dur-1) var(--ease);
 }
-.tsheet__title .field__input:focus { border-color: transparent; background: none; border-bottom: 1.5px solid var(--ink); border-radius: 0; }
+.tsheet__title .field__input:focus { border-bottom-color: var(--ink); background: none; }
 
 /* G3 数据行：label 左 / value 右 / chevron——Data Field ≠ Action Button */
 .trow-list { display: flex; flex-direction: column; }
@@ -84,32 +103,7 @@
 }
 .dcal__day.on { background: var(--accent); color: var(--ink-inverse); }
 
-/* 时间双列 */
-.tpick { display: flex; flex-direction: column; gap: var(--sp-2); align-items: flex-start; }
-.tpick__cols { display: flex; gap: var(--sp-3); width: 100%; }
-.tpick__col {
-  flex: 1;
-  max-height: 180px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--sp-1);
-  padding: var(--sp-1);
-  background: var(--surface-sunken);
-  border-radius: var(--r-md);
-}
-.tpick__item {
-  height: 36px;
-  border: 0;
-  border-radius: var(--r-sm);
-  background: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color var(--dur-1) var(--ease), color var(--dur-1) var(--ease);
-}
-.tpick__item:hover { color: var(--text-primary); }
-.tpick__item.on { background: var(--ink); color: var(--ink-inverse); }
+/* 时间滚轮的样式在 components/ui/time-wheel.css（皮全部来自官方 WheelPicker，这里不留残留） */
 
 /* 底部动作 */
 .tsheet__foot {
@@ -118,3 +112,9 @@
   justify-content: flex-end;
   padding-top: var(--sp-2);
 }
+
+/* iOS 44px 触控最小：36px 的日历日用 ::before 向四周扩 4px（仅点击区，视觉 0） */
+.dcal__day::before {
+  content: ''; position: absolute; inset: -4px;
+}
+.dcal__day { position: relative; }

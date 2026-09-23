@@ -1,0 +1,143 @@
+/* NotesPage（概念稿 page5）：搜索 + 标签 + PINNED/日分组卡片网格。 */
+.notes { display: flex; flex-direction: column; gap: var(--sp-4); }
+.notes-sec-title { margin: var(--sp-1) 0 var(--sp-3); color: var(--text-tertiary); }
+
+.notes-search {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  background: var(--surface-sunken);
+  border: 1.5px solid transparent;
+  border-radius: var(--r-pill);
+  padding: var(--sp-3) var(--sp-4);
+  color: var(--text-tertiary);
+  transition: border-color var(--dur-1) var(--ease), background-color var(--dur-1) var(--ease);
+}
+.notes-search:focus-within { border-color: var(--ink); background: var(--surface); }
+.notes-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  font: inherit;
+  font-size: var(--fs-body);
+  color: var(--text-primary);
+}
+
+.notes-tags { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+
+.notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+@media (min-width: 640px) { .notes-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.note-card {
+  appearance: none;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-height: 108px;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-md);
+  box-shadow: var(--elev-surface);
+  padding: var(--sp-4);
+  cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease);
+}
+.note-card:hover { border-color: var(--border-strong); }
+.note-card__title { color: var(--text-primary); font-weight: 500; }
+.note-card__body {
+  color: var(--text-tertiary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.note-card__foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; color: var(--text-tertiary); }
+.note-card__tag {
+  font-size: var(--fs-caption);
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: var(--r-pill);
+  padding: 1px var(--sp-2);
+}
+.note-card__tag--none { color: var(--text-disabled); background: var(--surface-sunken); }
+
+.notes-edit { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-2) 0; }
+.notes-edit__acts { display: flex; gap: var(--sp-2); width: 100%; }
+.notes-edit__acts > * { flex: 1; }
+
+/* ── 长按拖拽成组 ─────────────────────────────────────────────── */
+/* 顶部工具区（搜索+标签+提示）整体当"安全上沿"：拖拽夹在它之下 */
+.notes-chrome { display: flex; flex-direction: column; gap: var(--sp-3); }
+.notes-hint { color: var(--text-disabled); }
+
+/* 格子=占位与安全位置；卡片=被拖走的那一层（只动 transform，格子不塌） */
+.note-cell { position: relative; min-width: 0; }
+.note-cell > .note-card { width: 100%; height: 100%; }
+.note-card[data-drag='on'] {
+  position: relative;
+  z-index: 30;
+  cursor: grabbing;
+  border-color: var(--border-strong);
+  box-shadow: var(--elev-floating);
+  transition: none;          /* 跟手期间绝不插值，否则永远慢一帧 */
+  will-change: transform;
+  touch-action: none;        /* 起拖后别让系统把这一串触摸收去滚动 */
+}
+/* 卡片被提走时，原地留一个虚线框：这就是"安全位置"的可见形式 */
+.note-cell:has(> .note-card[data-drag='on'])::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-md);
+  border: 1.5px dashed var(--divider);
+  pointer-events: none;
+}
+.note-card[data-drop='on'], .note-folder[data-drop='on'] { outline: 2px solid var(--accent); outline-offset: 2px; }
+.note-folder[data-drop='on'] { border-radius: var(--r-md); }
+
+/* 文件夹格：官方 ProjectFolder 自己带尺寸，这里只保证它撑满格子 */
+.note-folder { display: flex; }
+.note-folder > * { flex: 1; min-width: 0; }
+
+/* 成员缩略：动作行只在展开层渲染（见 NotesPage 的 overlayItem），
+   扇形里根本不会出现按钮——所以这里不需要 [role=dialog] 的显示开关。 */
+.folder-mini {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  width: 100%;
+  height: 100%;
+  padding: var(--sp-3);
+  text-align: left;
+  color: var(--text-secondary);
+}
+.folder-mini__title { color: var(--text-primary); font-weight: 500; }
+.folder-mini__body {
+  color: var(--text-tertiary);
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.folder-mini__acts { margin-top: auto; display: flex; gap: var(--sp-2); }
+.folder-mini__acts .folder-mini__btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--divider);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: var(--fs-caption);
+  padding: var(--sp-1) var(--sp-3);
+  cursor: pointer;
+}
+.folder-mini__acts .folder-mini__btn:hover { color: var(--text-primary); border-color: var(--border-strong); }
+
+@media (prefers-reduced-motion: reduce) {
+  .note-card[data-drag='on'] { will-change: auto; }
+}

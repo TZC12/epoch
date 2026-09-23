@@ -1,0 +1,7 @@
+/* 骨架大空区：屏幕居中只显示 thinking states（原骨架块 + 点阵波形已撤）。
+   高度 = 视口 - 页头留白 - 底部导航，保证垂直视觉居中。 */
+.sh-center {
+  min-height: calc(100dvh - var(--tabbar-h) - var(--sp-8) * 2);
+  display: grid;
+  place-items: center;
+}

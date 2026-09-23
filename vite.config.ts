@@ -1,10 +1,11 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [tailwindcss(), react()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
@@ -21,6 +22,14 @@ export default defineConfig({
           'vendor-supabase': ['@supabase/supabase-js'],
           'vendor-i18n': ['i18next', 'react-i18next'],
           'vendor-icons': ['lucide-react'],
+          // beui 官方组件依赖 motion（含 framer-motion 内核，layoutId 还会拉进 layout
+          // projection）。独立分块是为了多个懒加载页共用一份、且体积可单独盯住
+          // （预算条目见 .size-limit.json）。
+          // ⚠ 这个分块只在"motion 仅被懒加载页引用"时才挡住关键路径：任何被入口
+          // 静态引用的组件（如曾经的 AppShell → Onboarding → Field）都会让入口
+          // 直接 import 这个 chunk，首屏就要多下 46 kB gz。改完 Field 记得回头看
+          // index-*.js 的体积（基线 90.45 kB gz，超了先查谁把 motion 拉进了静态图）。
+          'vendor-motion': ['motion', 'motion/react', 'framer-motion'],
         },
       },
     },

@@ -4,7 +4,8 @@ export {
   createTask, updateTask, toggleTask, skipTask, unskipTask, rescheduleTask,
   deleteTask, restoreTask,
   captureInbox, convertInboxItem, reopenInboxItem, deleteInboxItem, restoreInboxItem,
-  toggleHabit, saveReview, updateDirection, uid,
+  toggleHabit, logHabit, unlogHabit, saveReview, updateDirection, uid,
+  createRoutine, updateRoutine, archiveRoutine, setRoutineSchedule,
 } from './actions'
 export * from './queries'
 export { boot, migrateLocal, mapLegacyState } from './migrate'

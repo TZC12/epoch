@@ -6,7 +6,6 @@ const report = await page.evaluate(() => {
   const out = { iconOnlyNoLabel: [], buttonsTotal: 0, unlabeledIconButtons: 0, navSemantic: !!document.querySelector('nav'), langAttr: document.documentElement.lang, touchSmall: [] }
   for (const btn of document.querySelectorAll('button')) {
     out.buttonsTotal++
-    const label = (btn.getAttribute('aria-label') || btn.textContent || '').trim()
     const iconOnly = btn.querySelectorAll('svg').length > 0 && (btn.textContent || '').trim() === ''
     if (iconOnly && !btn.getAttribute('aria-label')) { out.unlabeledIconButtons++; out.iconOnlyNoLabel.push(btn.className || btn.outerHTML.slice(0, 80)) }
     const r = btn.getBoundingClientRect()

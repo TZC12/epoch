@@ -1,11 +1,12 @@
 import { useData, goalPct, isDoneToday, tasksForDay } from '@/services/store'
 import { dateKey, todayKey, addDays } from '@/lib/dates'
 import { energyOf } from '@/services/actions'
+import { chatCompletion, isConfigured, extractJsonObject } from '@/lib/ai-provider'
 import { aiResponseSchema, type AIAbility, type AIProposalDTO, type AIContextDTO } from '@/shared/ai-schema'
 import i18n from '@/lib/i18n'
 
 /**
- * AI 前端客户端：真实上下文序列化 → POST /api/ai → zod 校验。
+ * AI 前端客户端：真实上下文序列化 → 用户自带 OpenAI 兼容接口（ai-provider）→ zod 校验。
  * 拒绝记忆：被拒建议（type+title）本地记录，再次生成时过滤——不再重复建议（审计 §22）。
  */
 
@@ -60,25 +61,32 @@ export type AIResult =
   | { ok: true; proposals: AIProposalDTO[]; observations?: string[] }
   | { ok: false; error: 'ai_not_configured' | 'network' | 'bad_output' | 'bad_request' }
 
-export async function requestAI(ability: AIAbility): Promise<AIResult> {
-  let resp: Response
-  try {
-    resp = await fetch('/api/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ability, context: buildAIContext() }),
-    })
-  } catch {
-    return { ok: false, error: 'network' }
+/**
+ * AI 建议链路（已接通用户自带接口）：
+ * 旧实现 POST /api/ai——移动端是纯静态 SPA，该端点从未存在，功能一直是死的。
+ * 现在复用 lib/ai-provider 的 OpenAI 兼容客户端 + 用户 aiConfig，
+ * 输出仍走 zod aiResponseSchema 白名单校验（AI 只产 Proposal，不写库）。
+ */
+export async function requestAI(ability: AIAbility, opts: { fetchImpl?: typeof fetch } = {}): Promise<AIResult> {
+  const cfg = useData.getState().aiConfig
+  if (!isConfigured(cfg)) return { ok: false, error: 'ai_not_configured' }
+  const context = buildAIContext()
+  const langWord = context.lang === 'zh' ? '中文' : 'English'
+  const sys = '你是日程应用的规划助手。根据用户上下文为指定 ability 产出建议。'
+    + `只输出 JSON（不要解释、不要 markdown），形如 {"observations":["…"],"proposals":[{"id":"p1","type":"…","title":"…","detail":"…","date":"YYYY-MM-DD","time":"HH:MM","durMin":30,"refInboxId":"…","refTaskId":"…"}]}。`
+    + 'type 只允许 create_task|move_task|create_routine|adjust_note；proposals 最多 8 条；title 用' + langWord + '。'
+    + 'ability 语义：plan_day=把收集箱与空闲时间排进今天（create_task/move_task 带 time）；'
+    + 'sort_inbox=逐条分拣收集箱（给时间转任务 create_task 带 refInboxId，或不重要建议 adjust_note）；'
+    + 'review_observer=根据近 14 天完成率给 1-2 条可执行观察（adjust_note 或 create_routine）。'
+  const res = await chatCompletion(cfg, [{ role: 'system', content: sys }, { role: 'user', content: JSON.stringify({ ability, context }) }], { timeoutMs: 45_000, ...opts })
+  if (!res.ok) {
+    if (res.error === 'not_configured') return { ok: false, error: 'ai_not_configured' }
+    if (res.error === 'insecure_url') return { ok: false, error: 'bad_request' }
+    if (res.error === 'timeout' || res.error === 'network') return { ok: false, error: 'network' }
+    return { ok: false, error: 'bad_output' }
   }
-  if (resp.status === 503) return { ok: false, error: 'ai_not_configured' }
-  if (!resp.ok) return { ok: false, error: 'bad_output' }
-  let data: unknown
-  try { data = await resp.json() } catch { return { ok: false, error: 'bad_output' } }
-  const v = aiResponseSchema.safeParse(data)
+  const v = aiResponseSchema.safeParse(extractJsonObject(res.text))
   if (!v.success) return { ok: false, error: 'bad_output' }
-
-  // 拒绝记忆过滤
   const rejected = rejectedKeys()
   const proposals = v.data.proposals.filter((p) => !rejected.has(key(p.type, p.title)))
   return { ok: true, proposals, observations: v.data.observations }

@@ -44,7 +44,7 @@ const WMO_LABEL: Record<number, { zh: string; en: string }> = {
 }
 
 export function wmoLabel(code: number, zh: boolean): string {
-  return (WMO_LABEL[code] ?? { zh: '—', en: '—' })[zh ? 'zh' : 'en']!
+  return (WMO_LABEL[code] ?? { zh: '—', en: '—' })[zh ? 'zh' : 'en']
 }
 
 function getCached(): Weather | null {
@@ -96,10 +96,10 @@ export async function fetchWeather(_lang: string): Promise<Weather | null> {
     const now = new Date()
     const hours: WeatherHour[] = []
     for (let i = 0; i < data.hourly.time.length && hours.length < 6; i++) {
-      const t = new Date(data.hourly.time[i]!)
+      const t = new Date(data.hourly.time[i])
       if (t < new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours())) continue
       hours.push({
-        time: `${String(t.getHours()).padStart(2, '0')}:00`,
+        time: fmtHour(t),
         temp: Math.round(data.hourly.temperature_2m?.[i] ?? 0),
         code: data.hourly.weather_code?.[i] ?? 0,
       })
@@ -119,3 +119,4 @@ export async function fetchWeather(_lang: string): Promise<Weather | null> {
 }
 
 /* 反向地理编码城市名超出本轮范围；city 留空，卡片不显示城市行。 */
+import { fmtHour } from '@/lib/dates'

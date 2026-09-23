@@ -5,7 +5,8 @@ import { FocusVeil } from '@/features/focus/FocusVeil'
 import { useFocus } from '@/features/focus/focusStore'
 import { useData, initialData } from '@/services/store'
 import * as A from '@/services/actions'
-import { Onboarding, needOnboarding, OB_KEY } from '@/features/onboarding/Onboarding'
+import { Onboarding } from '@/features/onboarding/Onboarding'
+import { needOnboarding, OB_KEY } from '@/features/onboarding/gate'
 
 beforeEach(() => {
   localStorage.clear()

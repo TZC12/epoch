@@ -14,12 +14,19 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Gauge } from '@/components/ui/Gauge'
 import { Pbar } from '@/components/ui/Pbar'
 import { Checkbox } from '@/components/ui/Checkbox'
+import { Toggle } from '@/components/ui/Toggle'
 import { Metric } from '@/components/ui/Metric'
 import { Insight } from '@/components/ui/Insight'
 import { Note } from '@/components/ui/Note'
 import { TlRow } from '@/components/ui/TlRow'
 import { HabitChip } from '@/components/ui/HabitChip'
 import { AIPreview, type AIProposal } from '@/components/ui/AIPreview'
+import { Loader, type LoaderVariant } from '@/components/motion/loader'
+import { Spinner } from '@/components/ui/Feedback'
+import { MatrixDots } from '@/components/ui/MatrixDots'
+import { ThinkingStates } from '@/components/ui/ThinkingStates'
+import { PhysicsConfetti } from '@/components/ui/PhysicsConfetti'
+import { ThinkingOrb } from 'thinking-orbs'
 
 /* dev-only 设计系统目录（用户偏好：演示工具不进产品 UI，只挂 /dev/style）。 */
 
@@ -31,6 +38,27 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     </section>
   )
 }
+
+/** 官方 Loader 的 17 变体一次全展，附我们的选型口径（口径写在这里，别散进各产品页注释）。 */
+const LOADER_CATALOG: [LoaderVariant, string][] = [
+  ['spinner', '内联小位·按钮旁'],
+  ['dots', '短处理·AI 生成中'],
+  ['bars', '后台批量'],
+  ['dot-matrix', '成块数据填充'],
+  ['dither', '同上，更静'],
+  ['morph', '状态互换'],
+  ['comet', '拖尾指向'],
+  ['scramble', '文本重排'],
+  ['metaballs', '融合（慎用，抢戏）'],
+  ['newton', '物理摆动'],
+  ['helix', '双轨'],
+  ['percent', '真知道百分比时'],
+  ['ascii', '终端帧（CLI 味）'],
+  ['ascii-line', '线框旋转'],
+  ['ascii-braille', '盲文点'],
+  ['ascii-blocks', '柱状起伏'],
+  ['ascii-bounce', '弹跳点'],
+]
 
 /** 色板：语义 token 全量样张（Paper Mono 单色方向的可视化清单）。 */
 function ColorSection() {
@@ -81,9 +109,11 @@ function Demo() {
   const { t } = useTranslation()
   const { toast } = useToast()
   const [ck, setCk] = useState(false)
+  const [tgl, setTgl] = useState(true)
   const [note, setNote] = useState('')
   const [seg, setSeg] = useState('inbox')
   const [sheet, setSheet] = useState(false)
+  const [burst, setBurst] = useState(0)
   const [panel, setPanel] = useState(false)
   const [ai, setAi] = useState(false)
   const [accepted, setAccepted] = useState<ReadonlySet<string>>(new Set())
@@ -115,11 +145,12 @@ function Demo() {
         </div>
       </Section>
 
-      <Section title="Checkbox · HabitChip · Chip · Seg">
+      <Section title="Checkbox · HabitChip · Chip · Seg · Toggle">
         <div style={{ display: 'flex', gap: 'var(--sp-3)', alignItems: 'center', flexWrap: 'wrap' }}>
           <Checkbox checked={ck} onChange={setCk} label="demo" />
+          <Toggle checked={tgl} onChange={() => setTgl((v) => !v)} label="写周报（设定开关）" />
           <HabitChip name="Posture" sub="5 min" done />
-          <HabitChip name="Reading" sub="20 min" onToggle={() => {}} />
+          <HabitChip name="Reading" sub="20 min" streak={12} onToggle={() => {}} />
           <Chip>Tag</Chip>
         </div>
         <div style={{ marginTop: 'var(--sp-3)' }}>
@@ -141,6 +172,66 @@ function Demo() {
           <Field label="标题" placeholder="想到什么写什么" />
           <Note label="备注" value={note} onChange={setNote} placeholder="只记录一句为什么" maxLength={80} />
         </div>
+      </Section>
+
+      <Section title="Loaders · 加载动效规格（按场景选型）">
+        <p className="t-caption">
+          加载族唯一实现 = beui 官方 <code>Loader</code>（src/components/motion/loader，17 变体、单一 size 派生、currentColor、
+          减弱动效下所有 transform 换成一次平静的 opacity 脉冲）。选型口径：内联小位用 spinner/dots，
+          成块数据用 dot-matrix/dither，percent 只在真知道百分比时用。
+        </p>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--sp-6)', flexWrap: 'wrap', marginTop: 'var(--sp-3)' }}>
+          {LOADER_CATALOG.map(([variant, cap]) => (
+            <div key={variant} style={{ textAlign: 'center', width: 108 }}>
+              <Loader variant={variant} size={32} label={cap} />
+              <div className="t-caption">{variant} · {cap}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-6)', flexWrap: 'wrap', marginTop: 'var(--sp-4)' }}>
+          <Spinner size={16} />
+          <span className="t-caption">
+            Button 内联圆环走 CSS（Feedback/Spinner），不走 Loader——Button 在入口 chunk 里，
+            引 Loader 就会把 motion（46 kB gz）抬进首屏每次启动都下的那份包。
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-4)', flexWrap: 'wrap', marginTop: 'var(--sp-4)' }}>
+          <ThinkingOrb state="composing" size={64} />
+          <ThinkingOrb state="searching" size={64} />
+          <ThinkingOrb state="breathing" size={64} />
+          <span className="t-caption"><ThinkingOrb state="working" size={20} style={{ verticalAlign: 'middle' }} aria-hidden="true" /> 20px 内联档 · AI 思考态（AIPreview 用 composing）</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--sp-5) 0', textAlign: 'center' }}>
+          <ThinkingStates states={['正在打开这一页…', '稍候，马上好…', '整理你的数据…']} className="t-h3" />
+        </div>
+        <p className="t-caption">Thinking states · 骨架大空区（屏幕居中唯一元素）：shimmer 扫字形，每 2s 换一行状态，换行=上浮淡出/下方落回。</p>
+        <p className="t-caption">线性进度条（LoaderBar）见路由切换时顶部 2px 扫掠。</p>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--sp-6)', flexWrap: 'wrap', marginTop: 'var(--sp-4)' }}>
+          <div style={{ textAlign: 'center' }}>
+            <MatrixDots variant="scan" />
+            <div className="t-caption">点阵 scan · 逐列扫（数据填充）</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <MatrixDots variant="twinkle" />
+            <div className="t-caption">twinkle · 乱序闪烁（后台拉取）</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <MatrixDots variant="orbit" dot={3} />
+            <div className="t-caption">orbit · 环形巡游（AI 生成，AIPreview 用）</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <MatrixDots variant="pulse" />
+            <div className="t-caption">pulse · 内核先亮外圈跟进</div>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="PhysicsConfetti · 完成庆祝（一次性爆发）">
+        <Button onClick={() => setBurst((n) => n + 1)}>发射一次</Button>
+        <p className="t-caption" style={{ marginTop: 'var(--sp-2)' }}>
+          今日任务全部勾完时自动触发（今天页）。canvas 物理：重力+阻力+自旋翻面；颜色取当前主题 token，换肤跟随；reduced-motion 只静态闪现落位。
+        </p>
+        <PhysicsConfetti burst={burst} />
       </Section>
 
       <Section title="Card 三档 · Metric · Insight">

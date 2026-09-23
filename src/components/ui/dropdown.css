@@ -1,0 +1,19 @@
+/* ═══ Dropdown · Pill-to-card ═══
+   常驻可见（显隐由 JS 切 display），开合动画由 Web Animations API 驱动：
+   胶囊 rect ↔ 卡片 rect 的 transform 膨胀/收缩 + 淡入淡出，同一条慢出曲线。
+   ⚠ transform 终态 translateX(-50%) 居中住在 CSS 上，JS 关键帧按同一表达式换算。 */
+
+:root {
+  --dd-open-dur: 300ms;
+  --dd-close-dur: 220ms;
+}
+
+.dd {
+  position: fixed;
+  left: 50%;           /* JS pos 会覆写：top/水平中心 = 宿主黑卡实测矩形 */
+  top: 128px;
+  z-index: 45; /* 浮在 hero 黑卡之上、低于 Sheet(60)/Toast */
+  transform: translateX(-50%);
+  transform-origin: top left;
+  will-change: transform, opacity;
+}

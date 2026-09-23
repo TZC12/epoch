@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sheet } from '@/components/ui/Sheet'
 import { Field } from '@/components/ui/Field'
+import { Stepper } from '@/components/ui/Stepper'
 import { Button } from '@/components/ui/Button'
 import { Chip } from '@/components/ui/Chip'
+import { TimeWheel } from '@/components/ui/TimeWheel'
 import { createRoutine, updateRoutine, archiveRoutine } from '@/services/actions'
 import { useData } from '@/services/store'
 import type { Routine } from '@/services/types'
@@ -66,6 +68,8 @@ export function RoutineSheet({ target, onClose }: { target: Routine | 'new' | nu
       }
     >
       <div className="gsheet">
+        {/* 同 GoalSheet：模态内自动聚焦是正确 a11y 行为 */}
+        {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
         <Field label={t('routine.nameLabel')} value={name} onChange={(e) => setName(e.target.value)} placeholder={t('routine.namePlaceholder')} autoFocus />
         <div className="tsheet__row tsheet__row--col">
           <span className="eyebrow">{t('routine.kindLabel')}</span>
@@ -74,10 +78,16 @@ export function RoutineSheet({ target, onClose }: { target: Routine | 'new' | nu
             <Chip on={kind === 'routine'} onClick={() => setKind('routine')}>{t('me.routine')}</Chip>
           </div>
         </div>
-        <div className="gsheet__two">
-          <Field label={t('sheet.timeLabel')} value={time} onChange={(e) => setTime(e.target.value)} placeholder="07:00" inputMode="numeric" />
-          <Field label={t('sheet.durLabel')} value={durMin} onChange={(e) => setDurMin(e.target.value.replace(/\D/g, ''))} inputMode="numeric" />
-        </div>
+        {/* 时间=与今日任务同一只官方鼓轮（components/ui/TimeWheel）；空串=未设定 */}
+        <TimeWheel
+          value={time || null}
+          onChange={(v) => setTime(v ?? '')}
+          clearLabel={t('sheet.clearTime')}
+          label={t('sheet.timeLabel')}
+          hourLabel={t('sheet.hourCol')}
+          minuteLabel={t('sheet.minuteCol')}
+        />
+        <Stepper label={t('sheet.durLabel')} value={durMin} onChange={setDurMin} min={1} max={600} step={5} fallback={25} unit={t('sheet.durUnit')} />
         <Field label={t('routine.subLabel')} value={sub} onChange={(e) => setSub(e.target.value)} />
         {goals.length > 0 && (
           <div className="tsheet__row tsheet__row--col">

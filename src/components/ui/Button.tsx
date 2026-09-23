@@ -1,4 +1,5 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { Spinner } from './Feedback'
 import './button.css'
 
 export type ButtonVariant = 'primary' | 'quiet' | 'ghost' | 'danger' | 'danger-text'
@@ -29,6 +30,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     .join(' ')
   return (
     <button ref={ref} type="button" className={cls} disabled={disabled || loading} aria-busy={loading || undefined} {...rest}>
+      {/* loading 时前置 spinner：之前只靠全局 .is-loading 的透明度，
+          单一视觉通道且看不出"在进行中"（BUTTON_STATE 要求把 loading 绑定到请求） */}
+      {loading && <Spinner size={size === 'sm' ? 12 : 14} />}
       {children}
     </button>
   )

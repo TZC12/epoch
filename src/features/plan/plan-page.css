@@ -1,0 +1,58 @@
+/* PlanPage（概念稿 page2）：周条 + 类别 chips + 时间块分组任务。 */
+.plan { display: flex; flex-direction: column; gap: var(--sp-4); }
+
+.plan-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--sp-1);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-md);
+  padding: var(--sp-2);
+  box-shadow: var(--elev-surface);
+}
+.plan-day {
+  appearance: none;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--sp-2) 0;
+  border-radius: var(--r-sm);
+  color: var(--text-secondary);
+  transition: background var(--dur-2) var(--ease), color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease-spring);
+}
+.plan-day__num { font-size: var(--fs-body); color: var(--text-primary); }
+.plan-day--today .plan-day__num { color: var(--accent); font-weight: 600; }
+.plan-day--on { background: var(--ink); }
+.plan-day--on .plan-day__num, .plan-day--on .plan-day__wd { color: var(--ink-inverse); }
+.plan-day__dots { display: inline-flex; gap: 3px; height: 4px; }
+.plan-day__dots i { width: 4px; height: 4px; border-radius: var(--r-full); background: var(--urgent); opacity: 0.8; }
+.plan-day--on .plan-day__dots i { background: var(--ink-inverse); }
+
+.plan-cats { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.plan-count { margin-top: calc(-1 * var(--sp-2)); }
+
+.plan-blocks { display: flex; flex-direction: column; gap: var(--sp-5); }
+.plan-block__title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+  color: var(--text-tertiary);
+}
+.plan-block__count {
+  font-size: var(--fs-caption);
+  color: var(--text-tertiary);
+  background: var(--surface-sunken);
+  border-radius: var(--r-pill);
+  padding: 1px var(--sp-2);
+}
+
+/* 已完成行：文字弱化（task-row 基样式在 home.css） */
+.task-row--done .task-row__title { color: var(--text-disabled); text-decoration: line-through; }
+
+.plan-day:active { transform: scale(0.92); }

@@ -6,6 +6,7 @@ import { Chip } from '@/components/ui/Chip'
 import { useData } from '@/services/store'
 import { updateDirection, uid } from '@/services/actions'
 import './onboarding.css'
+import { OB_KEY } from './gate'
 
 /**
  * Onboarding（首次引导，7 步语义 → 6 步实现；健康步待 Phase 4 健康模块定案）：
@@ -21,12 +22,6 @@ const PRESET_ROUTINES = [
 ]
 
 const DOMAINS = ['Health', 'Work', 'Learning', 'Family', 'Finance', 'Craft']
-
-export const OB_KEY = 'epoch-ob-done'
-
-export function needOnboarding(): boolean {
-  try { return localStorage.getItem(OB_KEY) !== '1' } catch { return false }
-}
 
 export function Onboarding({ onDone }: { onDone: () => void }) {
   const { t, i18n } = useTranslation()

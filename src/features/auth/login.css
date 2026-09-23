@@ -1,0 +1,50 @@
+.login {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-5);
+  background: var(--bg);
+}
+.login__card {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--elev-card);
+  padding: var(--sp-6) var(--sp-5);
+}
+.login__brand { color: var(--text-primary); text-align: center; }
+.login__sub { color: var(--text-tertiary); text-align: center; margin-top: calc(-1 * var(--sp-3)); }
+.login__form { display: flex; flex-direction: column; gap: var(--sp-3); }
+.login__err { color: var(--danger); }
+.login__hint { color: var(--text-tertiary); }
+/* 登录方式分隔线：细线中间断开放「或」 */
+.login__or {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--sp-3);
+  color: var(--text-tertiary);
+  font-size: var(--fs-caption);
+}
+.login__or::before,
+.login__or::after { content: ''; height: 1px; background: var(--divider); }
+
+/* 第二条登录方式（仅本机）：与主提交按钮同宽，quiet 层级 */
+.login__local {
+  width: 100%;
+  background: none;
+  border: 1px solid var(--divider);
+  border-radius: var(--r-md);
+  color: var(--text-secondary);
+  font-size: var(--fs-small);
+  cursor: pointer;
+  padding: var(--sp-3);
+  min-height: var(--touch-min);
+  transition: color var(--dur-1) var(--ease), background-color var(--dur-1) var(--ease);
+}
+.login__local:hover { color: var(--text-primary); background: var(--surface-sunken); }

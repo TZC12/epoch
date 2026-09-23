@@ -63,6 +63,9 @@ export function GoalSheet({ target, onClose }: { target: Goal | 'new' | null; on
       }
     >
       <div className="gsheet">
+        {/* autoFocus：Sheet 打开即聚焦标题，省一次点击，且把焦点带进对话框（模态内 autofocus 是
+           正确的 a11y 行为，不是页面加载时的焦点抢占）。 */}
+        {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
         <Field label={t('sheet.fieldTitle')} value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('goal.titlePlaceholder')} autoFocus />
         <div className="tsheet__row tsheet__row--col">
           <span className="eyebrow">{t('goal.kickerLabel')}</span>

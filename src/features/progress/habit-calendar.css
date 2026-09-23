@@ -1,0 +1,27 @@
+/* 习惯回顾日历（Progress 层）：每习惯一行——名称+连击 + 近 28 日自适应状态点阵。 */
+.hcal__list { display: flex; flex-direction: column; gap: var(--sp-3); }
+.hcal__row { display: flex; flex-direction: column; gap: var(--sp-1); }
+.hcal__meta { display: flex; align-items: baseline; gap: var(--sp-2); }
+.hcal__name { color: var(--text-primary); }
+/* 连击档与 HabitChip / learn-today__streak 同一写法：Flame 14 + --urgent */
+.hcal__streak {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  color: var(--urgent);
+}
+.hcal__strip { display: flex; gap: 3px; }
+.hcal__cell {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  border-radius: var(--r-full);
+  background: var(--divider);
+}
+.hcal__cell.is-done { background: var(--accent); }
+.hcal__cell.is-planned { background: transparent; box-shadow: inset 0 0 0 1.5px var(--accent-line); }
+.hcal__cell.is-backlog { background: transparent; box-shadow: inset 0 0 0 1.5px var(--urgent); opacity: 0.85; }
+.hcal__cell.is-fail { background: var(--text-tertiary); opacity: 0.35; }
+.hcal__cell.is-idle { background: var(--divider); }
+
+.hcal .legend .hcal__cell { width: 8px; height: 8px; }

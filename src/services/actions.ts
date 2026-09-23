@@ -1,7 +1,10 @@
 import { useData } from './store'
 import { schedulePush } from './sync'
-import { dateKey, todayKey } from '@/lib/dates'
-import type { Task, TaskTier, TaskStatus, InboxItem, Review, Direction, DataState, Goal, GoalStatus, Routine } from './types'
+import { dateKey, todayKey, addDaysKey } from '@/lib/dates'
+import { parseWordImport } from '@/lib/word-import'
+import { normalizeBaseUrl } from '@/lib/ai-provider'
+import { scheduleLabel, type Schedule } from '@/lib/schedule'
+import type { Task, TaskTier, TaskStatus, TaskCategory, InboxItem, Review, Direction, DataState, Goal, GoalStatus, Routine, FitSession, LearnLang, LearnEntry, LearnMode, LearnWord, AIConfig, NoteItem, NoteFolder, HealthDay, Profile } from './types'
 
 /**
  * 全 App 唯一数据写入口（actions）。
@@ -26,6 +29,7 @@ export interface NewTaskInput {
   time?: string | null
   durMin?: number | null
   urgent?: boolean
+  category?: TaskCategory | null
   note?: string | null
   goalId?: string | null
   routineId?: string | null
@@ -43,6 +47,7 @@ export function createTask(input: NewTaskInput): Task {
     time: input.time ?? null,
     durMin: input.durMin ?? null,
     urgent: !!input.urgent,
+    category: input.category ?? null,
     completedAt: null,
     note: input.note ?? null,
     goalId: input.goalId ?? null,
@@ -173,16 +178,34 @@ export function restoreInboxItem(item: InboxItem, index: number): void {
 
 /* ─────────────── 习惯打卡 ─────────────── */
 
+/** 记一次打卡到指定日期（可回填过去 / 预勾未来；自适应调度依赖任意日打卡）。 */
+export function logHabit(routineId: string, date: string, value = 1): void {
+  const s = useData.getState()
+  const existing = s.habitLogs.find((l) => l.routineId === routineId && l.date === date)
+  if (existing) {
+    useData.setState({
+      habitLogs: s.habitLogs.map((l) => (l.id === existing.id ? { ...l, value } : l)),
+    })
+  } else {
+    useData.setState({ habitLogs: [...s.habitLogs, { id: uid(), routineId, date, value, createdAt: now() }] })
+  }
+  schedulePush()
+}
+
+/** 取消某日打卡（从历史删除）。 */
+export function unlogHabit(routineId: string, date: string): void {
+  const s = useData.getState()
+  useData.setState({ habitLogs: s.habitLogs.filter((l) => !(l.routineId === routineId && l.date === date)) })
+  schedulePush()
+}
+
+/** 今日打卡开关（Today 习惯条用；跨任意日请走 logHabit/unlogHabit）。 */
 export function toggleHabit(routineId: string): void {
   const today = todayKey()
   const s = useData.getState()
   const existing = s.habitLogs.find((l) => l.routineId === routineId && l.date === today)
-  if (existing) {
-    useData.setState({ habitLogs: s.habitLogs.filter((l) => l.id !== existing.id) })
-  } else {
-    useData.setState({ habitLogs: [...s.habitLogs, { id: uid(), routineId, date: today, value: 1, createdAt: now() }] })
-  }
-  schedulePush()
+  if (existing) unlogHabit(routineId, today)
+  else logHabit(routineId, today)
 }
 
 /* ─────────────── 周复盘（可回填） ─────────────── */
@@ -208,6 +231,20 @@ export function saveReview(weekKeyStr: string, data: { wins: string; drained: st
 export function updateDirection(patch: Partial<Direction>): void {
   useData.setState((s) => ({ direction: { ...s.direction, ...patch } }))
   schedulePush()
+}
+
+/* ─────────────── Profile（昵称/头像，刻意不入云同步） ─────────────── */
+
+export const NICKNAME_MAX = 24
+
+export function setProfile(patch: Partial<Profile>): void {
+  useData.setState((s) => ({
+    profile: {
+      ...s.profile,
+      ...(patch.nickname !== undefined ? { nickname: patch.nickname.trim().slice(0, NICKNAME_MAX) } : {}),
+      ...(patch.avatar !== undefined ? { avatar: patch.avatar } : {}),
+    },
+  }))
 }
 
 /* ─────────────── Goal CRUD + 状态机（Phase 4 闭环补全） ─────────────── */
@@ -257,6 +294,7 @@ export interface NewRoutineInput {
   durMin?: number | null
   goalId?: string | null
   kind?: 'habit' | 'routine'
+  schedule?: Schedule | null
 }
 
 export function createRoutine(input: NewRoutineInput): Routine | null {
@@ -264,7 +302,7 @@ export function createRoutine(input: NewRoutineInput): Routine | null {
   if (!name) return null
   const r: Routine = {
     id: uid(), goalId: input.goalId ?? null, name,
-    sub: input.sub ?? null, frequency: null,
+    sub: input.sub ?? null, frequency: input.schedule ?? null,
     time: input.time ?? null, durMin: input.durMin ?? null,
     kind: input.kind ?? 'habit', archived: false,
     createdAt: now(), updatedAt: now(),
@@ -272,6 +310,11 @@ export function createRoutine(input: NewRoutineInput): Routine | null {
   useData.setState((s) => ({ routines: [...s.routines, r] }))
   schedulePush()
   return r
+}
+
+/** 设置日程：写入 frequency，并把可读周期同步到 sub 副标题。 */
+export function setRoutineSchedule(id: string, schedule: Schedule | null): void {
+  updateRoutine(id, { frequency: schedule, sub: scheduleLabel(schedule) })
 }
 
 export function updateRoutine(id: string, patch: Partial<Omit<Routine, 'id' | 'createdAt'>>): void {
@@ -310,6 +353,335 @@ export function disconnectHealth(): void {
 export function energyOf(h: DataState['health']): 'low' | 'normal' {
   if (!h?.connected || !h.today) return 'normal'
   return h.today.sleepHours < h.today.usualSleep - 1 ? 'low' : 'normal'
+}
+
+/* ─────────────── 健身（FitPage：今日训练 + 训练记录） ─────────────── */
+
+/** 设置/替换今日训练课程（FIT_COURSES id；null=清除）。 */
+export function setFitToday(courseId: string | null): void {
+  useData.setState({ fitToday: courseId })
+  schedulePush()
+}
+
+/** 完成一次训练：按分钟比例折算 kcal，追加到记录。 */
+export function logFitSession(courseId: string, minutes: number, kcalPerMin: number, date: string = todayKey()): FitSession {
+  const m = Math.max(1, Math.round(minutes))
+  const s: FitSession = { id: uid(), courseId, date, minutes: m, kcal: Math.max(1, Math.round(m * kcalPerMin)), createdAt: now() }
+  useData.setState((st) => ({ fitSessions: [...st.fitSessions, s] }))
+  schedulePush()
+  return s
+}
+
+/* ─────────────── 语言学习（LearnPage） ─────────────── */
+
+/** 添加语言（同名去重）；首个语言自动成为当前语言。goal=每日目标词数。 */
+export function addLearnLang(name: string, goal = 30): LearnLang | null {
+  const clean = name.trim()
+  if (!clean) return null
+  const st = useData.getState()
+  if (st.learnLangs.some((l) => l.name === clean)) return null
+  const lang: LearnLang = { id: uid(), name: clean, goal: Math.max(5, Math.round(goal) || 30), createdAt: now() }
+  useData.setState((s) => ({ learnLangs: [...s.learnLangs, lang], learnActive: s.learnActive ?? lang.id }))
+  schedulePush()
+  return lang
+}
+
+/** 移除语言：级联删除其学习记录与生词（UI 侧负责确认）。 */
+export function removeLearnLang(id: string): void {
+  useData.setState((s) => ({
+    learnLangs: s.learnLangs.filter((l) => l.id !== id),
+    learnEntries: s.learnEntries.filter((e) => e.langId !== id),
+    learnWords: s.learnWords.filter((w) => w.langId !== id),
+    learnActive: s.learnActive === id ? (s.learnLangs.find((l) => l.id !== id)?.id ?? null) : s.learnActive,
+  }))
+  schedulePush()
+}
+
+export function setLearnActive(id: string | null): void {
+  useData.setState({ learnActive: id })
+  schedulePush()
+}
+
+/** 记一条学习记录（背单词结算 / 训练计时结算共用）。 */
+export function logLearn(langId: string, mode: LearnMode, words: number, minutes: number, date: string = todayKey()): LearnEntry {
+  const e: LearnEntry = { id: uid(), langId, date, words: Math.max(0, Math.round(words)), minutes: Math.max(0, Math.round(minutes)), mode, createdAt: now() }
+  useData.setState((s) => ({ learnEntries: [...s.learnEntries, e] }))
+  schedulePush()
+  return e
+}
+
+export function addLearnWord(langId: string, word: string, meaning: string): LearnWord | null {
+  const w = word.trim(), m = meaning.trim()
+  if (!w || !m) return null
+  const item: LearnWord = { id: uid(), langId, word: w, meaning: m, example: null, tag: null, box: 1, due: todayKey(), source: 'manual', createdAt: now() }
+  useData.setState((s) => ({ learnWords: [...s.learnWords, item] }))
+  schedulePush()
+  return item
+}
+
+export function deleteLearnWord(id: string): void {
+  useData.setState((s) => ({ learnWords: s.learnWords.filter((w) => w.id !== id) }))
+  schedulePush()
+}
+
+/* ── 词库导入 + Leitner 间隔复习 ── */
+
+/** Leitner box 2–5 的复习间隔（天）；box1=当天未掌握，持续到期。 */
+const BOX_INTERVAL = [0, 0, 1, 2, 4, 9]
+
+/** 一键导入：解析文本（粘贴/CSV/JSON）→ 与现有词库按 word 去重（大小写不敏感）；fresh=新入库词，供导入后 AI 整理连招。 */
+export function importWords(langId: string, raw: string): { added: number; skipped: number; invalid: number; fresh: LearnWord[] } {
+  const { entries, invalid } = parseWordImport(raw)
+  const s = useData.getState()
+  const seen = new Set(s.learnWords.filter((w) => w.langId === langId).map((w) => w.word.toLowerCase()))
+  const today = todayKey()
+  const fresh: LearnWord[] = []
+  let skipped = 0
+  for (const e of entries) {
+    const k = e.word.toLowerCase()
+    if (seen.has(k)) { skipped += 1; continue }
+    seen.add(k)
+    fresh.push({ id: uid(), langId, word: e.word, meaning: e.meaning, example: e.example, tag: e.tag, box: 1, due: today, source: 'import', createdAt: now() })
+  }
+  if (fresh.length) {
+    useData.setState((st) => ({ learnWords: [...st.learnWords, ...fresh] }))
+    schedulePush()
+  }
+  return { added: fresh.length, skipped, invalid, fresh }
+}
+
+/** 复习打分：认识→box+1 并按新 box 排到期；不认识→回 box1，今天继续到期。 */
+export function gradeWord(id: string, known: boolean, today: string = todayKey()): void {
+  useData.setState((s) => ({
+    learnWords: s.learnWords.map((w) => {
+      if (w.id !== id) return w
+      const box = known ? Math.min(5, (w.box || 1) + 1) : 1
+      return { ...w, box, due: addDaysKey(today, BOX_INTERVAL[box] ?? 0) }
+    }),
+  }))
+  schedulePush()
+}
+
+/** 应用 AI 整理补丁（按 word 匹配，只回填非空字段）。返回命中数。 */
+export function applyWordPatches(patches: { word: string; meaning?: string; example?: string | null; tag?: string | null }[], langId: string): number {
+  const byWord = new Map(patches.map((p) => [p.word.toLowerCase(), p]))
+  let hit = 0
+  useData.setState((s) => ({
+    learnWords: s.learnWords.map((w) => {
+      if (w.langId !== langId) return w
+      const p = byWord.get(w.word.toLowerCase())
+      if (!p) return w
+      hit += 1
+      return { ...w, meaning: p.meaning ?? w.meaning, example: p.example ?? w.example, tag: p.tag ?? w.tag }
+    }),
+  }))
+  schedulePush()
+  return hit
+}
+
+/** 用户自带 AI 接口配置；null=清除。仅本机存储，不云同步。 */
+export function setAIConfig(cfg: AIConfig | null): void {
+  useData.setState({ aiConfig: cfg ? { ...cfg, baseUrl: normalizeBaseUrl(cfg.baseUrl) } : null })
+}
+
+/* ─────────────── 备忘录（NotesPage） ─────────────── */
+
+export interface NewNoteInput {
+  title: string
+  body?: string
+  tags?: string[]
+  pinned?: boolean
+}
+
+/** 标签规范化：去空白、丢空、按大小写不敏感去重，保序。 */
+export function normalizeTags(tags: readonly string[] | undefined): string[] {
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const raw of tags ?? []) {
+    const v = raw.trim().replace(/^#/, '')
+    if (!v) continue
+    const k = v.toLowerCase()
+    if (seen.has(k)) continue
+    seen.add(k)
+    out.push(v)
+  }
+  return out
+}
+
+export function createNote(input: NewNoteInput): NoteItem | null {
+  const title = input.title.trim()
+  if (!title) return null
+  const n: NoteItem = {
+    id: uid(), title,
+    body: input.body ?? '', tags: normalizeTags(input.tags), pinned: !!input.pinned, folderId: null,
+    createdAt: now(), updatedAt: now(),
+  }
+  useData.setState((s) => ({ notes: [n, ...s.notes] }))
+  schedulePush()
+  return n
+}
+
+export function updateNote(id: string, patch: Partial<Omit<NoteItem, 'id' | 'createdAt'>>): void {
+  useData.setState((s) => ({
+    notes: s.notes.map((n) => (n.id === id ? { ...n, ...patch, updatedAt: now() } : n)),
+  }))
+  schedulePush()
+}
+
+/** 删除返回快照供 undo；调用方用 toast action 调 restoreNote。 */
+export function deleteNote(id: string): { item: NoteItem; index: number } | null {
+  const s = useData.getState()
+  const index = s.notes.findIndex((n) => n.id === id)
+  if (index < 0) return null
+  const item = s.notes[index]
+  useData.setState({ notes: s.notes.filter((n) => n.id !== id) })
+  schedulePush()
+  return { item, index }
+}
+
+export function restoreNote(item: NoteItem, index: number): void {
+  useData.setState((s) => {
+    const notes = [...s.notes]
+    notes.splice(Math.min(index, notes.length), 0, item)
+    return { notes }
+  })
+  schedulePush()
+}
+
+/* ── 备忘文件夹：拖两张及以上卡片叠在一起即成组（NotesPage 的拖拽层调用） ── */
+
+/**
+ * 成组类操作的撤销凭据：直接记"操作前每张备忘在哪个文件夹 + 当时有哪些文件夹"。
+ * 记全量映射而不是记增量，是因为合并可能同时改动多张卡与多个文件夹，
+ * 增量撤销要处理的情况太多（少写一条就把用户数据搅乱），全量还原没有这类风险。
+ */
+export interface NotesGroupUndo {
+  slots: { id: string; folderId: string | null }[]
+  folders: NoteFolder[]
+}
+
+function groupSnapshot(): NotesGroupUndo {
+  const s = useData.getState()
+  return { slots: s.notes.map((n) => ({ id: n.id, folderId: n.folderId ?? null })), folders: [...s.noteFolders] }
+}
+
+/** 少于 2 个成员的文件夹不成立：就地解散，成员回散卡（界面上永远不会有空文件夹）。 */
+function pruneFolders(s: DataState): DataState {
+  const counts = new Map<string, number>()
+  for (const n of s.notes) if (n.folderId) counts.set(n.folderId, (counts.get(n.folderId) ?? 0) + 1)
+  const dead = new Set(s.noteFolders.filter((f) => (counts.get(f.id) ?? 0) < 2).map((f) => f.id))
+  if (dead.size === 0) return s
+  return {
+    ...s,
+    notes: s.notes.map((n) => (n.folderId && dead.has(n.folderId) ? { ...n, folderId: null } : n)),
+    noteFolders: s.noteFolders.filter((f) => !dead.has(f.id)),
+  }
+}
+
+/**
+ * 把 dragged 这一张卡丢到 target 上成组。返回撤销凭据；null=没发生任何变化。
+ *
+ * 语义只有一条：**只移动被拖的那一张**，落点那边优先。
+ *  落点已在某夹 → 拖入者加入该夹（"我把它丢进这一堆"）；
+ *  落点是散卡、拖入者有夹 → 落点加入拖入者的夹（拖入者是"这堆的代表"）；
+ *  两边都散 → 新建，名字取落点那张（用户直觉是"以被丢到的那张为代表"）。
+ * 拖入者若因此离开原夹，原夹掉到 1 个成员就由 pruneFolders 就地解散。
+ */
+export function mergeNotes(draggedId: string, targetId: string): NotesGroupUndo | null {
+  const before = groupSnapshot()
+  if (draggedId === targetId) return null
+  let changed = false
+  useData.setState((s) => {
+    const a = s.notes.find((n) => n.id === draggedId)
+    const b = s.notes.find((n) => n.id === targetId)
+    if (!a || !b) return s
+    const fa = a.folderId ?? null
+    const fb = b.folderId ?? null
+    if (fa && fa === fb) return s                    // 已在同一文件夹，无事发生
+
+    const target = fb ?? fa ?? `fld_${uid()}`
+    const folders = s.noteFolders.some((f) => f.id === target)
+      ? s.noteFolders
+      : [...s.noteFolders, { id: target, title: b.title, createdAt: now() }]
+    const notes = s.notes.map((n) => {
+      if (n.id !== draggedId && n.id !== targetId) return n
+      if ((n.folderId ?? null) === target) return n
+      changed = true
+      return { ...n, folderId: target }
+    })
+    return pruneFolders({ ...s, notes, noteFolders: folders })
+  })
+  if (!changed) return null
+  schedulePush()
+  return before
+}
+
+/** 把一张卡从文件夹里拿出来（拖出到空白处、或展开层里点「移出」）。 */
+export function ejectNote(noteId: string): NotesGroupUndo | null {
+  const before = groupSnapshot()
+  let changed = false
+  useData.setState((s) => {
+    const n = s.notes.find((x) => x.id === noteId)
+    if (!n?.folderId) return s
+    changed = true
+    return pruneFolders({ ...s, notes: s.notes.map((x) => (x.id === noteId ? { ...x, folderId: null } : x)) })
+  })
+  if (!changed) return null
+  schedulePush()
+  return before
+}
+
+/** 整个文件夹摊回散卡。 */
+export function dissolveFolder(folderId: string): NotesGroupUndo | null {
+  const before = groupSnapshot()
+  let changed = false
+  useData.setState((s) => {
+    if (!s.noteFolders.some((f) => f.id === folderId)) return s
+    changed = true
+    return {
+      ...s,
+      notes: s.notes.map((n) => (n.folderId === folderId ? { ...n, folderId: null } : n)),
+      noteFolders: s.noteFolders.filter((f) => f.id !== folderId),
+    }
+  })
+  if (!changed) return null
+  schedulePush()
+  return before
+}
+
+/** 撤销一次成组/移出/解散：按凭据把 folderId 与文件夹表整体还原。 */
+export function undoGroup(undo: NotesGroupUndo): void {
+  const slot = new Map(undo.slots.map((x) => [x.id, x.folderId]))
+  const ids = new Set(undo.folders.map((f) => f.id))
+  useData.setState((s) => ({
+    noteFolders: undo.folders,
+    notes: s.notes.map((n) => {
+      if (!slot.has(n.id)) return n
+      const folderId = slot.get(n.id) ?? null
+      return { ...n, folderId: folderId && ids.has(folderId) ? folderId : null }
+    }),
+  }))
+  schedulePush()
+}
+
+/* ─────────────── 健康日记（HealthPage：手动记录 + 能量语义联动） ─────────────── */
+
+/** 写入某日身体记录；同时刷新 legacy health.today（usualSleep=历史均值），energyOf/AI 规划不断链。 */
+export function saveHealthDay(date: string, d: HealthDay): void {
+  useData.setState((s) => ({ healthDays: { ...s.healthDays, [date]: d } }))
+  const st = useData.getState()
+  const others = Object.entries(st.healthDays)
+    .filter(([k, v]) => k !== date && v.sleepMin > 0)
+    .map(([, v]) => v.sleepMin / 60)
+  const usual = others.length > 0 ? others.reduce((a, b) => a + b, 0) / others.length : d.sleepMin / 60
+  useData.setState({
+    health: {
+      connected: true,
+      source: 'manual',
+      today: { sleepHours: d.sleepMin / 60, usualSleep: Math.round(usual * 10) / 10, restingHR: d.restingHR, hrv: 0, steps: d.steps },
+    },
+  })
+  schedulePush()
 }
 
 /* ─────────────── 测试辅助 ─────────────── */

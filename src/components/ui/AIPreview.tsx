@@ -1,6 +1,10 @@
 import { Sheet } from './Sheet'
 import { Button } from './Button'
 import { Checkbox } from './Checkbox'
+import { StateText } from './Feedback'
+import { MatrixDots } from './MatrixDots'
+import { ThinkingOrb } from 'thinking-orbs'
+import { useTheme } from '@/lib/theme'
 import './ai-preview.css'
 
 export type AIProposalType = 'create_task' | 'move_task' | 'create_routine' | 'adjust_note'
@@ -34,6 +38,10 @@ export interface AIPreviewProps {
 export function AIPreview({
   open, onClose, title, proposals, accepted, onToggle, onApply, applyLabel, closeLabel, loading, notes,
 }: AIPreviewProps) {
+  /* AI 思考态用 ThinkingOrb（thinking-orbs，MIT）：composing=编织建议的语义态；
+     主题显式传入（App 用 data-mode 而非 data-theme，auto 检测会漏掉强制浅/深色） */
+  const themeMode = useTheme((s) => s.mode)
+  const dark = themeMode === 'dark' || (themeMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
   const picked = proposals.filter((p) => accepted.has(p.id)).map((p) => p.id)
   return (
     <Sheet
@@ -42,7 +50,7 @@ export function AIPreview({
       title={title}
       footer={
         <div className="ai-acts">
-          <Button variant="quiet" onClick={onClose}>{closeLabel}</Button>
+          <Button variant="quiet" onClick={onClose}>{loading ? '取消' : closeLabel}</Button>
           <Button
             loading={loading}
             disabled={picked.length === 0}
@@ -53,8 +61,13 @@ export function AIPreview({
         </div>
       }
     >
-      {proposals.length === 0 && !loading && (notes?.length ?? 0) === 0 ? (
-        <p className="ai-empty t-caption">—</p>
+      {loading && proposals.length === 0 ? (
+        <div className="ai-loading">
+          <ThinkingOrb state="composing" size={64} theme={dark ? 'dark' : 'light'} aria-label="AI thinking" />
+          <MatrixDots variant="orbit" dot={3} label="正在生成建议…" />
+        </div>
+      ) : proposals.length === 0 && (notes?.length ?? 0) === 0 ? (
+        <StateText tone="neutral" icon="·">{applyLabel ?? '没有建议'}</StateText>
       ) : (
         <>
           {notes && notes.length > 0 && (

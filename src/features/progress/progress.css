@@ -1,24 +1,15 @@
-/* Progress 页局部样式（全局类之外的少量布局）。 */
+/* Progress 页局部样式（全局类之外的少量布局）。
+   近 70 天点阵、目标、周复盘、写给自己已按用户指示撤下（等功能定型再回），
+   对应样式一并删除；数据层与 actions 未动。 */
+
+/* 页体：进页无页头，内容自上而下等距分布；左右安全距离由 .app-main 的 --page-x 统一给 */
+.prog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
 
 .sec-title { margin-bottom: var(--sp-3); }
-
-/* 70 天点阵 */
-.dotgrid {
-  display: grid;
-  grid-template-columns: repeat(14, 1fr);
-  gap: var(--sp-1);
-}
-.dotgrid__cell {
-  display: inline-block;
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: var(--r-full);
-  background: var(--divider);
-}
-.dotgrid__cell.is-full { background: var(--accent); }
-.dotgrid__cell.is-part { background: var(--text-disabled); }
-.dotgrid__cell.is-miss { background: var(--text-tertiary); opacity: 0.35; }
-.dotgrid__cell.is-urgent { background: var(--urgent); opacity: 0.5; }
 
 .legend {
   display: flex;
@@ -27,26 +18,3 @@
   margin-top: var(--sp-3);
 }
 .legend span { display: inline-flex; align-items: center; gap: var(--sp-1); }
-.legend .dotgrid__cell { width: 8px; flex-shrink: 0; }
-
-/* 目标行 + 进度细线 */
-.goal-list { display: flex; flex-direction: column; }
-.goal-row { display: flex; flex-direction: column; gap: var(--sp-1); }
-.goal-row + .goal-row { margin-top: var(--sp-2); }
-.goal-row .row { border-bottom: none; padding-bottom: 0; }
-
-/* 周复盘 */
-.wr-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-3); }
-.wr-form { display: flex; flex-direction: column; gap: var(--sp-3); }
-
-/* 复盘头右侧：AI 链接 + 状态 tag */
-.wr-head__right { display: flex; align-items: center; gap: var(--sp-2); }
-.wr-ai {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-tertiary);
-  padding: var(--sp-1) var(--sp-2);
-  min-height: 32px;
-}
-.wr-ai:hover { color: var(--text-primary); }

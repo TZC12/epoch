@@ -14,30 +14,10 @@
 }
 .home-weather__desc { color: var(--text-tertiary); }
 
-/* Day Progress：细条无卡——时间轴刻度，不是英雄区（§三.4-5） */
-.home-dayprog {
-  padding: var(--sp-1) 0;
-  margin-top: calc(-1 * var(--sp-2));
-}
-.home-dayprog .dayprog { padding: 0; }
-
 /* 任务卡过滤段 */
 .home-card__filter { display: flex; }
 .home-card__pmd { display: flex; flex-direction: column; gap: var(--sp-2); }
 
-/* 捕获输入（sunken 底，与 Field 同族但单行紧凑） */
-.home-capture {
-  width: 100%;
-  background: var(--surface-sunken);
-  border: 1.5px solid transparent;
-  border-radius: var(--r-pill);
-  padding: var(--sp-3) var(--sp-4);
-  font-size: var(--fs-body);
-  color: var(--text-primary);
-  outline: none;
-  transition: border-color var(--dur-1) var(--ease), background-color var(--dur-1) var(--ease);
-}
-.home-capture:focus { border-color: var(--ink); background: var(--surface); }
 
 /* 时间轴容器 */
 .tl { display: flex; flex-direction: column; gap: var(--sp-2); }
@@ -65,23 +45,246 @@
   .home-fab { right: calc((100vw - 720px) / 2); }
 }
 
-/* 安排 sheet 内容 */
-.home-plansheet { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-2) 0; }
-.home-chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
-.home-plansheet__acts { display: flex; gap: var(--sp-2); width: 100%; }
-.home-plansheet__acts > * { flex: 1; }
 
-/* 收集箱行身（无 checkbox，其余手势/样式继承 .tl-row 系） */
-.inbox-row__body {
+
+/* ── Self-Discipline Hero：ink 反色卡 + 星座装饰 + 进度环（今日任务+到期习惯完成比） ── */
+.sd-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  border-radius: var(--r-lg);
+  background: var(--ink);
+  color: var(--ink-inverse);
+  box-shadow: var(--elev-floating);
+}
+.sd-hero__body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+.sd-hero__eyebrow { color: currentColor; opacity: 0.6; }
+.sd-hero__num {
+  font-size: var(--fs-display);
+  line-height: var(--lh-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink-inverse);
+}
+.sd-hero__pct { font-size: var(--fs-h2); font-weight: 400; opacity: 0.7; margin-left: 2px; }
+.sd-hero__sub { font-size: var(--fs-small); color: currentColor; opacity: 0.72; }
+.sd-hero__cta {
+  margin-top: var(--sp-2);
+  display: inline-flex;
+  align-items: center;
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid color-mix(in srgb, var(--ink-inverse) 26%, transparent);
+  border-radius: var(--r-pill);
+  font: inherit;
+  font-size: var(--fs-small);
+  color: var(--ink-inverse);
+  background: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--dur-1) var(--ease);
+}
+.sd-hero__cta:hover { background: color-mix(in srgb, var(--ink-inverse) 12%, transparent); }
+.sd-hero__cta:active { background: color-mix(in srgb, var(--ink-inverse) 18%, transparent); }
+
+/* ── hero CTA pill-to-card：今日时间轴（fixed 悬浮在黑卡上，<ol> 点+连接线+时间列）── */
+.plan-dd {
+  min-width: 280px;
+  max-width: min(360px, calc(100vw - 48px));
+  max-height: 340px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--sp-4);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow: var(--elev-modal, var(--elev-floating));
+  color: var(--text-primary);
+}
+.plan-dd__title { color: var(--text-tertiary); margin-bottom: var(--sp-3); }
+.plan-dd__empty { font-size: var(--fs-small); color: var(--text-tertiary); padding: var(--sp-2) 0; }
+.plan-dd__tl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.plan-dd__item {
+  display: grid;
+  grid-template-columns: 44px 16px minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--sp-2);
+  min-height: 34px;
+}
+.plan-dd__time { font-size: var(--fs-caption); color: var(--text-tertiary); }
+.plan-dd__lane { position: relative; align-self: stretch; display: flex; align-items: center; justify-content: center; }
+/* connector：本行拥有到下一点的线段；下一行是末行时断掉（线止于最后一个点） */
+.plan-dd__lane::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0; left: 50%;
+  width: 1.5px;
+  transform: translateX(-50%);
+  background: var(--divider);
+}
+.plan-dd__item:first-child .plan-dd__lane::before { top: 50%; }
+.plan-dd__item:nth-last-child(2) .plan-dd__lane::before,
+.plan-dd__item:last-child .plan-dd__lane::before { bottom: 50%; }
+.plan-dd__dot {
+  position: relative;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-tertiary);
+  background: var(--surface);
+}
+.plan-dd__item.is-done .plan-dd__dot { background: var(--text-primary); border-color: var(--text-primary); }
+.plan-dd__item.is-done .plan-dd__name { color: var(--text-tertiary); }
+.plan-dd__item.is-skipped .plan-dd__dot { border-style: dashed; }
+.plan-dd__item.is-skipped .plan-dd__name { color: var(--text-tertiary); text-decoration: line-through; }
+.plan-dd__name {
+  font-size: var(--fs-small);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.plan-dd__all {
+  display: inline-block;
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--divider);
+  width: 100%;
+  box-sizing: border-box;
+  font-size: var(--fs-small);
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.plan-dd__all:hover { color: var(--text-primary); }
+/* ── 概念稿 Today：眉题头 + MODULES 四卡 + 圆环任务行 ── */
+.home-head { align-items: flex-start; }
+.home-head__col { display: flex; flex-direction: column; gap: var(--sp-1); min-width: 0; }
+.home-head__eyebrow { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+.home-head__title { margin-top: var(--sp-1); }
+.home-head__greeting { color: var(--text-tertiary); }
+.home-head__acts { display: flex; gap: var(--sp-1); flex-shrink: 0; }
+
+/* 区块头：eyebrow 标题 + 查看全部 */
+.home-sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin: var(--sp-1) 0 var(--sp-3);
+}
+.home-sec-head + .tl { margin-top: 0; }
+.home-tasks-sec .home-sec-head + * { margin-top: 0; }
+.home-sec-head__all {
+  font-size: var(--fs-caption);
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+.home-sec-head__all:hover { color: var(--text-primary); }
+.home-tasks-sec { display: flex; flex-direction: column; gap: var(--sp-3); }
+.home-tasks-sec .home-sec-head { margin-bottom: 0; }
+
+/* MODULES 四卡（2×2；点卡跳对应功能页） */
+.home-mods {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+}
+.home-mod {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-md);
+  box-shadow: var(--elev-surface);
+  text-decoration: none;
+  transition: border-color var(--dur-1) var(--ease), transform var(--dur-1) var(--ease);
+}
+.home-mod:hover, .home-mod:active { border-color: var(--border-strong); }
+.home-mod__label { color: var(--text-tertiary); }
+.home-mod__num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-h2);
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+.home-mod__unit { font-size: var(--fs-caption); color: var(--text-tertiary); margin-left: var(--sp-1); }
+
+/* 圆环任务行（Today/Plan 共用形态） */
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-md);
+  padding-right: var(--sp-2);
+}
+.task-row__body {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--sp-1);
-  padding: var(--sp-3) var(--sp-2) var(--sp-3) var(--sp-3);
+  gap: 2px;
+  padding: var(--sp-3) var(--sp-2) var(--sp-3) 0;
   background: none;
   border: 0;
   cursor: pointer;
   text-align: left;
 }
+.task-row__title { color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.task-row__meta { display: inline-flex; gap: var(--sp-1); }
+.task-row__del {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: var(--text-disabled);
+  font-size: var(--fs-h3);
+  line-height: 1;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  cursor: pointer;
+}
+.task-row__del:hover { color: var(--danger); }
+
+
+/* 液体融合 FAB（liquid-gooey）：ink 表面由 Liquid 绘制，按钮本体透明 */
+.home-fab .fab-btn {
+  width: 52px;
+  height: 52px;
+  border: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  color: var(--ink-inverse);
+  cursor: pointer;
+}
+.home-fab .fab-btn--sub { width: 44px; height: 44px; }
+/* 水珠先飞、图标后显：落定 150ms 再淡入；收回时立即隐去 */
+.home-fab .fab-btn--sub { opacity: 0; transition: opacity var(--dur-1) var(--ease), transform var(--dur-2) var(--ease-spring); }
+.home-fab .fab-item--on .fab-btn--sub { opacity: 1; transition-delay: 150ms, 0s; }
+.home-fab .fab-btn:active { transform: scale(0.9); }
+.home-fab .fab-btn__plus { transition: transform var(--dur-2) var(--ease-spring); }
+.home-fab .fab-btn[aria-expanded="true"] .fab-btn__plus { transform: rotate(45deg); }
+.home-fab .fab-item { pointer-events: none; }
+.home-fab .fab-item--on { pointer-events: auto; }
+/* 透明收拢层：菜单开着时点任意空白 → 收回（z=-1 在 .home-fab 层叠上下文内、页面之上） */
+.home-fab .fab-scrim { position: fixed; inset: 0; z-index: -1; }
+.home-fab { width: 52px; height: 52px; }
+.home-fab > div > div { position: absolute; right: 0; bottom: 0; }
+.home-fab > div > .fab-item { right: 4px; bottom: 4px; }

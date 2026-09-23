@@ -1,4 +1,4 @@
-import { useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
 import './segmented-pager.css'
 
 export interface PagerTab {
@@ -51,11 +51,20 @@ export function SegmentedPager({ tabs, ariaLabel, initial = 0 }: { tabs: PagerTa
   }
   const cleanup = (): void => {
     detach()
+    if (g.current.longPress !== null) {
+      window.clearTimeout(g.current.longPress)
+      g.current.longPress = null
+    }
     delete document.body.dataset.pagerLock
-    g.current.longPress = null
     g.current.pointerId = -1
     g.current.armed = false
   }
+
+  // 组件卸载兜底：手势中途卸载（路由切换/父级 re-mount）仍会泄漏 timer + window listener。
+  // 依赖数组刻意为空——这是 unmount-only 效果；cleanup 每次渲染都是新函数，
+  // 放进 deps 会让它每渲染都跑一次，反而失去"只在卸载时兜底"的语义。
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => () => cleanup(), [])
 
   function onMove(e: PointerEvent): void {
     const s = g.current
@@ -90,6 +99,10 @@ export function SegmentedPager({ tabs, ariaLabel, initial = 0 }: { tabs: PagerTa
     if (!s.armed) {
       const dx = e.clientX - s.startX
       const dy = e.clientY - s.startY
+      // iOS 边缘返回手势（≈28px 内）：此处水平拖动交给系统，跳过武装
+      const w = window.innerWidth
+      const inEdge = s.startX < 28 || s.startX > w - 28
+      if (inEdge) return
       if (Math.abs(dx) > ARM_DX && Math.abs(dx) > Math.abs(dy) * 1.2) {
         if (s.fromRow && !document.body.dataset.pagerLock) { cleanup(); return }
         arm()
