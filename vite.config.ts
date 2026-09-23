@@ -1,11 +1,46 @@
 /// <reference types="vitest/config" />
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { execSync } from 'node:child_process'
 import { fileURLToPath, URL } from 'node:url'
 
+/**
+ * 构建版本锚点：往 HTML 注入 <meta name="app-version">，并产出 /version.json。
+ * ────────────────────────────────────────────────────────────────
+ * 为什么需要：上线链路是「本地 commit → GitHub API 推 main → Pages 自动构建」，
+ * 我们看不到 Pages 的构建日志，也没有 python 跑 .deploy/verify_deploy.py。
+ * 没有可比对的生产侧标记，"部署成功了"就只能靠肉眼刷新。
+ * 现在 `npm run verify:deploy` 轮询 /version.json，等到 commit == 远端 main 顶端即判 PASS。
+ * commit 优先取 Pages 注入的 CF_PAGES_COMMIT_SHA（远端 SHA 与本地 SHA 本就不等，见
+ * gh-api-push.mjs 的 squash 设计）；本地构建回落 git rev-parse，拿不到则 unknown（不让构建挂）。
+ * version.json 不进 SW 预缓存（patch-sw 只收 /assets/*.js|css 与 4 个图标），所以永远是实时值。
+ */
+function appVersion(): Plugin {
+  const sha = ((): string => {
+    if (process.env.CF_PAGES_COMMIT_SHA) return process.env.CF_PAGES_COMMIT_SHA
+    try { return execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim() } catch { return 'unknown' }
+  })()
+  const branch = process.env.CF_PAGES_BRANCH ?? 'local'
+  const info = {
+    commit: sha,
+    branch,
+    environment: process.env.CF_PAGES ? (branch === 'main' ? 'production' : 'preview') : 'local',
+    built_at: new Date().toISOString(),
+  }
+  return {
+    name: 'epoch-app-version',
+    apply: 'build',
+    transformIndexHtml: (html) =>
+      html.replace('</title>', `</title>\n    <meta name="app-version" content="${info.commit}" />`),
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify(info, null, 2) })
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [tailwindcss(), react()],
+  plugins: [tailwindcss(), react(), appVersion()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
