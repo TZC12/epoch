@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { dateKey, todayKey, addDays } from '@/lib/dates'
+import { pruneFolders } from './folders'
 import type { DataState, Task, DayStat } from './types'
 
 /**
@@ -49,13 +50,13 @@ export const useData = create<DataState>()(
       s.notes = (s.notes ?? []).map((n) => {
         const { tag: legacy, ...rest } = n as unknown as { tag?: string } & typeof n
         const tags = Array.isArray(n.tags) ? n.tags : (legacy ? [legacy] : [])
-        /* v6：老快照没有 folderId；顺带挡掉指向已不存在文件夹的悬空引用 */
+        /* v6：老快照没有 folderId */
         return { ...rest, tags, folderId: n.folderId ?? null }
       })
-      s.noteFolders = (s.noteFolders ?? []).filter((f) =>
-        s.notes.filter((n) => n.folderId === f.id).length >= 2,
-      )
-      return s
+      /* v6：成员不足 2 的夹解散、悬空 folderId 归 null——用 folders.ts 那条唯一规则。
+         原来这里只 filter 掉夹、不洗 folderId，被解散夹里留下的那张卡会指向一个不存在的夹。 */
+      s.noteFolders = s.noteFolders ?? []
+      return pruneFolders(s)
     },
   }),
 )

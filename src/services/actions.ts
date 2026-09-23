@@ -1,5 +1,6 @@
 import { useData } from './store'
 import { schedulePush } from './sync'
+import { pruneFolders } from './folders'
 import { dateKey, todayKey, addDaysKey } from '@/lib/dates'
 import { parseWordImport } from '@/lib/word-import'
 import { normalizeBaseUrl } from '@/lib/ai-provider'
@@ -565,18 +566,7 @@ function groupSnapshot(): NotesGroupUndo {
   return { slots: s.notes.map((n) => ({ id: n.id, folderId: n.folderId ?? null })), folders: [...s.noteFolders] }
 }
 
-/** 少于 2 个成员的文件夹不成立：就地解散，成员回散卡（界面上永远不会有空文件夹）。 */
-function pruneFolders(s: DataState): DataState {
-  const counts = new Map<string, number>()
-  for (const n of s.notes) if (n.folderId) counts.set(n.folderId, (counts.get(n.folderId) ?? 0) + 1)
-  const dead = new Set(s.noteFolders.filter((f) => (counts.get(f.id) ?? 0) < 2).map((f) => f.id))
-  if (dead.size === 0) return s
-  return {
-    ...s,
-    notes: s.notes.map((n) => (n.folderId && dead.has(n.folderId) ? { ...n, folderId: null } : n)),
-    noteFolders: s.noteFolders.filter((f) => !dead.has(f.id)),
-  }
-}
+/* pruneFolders 在 folders.ts：store migrate 与 sync 回填要用同一条阈值，不放这儿以免循环 import。 */
 
 /**
  * 把 dragged 这一张卡丢到 target 上成组。返回撤销凭据；null=没发生任何变化。

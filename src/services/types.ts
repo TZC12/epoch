@@ -184,8 +184,9 @@ export interface NoteItem {
   pinned: boolean
   /**
    * 所属备忘文件夹 id；null=散卡。
-   * 本机专属：云端 notes 表没有这一列，push 刻意不带（见 sync.ts 的保留位说明），
-   * 因此换设备回填后备忘会回到散卡状态——这是有意降级，不是丢数据。
+   * 随 0007 上云（notes.folder_id 列，FK → note_folders on delete set null），
+   * 所以跨设备回填能还原成组关系；云端只 upsert 不传播删除，回填侧用
+   * folders.ts 的 pruneFolders 收口（见 sync.ts:remoteNoteSlices）。
    */
   folderId: string | null
   createdAt: string
@@ -237,7 +238,7 @@ export interface DataState {
   learnWords: LearnWord[]        /* 用户自建词库（内置词库见 services/learn-bank） */
   aiConfig: AIConfig | null      /* 用户自带 AI 接口（本机存储，不入云） */
   notes: NoteItem[]
-  noteFolders: NoteFolder[]   /* 备忘文件夹（本机专属，成员关系在 note.folderId 上） */
+  noteFolders: NoteFolder[]   /* 备忘文件夹（0007 起随云同步，成员关系在 note.folderId 上） */
   healthDays: Record<string, HealthDay>
   lastDay: string | null
 }
