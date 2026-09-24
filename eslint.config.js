@@ -30,6 +30,8 @@ export default [
       '.agents/**',
       '.coverage/**',
       'coverage/**',
+      // 界面原型截图/拼装脚本：一次性 Node 工具，不是 app 源码，不进 lint
+      'spark-output/**',
       // Phase 6 PR-8 删；之前不进 lint
       'tests/*.test.mjs',
       'tests/check-no-legacy-refs-fixture/**',

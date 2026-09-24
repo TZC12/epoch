@@ -349,7 +349,8 @@ function NoteMini({ n, interactive, onOpen, onEject }: {
   return (
     <div className="folder-mini">
       <span className="folder-mini__title t-small">{n.title}</span>
-      {n.body && <span className="folder-mini__body t-caption">{n.body}</span>}
+      {/* 正文只在展开层出现：扇形里三张卡是叠着的，带正文会跨卡压字（实测标题互相咬住）。 */}
+      {interactive && n.body && <span className="folder-mini__body t-caption">{n.body}</span>}
       {interactive && (
         <span className="folder-mini__acts">
           <button type="button" className="folder-mini__btn" onClick={onOpen}>

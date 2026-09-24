@@ -39,3 +39,6 @@ screenshot_*.png
 .mimosa/
 mobile-ui-restore/
 test-results/
+
+# 界面原型截图与拼装页（本地交付物，107 张 PNG，不入库）
+spark-output/prototype/
