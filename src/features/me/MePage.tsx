@@ -24,7 +24,8 @@ import { fileToAvatar } from '@/lib/avatar'
 import { chatCompletion, isConfigured, normalizeBaseUrl } from '@/lib/ai-provider'
 import { useFieldErr } from '@/lib/useFieldErr'
 import { useAuth, signOut as authSignOut, displayAccount, isLocalMode } from '@/lib/auth'
-import { Target, Repeat, HeartPulse, Settings2, LogOut, User } from 'lucide-react'
+import { Target, Repeat, HeartPulse, Settings2, LogOut, User, Info } from 'lucide-react'
+import { readBuildInfo, formatBuildTime, buildInfoLine } from '@/lib/build-info'
 import { dateKey, todayKey } from '@/lib/dates'
 import { useTheme } from '@/lib/theme'
 import { setLang } from '@/lib/i18n'
@@ -151,6 +152,18 @@ export default function MePage() {
   const doneToday = tasksAll.filter((x) => x.completedAt != null && dateKey(new Date(x.completedAt)) === todayKey()).length
   const inboxCount = inboxAll.filter((i) => i.status === 'open').length
   const routineCount = routines.filter((r) => !r.archived).length
+
+  /* 线上版本身份（构建注入的 meta；dev 下为 null → 「关于」整条不出现） */
+  const build = readBuildInfo()
+  const copyBuild = async (): Promise<void> => {
+    if (!build) return
+    try {
+      await navigator.clipboard.writeText(buildInfoLine(build))
+      toast(t('me.aboutCopied'))
+    } catch {
+      toast(t('me.aboutCopyFailed'))
+    }
+  }
 
   const [dirOpen, setDirOpen] = useState(false)
   const [statement, setStatement] = useState(direction.statement)
@@ -396,6 +409,33 @@ export default function MePage() {
                 onClick: () => { void signOut() },
               }]
               : []),
+            /* 线上版本号：出问题时第一件要问的就是"你看到的是哪个 commit"。
+               dev 构建没有这三枚 meta → 整条不渲染，不显示假版本。 */
+            ...(build ? [{
+              id: 'about',
+              icon: <Info size={18} />,
+              title: t('me.about'),
+              sub: build.short,
+              content: (
+                <>
+                  <div className="pref">
+                    <span className="pref__label t-small">{t('me.aboutCommit')}</span>
+                    <span className="tnum t-caption">{build.commit}</span>
+                  </div>
+                  <div className="pref">
+                    <span className="pref__label t-small">{t('me.aboutBuilt')}</span>
+                    <span className="tnum t-caption">{formatBuildTime(build.builtAt)}</span>
+                  </div>
+                  <div className="pref">
+                    <span className="pref__label t-small">{t('me.aboutEnv')}</span>
+                    <span className="tnum t-caption">{build.env}</span>
+                  </div>
+                  <div className="me-panel__acts">
+                    <Button size="sm" variant="quiet" onClick={() => { void copyBuild() }}>{t('me.aboutCopy')}</Button>
+                  </div>
+                </>
+              ),
+            }] : []),
           ]}
         />
       </section>

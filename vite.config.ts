@@ -12,6 +12,9 @@ import { fileURLToPath, URL } from 'node:url'
  * 我们看不到 Pages 的构建日志，也没有 python 跑 .deploy/verify_deploy.py。
  * 没有可比对的生产侧标记，"部署成功了"就只能靠肉眼刷新。
  * 现在 `npm run verify:deploy` 轮询 /version.json，等到 commit == 远端 main 顶端即判 PASS。
+ * 同一份信息以三枚 meta 形式进 HTML（app-version / app-built / app-env），运行时由
+ * src/lib/build-info.ts 读取，「我的 → 关于」里能直接看到并报出来——用户口头描述
+ * "我这边显示不对"时，第一件要问的就是线上是哪个 commit。
  * commit 优先取 Pages 注入的 CF_PAGES_COMMIT_SHA（远端 SHA 与本地 SHA 本就不等，见
  * gh-api-push.mjs 的 squash 设计）；本地构建回落 git rev-parse，拿不到则 unknown（不让构建挂）。
  * version.json 不进 SW 预缓存（patch-sw 只收 /assets/*.js|css 与 4 个图标），所以永远是实时值。
@@ -32,7 +35,10 @@ function appVersion(): Plugin {
     name: 'epoch-app-version',
     apply: 'build',
     transformIndexHtml: (html) =>
-      html.replace('</title>', `</title>\n    <meta name="app-version" content="${info.commit}" />`),
+      html.replace('</title>',
+        `</title>\n    <meta name="app-version" content="${info.commit}" />`
+        + `\n    <meta name="app-built" content="${info.built_at}" />`
+        + `\n    <meta name="app-env" content="${info.environment}" />`),
     generateBundle() {
       this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify(info, null, 2) })
     },
