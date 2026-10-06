@@ -18,7 +18,8 @@
   background: none;
   border-radius: var(--r-pill);
   padding: var(--sp-2) var(--sp-4);
-  min-height: 32px;
+  /* 同 chip：日/周/月、语言切换都是反复点的目标，抬到 --touch-min */
+  min-height: var(--touch-min);
   font-size: var(--fs-small);
   font-weight: 500;
   /* --text-secondary：seg 容器底是 --surface-sunken(#ece9e0)，

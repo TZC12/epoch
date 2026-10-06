@@ -32,6 +32,10 @@
   align-items: flex-start;
   gap: var(--sp-1);
   padding: var(--sp-1) var(--sp-2) var(--sp-1) 0;
+  /* 只有标题没有时间的行（随时/收集箱）撑起来才 29px，整行可点却点不中：
+     抬到 --touch-min 并垂直居中，两行的行不受影响。 */
+  min-height: var(--touch-min);
+  justify-content: center;
   background: none;
   border: 0;
   cursor: pointer;

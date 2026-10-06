@@ -3,7 +3,11 @@
   background: var(--surface-sunken);
   border-radius: var(--r-pill);
   padding: var(--sp-2) var(--sp-3);
-  min-height: 32px;
+  /* 视觉保持 36（chip 是密集筛选行，抬到 44 会肿成气泡），但热区要够手指：
+     用 ::before 上下各撑 4px 到 44，与 .tgl 同一套路。左右只扩 4px，
+     正好等于行间距，不会吃到邻居 chip 的命中区。 */
+  min-height: 36px;
+  position: relative;
   font-size: var(--fs-small);
   font-weight: 400;
   color: var(--text-secondary);
@@ -13,6 +17,8 @@
   gap: var(--sp-1);
   /* 过渡轨道由 global.css 的 .btn/.chip/.icon-btn/.hchip 契约统一给（含 scale） */
 }
+/* 热区扩展层：视觉 36、命中 44（上下 +4，左右 +4=行间距的一半，不吃邻居） */
+.chip::before { content: ''; position: absolute; inset: -4px; }
 .chip:hover { color: var(--text-primary); }
 .chip:active { scale: 0.97; }
 /* 选中态=墨色 pill（Paper Mono：绿仅完成/活跃语义；选择≠完成） */

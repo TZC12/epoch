@@ -212,10 +212,12 @@ export default function NotesPage() {
       </header>
 
       <div className="notes-chrome" ref={chrome}>
-        <div className="notes-search">
+        {/* label 而不是 div：内层 input 只有 27px 高，用 div 时点框内空白不聚焦；
+            换成 label 后整条 44px 高的胶囊都是有效点击区。 */}
+        <label className="notes-search">
           <Search size={16} aria-hidden="true" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('notes.search')} aria-label={t('notes.search')} name="note-search" autoComplete="off" />
-        </div>
+        </label>
         <div className="notes-tags">
           <Chip on={tag === null} onClick={() => setTag(null)}>{t('notes.all')}</Chip>
           {tags.map((x) => (

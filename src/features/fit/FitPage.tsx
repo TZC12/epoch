@@ -67,12 +67,16 @@ function CourseTimer({ course }: { course: FitCourse }) {
  * 今日训练卡（所选课程 + 进度 + 实时计时结算）→ COURSES 目录（点行设为今日）。
  */
 export default function FitPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const week = useFitWeek()
   const todayView = useFitToday()
   const course = courseById(todayView.courseId)
   const maxKcal = Math.max(1, ...week.series.map((x) => x.kcal))
   const pctDone = course ? Math.min(100, Math.round((todayView.doneMin / course.minutes) * 100)) : 0
+  /* 跟着界面语言走，不给「一/二/三」这种星期缩写另开一套 i18n key。
+     用 T12:00:00 锚定正午，避免 date-only 串被按 UTC 解析后跨日错一天。 */
+  const fmtDay = (date: string) =>
+    new Intl.DateTimeFormat(i18n.language === 'en' ? 'en-US' : 'zh-CN', { weekday: 'narrow' }).format(new Date(`${date}T12:00:00`))
 
   return (
     <div className="fit">
@@ -94,8 +98,15 @@ export default function FitPage() {
             </span>
           ))}
         </div>
+        {/* 柱子原先没有星期标注，看起来像装饰色块；补一行同分布的刻度，
+            和上面的柱子用同一套 flex + gap，天然对齐。 */}
+        <div className="fit-bars__days" aria-hidden="true">
+          {week.series.map((d) => (
+            <span key={d.date}>{fmtDay(d.date)}</span>
+          ))}
+        </div>
         <div className="fit-hero__stats">
-          <span><b className="tnum">{week.kcal}</b> {t('fit.kcal')}</span>
+          {/* 原来这里第一项又是「790 千卡」，和上面的大数字重复；只留另两个维度 */}
           <span><b className="tnum">{week.minutes}</b> {t('fit.minutes')}</span>
           <span><b className="tnum">{week.days}</b> {t('fit.dayUnit')}</span>
         </div>

@@ -23,6 +23,11 @@
 .btn:active:not(:disabled) { scale: 0.96; }
 
 .btn--sm { min-height: 32px; padding: 0 var(--sp-4); font-size: var(--fs-caption); }
+/* App 布局（<1024）里小按钮也是手指点的：导入 / AI 整理 / 记录今天 / 移除语言
+   实测命中高只有 32-34，抬到 --touch-min。≥1024 是鼠标语义，保留 32 的密度。 */
+@media (max-width: 1023.98px) {
+  .btn--sm { min-height: var(--touch-min); }
+}
 .btn--block { width: 100%; }
 
 /* primary：墨色 pill（深色模式自动反白） */

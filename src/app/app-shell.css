@@ -11,9 +11,12 @@
   width: 100%;
   max-width: var(--content-max);
   margin: 0 auto;
-  /* 全局水平对齐线：--page-x（首页/各页内容统一左右安全距离，§三/§八） */
+  /* 全局水平对齐线：--page-x（首页/各页内容统一左右安全距离，§三/§八）
+     底部要同时让开导航胶囊和 FAB：FAB 锚在 tabbar 上方 sp-4、高 52px，
+     只让到 tabbar 时滚到底最后一行仍会停在 FAB 底下——任务行右侧的开关是
+     可点控件，被压住就点不到了（/plan 实拍发现）。 */
   padding: calc(var(--sp-5) + env(safe-area-inset-top, 0px)) var(--page-x)
-    calc(var(--tabbar-h) + var(--sp-5) + env(safe-area-inset-bottom, 0px));
+    calc(var(--tabbar-h) + 52px + var(--sp-4) + var(--sp-5) + env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
   overscroll-behavior-y: contain;
 }

@@ -38,6 +38,16 @@
 }
 .fit-bars__col i.on { background: color-mix(in srgb, var(--accent) 60%, var(--ink-inverse)); }
 
+/* 柱下星期刻度：与 .fit-bars 同一套 flex + gap，列宽天然对齐 */
+.fit-bars__days {
+  display: flex;
+  gap: var(--sp-2);
+  margin-top: var(--sp-1);
+  font-size: var(--fs-caption);
+  opacity: 0.6;
+}
+.fit-bars__days span { flex: 1; text-align: center; }
+
 .fit-hero__stats {
   display: flex;
   gap: var(--sp-5);

@@ -85,6 +85,8 @@
   display: inline-flex;
   align-items: center;
   padding: var(--sp-1) var(--sp-3);
+  /* 项目自己的 token 是 --touch-min: 44；这里原先只有 32 高，首屏主入口反而最难点 */
+  min-height: var(--touch-min);
   border: 1px solid color-mix(in srgb, var(--ink-inverse) 26%, transparent);
   border-radius: var(--r-pill);
   font: inherit;
@@ -188,7 +190,11 @@
   font-size: var(--fs-caption);
   color: var(--text-tertiary);
   text-decoration: none;
+  position: relative;
 }
+/* 19px 高的文字链接在手机上点不中。用 ::after 把命中区撑到 ~44×64，
+   不用 padding——padding 会把整行 section 头撑高、视觉位置跟着动。 */
+.home-sec-head__all::after { content: ''; position: absolute; inset: -13px -8px; }
 .home-sec-head__all:hover { color: var(--text-primary); }
 .home-tasks-sec { display: flex; flex-direction: column; gap: var(--sp-3); }
 .home-tasks-sec .home-sec-head { margin-bottom: 0; }
