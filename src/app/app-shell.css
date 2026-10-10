@@ -21,6 +21,46 @@
   overscroll-behavior-y: contain;
 }
 
+/* ── 列表底部渐进模糊 ──
+   顶边落在 FAB 上方 120px（FAB 底锚 = tabbar-h + sp-4 + 安全区，高 52），
+   向下 0 → 16px 渐深。三层各带自己的 backdrop-filter 与渐变 mask，
+   半径是真的在变；单层 blur + mask 只会让"模糊的浓度"变、半径不变。
+   z-index 5：压住页面内容（auto），但 FAB(40) 与底部胶囊(30) 都在它之上，保持清晰。 */
+.app-scroll-fade {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--tabbar-h) + var(--sp-4) + 52px + 120px + env(safe-area-inset-bottom, 0px));
+  z-index: 5;
+  pointer-events: none;
+}
+.app-scroll-fade i {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+/* 三层由浅到深，各自的起点依次下移，叠出来是一条连续斜坡 */
+.app-scroll-fade i:nth-child(1) {
+  backdrop-filter: blur(4px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 62%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 62%);
+}
+.app-scroll-fade i:nth-child(2) {
+  backdrop-filter: blur(9px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 42%, #000 84%);
+  mask-image: linear-gradient(to bottom, transparent 42%, #000 84%);
+}
+.app-scroll-fade i:nth-child(3) {
+  backdrop-filter: blur(16px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 68%, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 68%, #000 100%);
+}
+/* 不支持 backdrop-filter 时整层不存在，避免只剩一层灰 */
+@supports not (backdrop-filter: blur(2px)) {
+  .app-scroll-fade { display: none; }
+}
+
 /* ── 底部导航（<1024）：悬浮居中圆胶囊（与网页端同款）──
    三个图标等宽格子均匀分布；激活 = 前景色转主文本色 + 图标描边加粗，
    无填充底、无滑动 pill——点图标即切页（2026-09-22 用户二次指示）。文字 sr-only 留给读屏。 */

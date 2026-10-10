@@ -89,6 +89,16 @@ export function AppShell({ children }: { children?: ReactNode }) {
             同一个区域只一个主导连续动效，用 opacity + 微位移（8px），避开布局属性。 */}
         <div key={pathname} className="app-route-in">
           {children ?? <Outlet />}
+          {/* 列表底部的渐进模糊：顶边落在 FAB 上方约 120pt，半径 0 → 16 渐深。
+              必须放在 .app-route-in 里面、和 FAB 同一层叠上下文——放外面的话
+              要么盖住 FAB（FAB 在路由层内，逃不出来），要么完全糊不到内容。
+              三层各自 backdrop-filter + 渐变 mask，才做得出"半径渐变"，
+              单层 blur 配 mask 只是透明度渐变。 */}
+          <div className="app-scroll-fade" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </div>
         </div>
       </main>
       <FocusVeil />

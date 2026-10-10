@@ -90,6 +90,9 @@
   padding: var(--sp-2) var(--sp-1);
   border-bottom: 1px solid var(--divider);
 }
+/* 列表最后一条不留分割线：它正好落进底部渐进模糊的起点，
+   糊成一条灰带很难看（.row / .pref 早就有这条豁免，这里漏了）。 */
+.learn-word:last-child { border-bottom: none; }
 .learn-word__w { color: var(--text-primary); }
 .learn-word__m { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
