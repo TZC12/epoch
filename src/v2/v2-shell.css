@@ -1,0 +1,131 @@
+/* v2 外壳布局。
+   ⚠ 这里没有任何 overflow / transform 加在滚动祖先上：
+   前者会静默杀掉后代 sticky，后者会让 .v2-ask（fixed）改找包含块——
+   两条都是旧版实测踩过的（见 [[epoch-scroll-system]]）。 */
+
+.v2-app {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  --scroll-y: 0px;
+  --scroll-px: 0;
+  --scroll-p: 0;
+}
+
+/* ── 顶栏：吸顶，玻璃底（全站唯一 blur 区之一，与旧 tabbar 同款） ── */
+.v2-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: calc(var(--sp-2) + env(safe-area-inset-top, 0px)) var(--page-x) var(--sp-2);
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-2) var(--ease);
+}
+.v2-main[data-scrolled='1'] ~ .v2-top,
+.v2-app:has(.v2-main[data-scrolled='1']) .v2-top { border-bottom-color: var(--divider); }
+
+.v2-top__mid { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
+.v2-top__name {
+  color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.v2-iconbtn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -6px;            /* 视觉 32，触控 44：负 margin 把盒子缩回原位在流里 */
+  border: 0;
+  border-radius: var(--r-full);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition-property: scale, background-color;
+  transition-duration: var(--dur-2), var(--dur-1);
+  transition-timing-function: var(--ease-spring), var(--ease);
+}
+.v2-iconbtn:active { scale: 0.92; background: var(--surface-sunken); }
+
+/* ── 内容列：宽度沿用 --content-max，底部让开 ask bar ── */
+.v2-main {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--sp-4) var(--page-x)
+    calc(72px + var(--sp-5) + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── 底部"问 Epoch"：一条输入口，不是 tab bar ── */
+.v2-ask {
+  position: fixed;
+  left: var(--sp-3);
+  right: var(--sp-3);
+  bottom: calc(var(--sp-3) + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+  max-width: 420px;
+  margin: 0 auto;
+}
+.v2-ask__field {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 var(--sp-5);
+  border: 1px solid var(--v2-card-line);
+  border-radius: var(--r-pill);
+  background: var(--v2-card);
+  box-shadow: var(--v2-card-shadow);
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+  transition-property: scale, border-color;
+  transition-duration: var(--dur-2), var(--dur-1);
+  transition-timing-function: var(--ease-spring), var(--ease);
+}
+.v2-ask__field:active { scale: 0.985; border-color: var(--border-strong); }
+.v2-ask__hint { font-size: var(--fs-small); color: var(--text-secondary); }
+
+/* 在工具面里：ask bar 让位给"返回助手"，同一槽位不叠两层控件 */
+.v2-app[data-in-tool='1'] .v2-ask { display: none; }
+.v2-back {
+  position: fixed;
+  left: 50%;
+  translate: -50% 0;
+  bottom: calc(var(--sp-3) + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 48px;
+  padding: 0 var(--sp-5);
+  border: 1px solid var(--v2-card-line);
+  border-radius: var(--r-pill);
+  background: var(--v2-card);
+  box-shadow: var(--v2-card-shadow);
+  color: var(--text-primary);
+  font-size: var(--fs-small);
+  cursor: pointer;
+}
+.v2-back:active { scale: 0.97; }
+
+@media (prefers-reduced-motion: reduce) {
+  .v2-iconbtn, .v2-ask__field { transition: none; }
+}
+
+/* 桌面 ≥1024：v2 仍是单列居中，不铺成两栏——它是手机形态的产物 */
+@media (min-width: 1024px) {
+  .v2-main { max-width: 620px; }
+  .v2-ask, .v2-back { max-width: 588px; }
+}

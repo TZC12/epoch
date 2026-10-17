@@ -14,7 +14,9 @@
 .row__title { color: var(--text-primary); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .row__sub { margin-top: 2px; }
 .row__right { color: var(--text-tertiary); flex-shrink: 0; }
-.row__chev { color: var(--text-disabled); flex-shrink: 0; }
+/* 方向指示 chevron 属于"这行可点"的非文本信息（SC 1.4.11 要 3:1）；
+   --text-disabled 实测 1.68:1，等于看不见 → 提到 tertiary */
+.row__chev { color: var(--text-tertiary); flex-shrink: 0; }
 
 /* 图六白卡行：leading icon 槽 */
 .row__icon { display: flex; color: var(--text-secondary); flex-shrink: 0; }

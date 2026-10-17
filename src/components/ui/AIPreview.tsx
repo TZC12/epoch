@@ -28,6 +28,12 @@ export interface AIPreviewProps {
   closeLabel?: string
   loading?: boolean
   notes?: string[]           /* 观察项（如周复盘观察员）；只陈述，不是动作 */
+  /* 三句原先硬编码在 ui 层的中文字（「取消」/「正在生成建议…」/「没有建议」）：
+     切到英文界面时它们不会跟着变，而这张面板恰恰是 AI 链路唯一的过程反馈点。
+     ui 层不引 i18n（与 TlRow 同一口径），文案一律由调用方传。 */
+  cancelLabel?: string
+  loadingLabel?: string
+  emptyLabel?: string
 }
 
 /**
@@ -37,6 +43,7 @@ export interface AIPreviewProps {
  */
 export function AIPreview({
   open, onClose, title, proposals, accepted, onToggle, onApply, applyLabel, closeLabel, loading, notes,
+  cancelLabel, loadingLabel, emptyLabel,
 }: AIPreviewProps) {
   /* AI 思考态用 ThinkingOrb（thinking-orbs，MIT）：composing=编织建议的语义态；
      主题显式传入（App 用 data-mode 而非 data-theme，auto 检测会漏掉强制浅/深色） */
@@ -50,7 +57,7 @@ export function AIPreview({
       title={title}
       footer={
         <div className="ai-acts">
-          <Button variant="quiet" onClick={onClose}>{loading ? '取消' : closeLabel}</Button>
+          <Button variant="quiet" onClick={onClose}>{loading ? (cancelLabel ?? closeLabel) : closeLabel}</Button>
           <Button
             loading={loading}
             disabled={picked.length === 0}
@@ -64,10 +71,10 @@ export function AIPreview({
       {loading && proposals.length === 0 ? (
         <div className="ai-loading">
           <ThinkingOrb state="composing" size={64} theme={dark ? 'dark' : 'light'} aria-label="AI thinking" />
-          <MatrixDots variant="orbit" dot={3} label="正在生成建议…" />
+          <MatrixDots variant="orbit" dot={3} label={loadingLabel ?? title} />
         </div>
       ) : proposals.length === 0 && (notes?.length ?? 0) === 0 ? (
-        <StateText tone="neutral" icon="·">{applyLabel ?? '没有建议'}</StateText>
+        <StateText tone="neutral" icon="·">{emptyLabel ?? applyLabel}</StateText>
       ) : (
         <>
           {notes && notes.length > 0 && (

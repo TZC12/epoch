@@ -1,6 +1,9 @@
 /* LearnPage（概念稿 page4）：今日学习卡 + 语言 chips + MODES + 生词管理。 */
 .learn { display: flex; flex-direction: column; gap: var(--sp-4); }
-.learn-sec-title { margin: var(--sp-1) 0 var(--sp-3); color: var(--text-tertiary); }
+/* 段标题只负责"离自己的内容近"，与上一块的间距交给父容器的 gap——
+   原来写成 margin: sp-1 0 sp-3，与 .learn 的 gap: sp-4 叠加，
+   同一种"块与块的距离"在不同页分别是 16/20/24 三个值。 */
+.learn-sec-title { margin: 0 0 var(--sp-2); color: var(--text-tertiary); }
 
 .learn-today {
   background: var(--surface);
@@ -53,7 +56,7 @@
 }
 .learn-card__word { color: var(--text-primary); text-align: center; }
 .learn-card__mean { color: var(--accent); text-align: center; }
-.learn-card__hint { color: var(--text-disabled); }
+.learn-card__hint { color: var(--text-tertiary); }
 .learn-review__acts { display: flex; gap: var(--sp-2); }
 .learn-review__acts > * { flex: 1; }
 .learn-sheet__acts { display: flex; gap: var(--sp-2); width: 100%; }
@@ -99,7 +102,9 @@
 .learn-langmgmt { display: flex; justify-content: flex-end; }
 
 /* ── 词库导入 + SRS 复习 + AI 整理 ── */
-.learn-due { margin-top: var(--sp-1); }
+/* .learn 已经给了 gap: --sp-4；这里再叠 margin-top 就变成 20，
+   同一种"块与块的距离"在计划/健身/学习/备忘是 16、在进展是 24。gap 与 margin 混用是双间距的源头。 */
+.learn-due { margin-top: 0; }
 .learn-sec-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); }
 .learn-sec-acts { display: flex; gap: var(--sp-2); }
 .learn-import { display: flex; flex-direction: column; gap: var(--sp-3); }

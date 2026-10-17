@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import './pbar.css'
 
 export interface PbarProps {
@@ -13,7 +14,12 @@ export function Pbar({ pct, label, done, className = '' }: PbarProps) {
   return (
     <div className={`pbar ${className}`} role="progressbar" aria-valuenow={clamped} aria-valuemin={0} aria-valuemax={100}>
       <div className="pbar__track">
-        <div className={`pbar__fill ${done ? 'pbar__fill--done' : ''}`} style={{ width: `${clamped}%` }} />
+        {/* 用 scaleX 表达进度，不再插值 width：width 每帧改动都会重排，
+           而进度条恰恰是数据一变就动的元素（今日完成、词数达标、目标完成度）。 */}
+        <div
+          className={`pbar__fill ${done ? 'pbar__fill--done' : ''}`}
+          style={{ '--v': clamped / 100 } as CSSProperties}
+        />
       </div>
       {label && <span className="pbar__pct t-caption tnum">{label}</span>}
     </div>

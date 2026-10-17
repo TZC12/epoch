@@ -1,6 +1,6 @@
 /* FitPage（概念稿 page3）：本周 ink hero + 今日训练计时 + 课程目录。 */
 .fit { display: flex; flex-direction: column; gap: var(--sp-4); }
-.fit-sec-title { display: inline-flex; align-items: center; gap: var(--sp-2); margin: var(--sp-1) 0 var(--sp-3); color: var(--text-tertiary); }
+.fit-sec-title { display: inline-flex; align-items: center; gap: var(--sp-2); margin: 0 0 var(--sp-2); color: var(--text-tertiary); }
 
 .fit-hero {
   display: flex;
@@ -31,10 +31,15 @@
 }
 .fit-bars__col i {
   width: 100%;
+  height: 100%;
   border-radius: var(--sp-1);
   background: color-mix(in srgb, var(--ink-inverse) 22%, transparent);
   display: block;
-  transition: height var(--dur-3) var(--ease);
+  /* 用合成属性 scaleY 表达柱高，别逐帧插值 height：
+     7 根柱同时改 height = 每次进页一段连续布局，滚动容器里还会牵动滚动条几何。 */
+  transform-origin: bottom;
+  transform: scaleY(var(--v, 0));
+  transition: transform var(--dur-3) var(--ease);
 }
 .fit-bars__col i.on { background: color-mix(in srgb, var(--accent) 60%, var(--ink-inverse)); }
 

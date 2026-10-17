@@ -2,8 +2,10 @@ import { useEffect, useRef, type CSSProperties } from 'react'
 import './reel-counter.css'
 
 const SPINS = 3      /* 每列多滚 3 圈再落位 */
-const DUR = 1400
-const STAGGER = 90   /* 列间级联延迟：左→右 */
+/* 1400/90 → 700/40：数字滚动档位是 400–800ms、级联 20–50ms/项。
+   原来 4 位数最后一列要 270ms 才开始、1670ms 才结束——首屏进页时整块数字像卡在那儿转。 */
+const DUR = 700
+const STAGGER = 40   /* 列间级联延迟：左→右 */
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)'
 
 /**

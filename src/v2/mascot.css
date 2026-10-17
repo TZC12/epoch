@@ -1,0 +1,77 @@
+/* 小墨灵的动效：6 个离散姿态各一条签名动效，全部只用 transform/opacity。
+   ⚠ 幅度都压得很小——它是页面里最小的一个东西，动太大就把整屏带跑。
+   ⚠ 位移一律走 translate/scale 属性（不是 transform:），避免和全局按压
+      scale 轨道相乘（见 [[epoch-effects-decisions]] 的按压缩放契约）。 */
+
+.v2m { overflow: visible; flex-shrink: 0; }
+.v2m-body { transform-origin: 50% 92%; }
+.v2m-shadow { transform-origin: 50% 50%; }
+
+/* 待机：极慢的呼吸 + 影子同步收放（影子跟着呼吸才像站在地上） */
+@media (prefers-reduced-motion: no-preference) {
+  .v2m--idle .v2m-body { animation: v2m-breathe 3.6s var(--ease) infinite; }
+  .v2m--idle .v2m-shadow { animation: v2m-breathe-shadow 3.6s var(--ease) infinite; }
+
+  /* 思考：慢慢左右看 + 头顶三点依次亮（不是无意义的转圈） */
+  .v2m--think .v2m-body { animation: v2m-look 2.4s var(--ease) infinite; }
+  .v2m--think .v2m-dots circle { animation: v2m-dot 1.2s var(--ease) infinite; }
+  .v2m--think .v2m-dots circle:nth-child(2) { animation-delay: .18s; }
+  .v2m--think .v2m-dots circle:nth-child(3) { animation-delay: .36s; }
+
+  /* 提案：前倾一下再回来，像把东西递给你（一次性，不循环） */
+  .v2m--propose .v2m-body { animation: v2m-offer .62s var(--ease-spring) 1 both; }
+
+  /* 完成： squash → stretch → 落回，经典三拍（一次性） */
+  .v2m--done .v2m-body { animation: v2m-hop .58s var(--ease-spring) 1 both; }
+
+  /* 拒绝：短促左右摆，幅度 2px 就够（一次性） */
+  .v2m--no .v2m-body { animation: v2m-shrug .42s var(--ease) 1 both; }
+
+  /* 报错：发抖，频率高幅度小，和"拒绝"区分开 */
+  .v2m--err .v2m-body { animation: v2m-tremble .5s var(--ease) 2 both; }
+}
+
+@keyframes v2m-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.012, .988); }
+}
+@keyframes v2m-breathe-shadow {
+  0%, 100% { transform: scaleX(1); opacity: .9; }
+  50% { transform: scaleX(.9); opacity: .72; }
+}
+@keyframes v2m-look {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+@keyframes v2m-dot {
+  0%, 70%, 100% { opacity: .25; }
+  35% { opacity: 1; }
+}
+@keyframes v2m-offer {
+  0% { transform: translateX(0) rotate(0deg); }
+  45% { transform: translateX(2.5px) rotate(3deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+@keyframes v2m-hop {
+  0% { transform: scale(1, 1) translateY(0); }
+  28% { transform: scale(1.08, .9) translateY(1px); }
+  58% { transform: scale(.94, 1.1) translateY(-4px); }
+  100% { transform: scale(1, 1) translateY(0); }
+}
+@keyframes v2m-shrug {
+  0%, 100% { transform: translateX(0); }
+  30% { transform: translateX(-2px) rotate(-1.5deg); }
+  65% { transform: translateX(2px) rotate(1.5deg); }
+}
+@keyframes v2m-tremble {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-1.2px); }
+  40% { transform: translateX(1.2px); }
+  60% { transform: translateX(-1px); }
+  80% { transform: translateX(1px); }
+}
+
+/* 减弱动效：只留形状差异（轮廓/眼睛/嘴已经换了），所有循环与位移归零 */
+@media (prefers-reduced-motion: reduce) {
+  .v2m-body, .v2m-shadow, .v2m-dots circle { animation: none !important; }
+}

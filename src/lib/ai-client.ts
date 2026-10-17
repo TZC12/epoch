@@ -59,7 +59,10 @@ export function buildAIContext(): AIContextDTO {
 
 export type AIResult =
   | { ok: true; proposals: AIProposalDTO[]; observations?: string[] }
-  | { ok: false; error: 'ai_not_configured' | 'network' | 'bad_output' | 'bad_request' }
+  /* 错误码不塌缩：Key 过期/额度用尽(401/429)、地址写成 http、超时、返回体不合法
+     是四种完全不同的病因，以前全被并成 bad_output/bad_request 两类，
+     用户读到"AI 返回了无法识别的结果"就只会去改 prompt，永远不会去查 key。 */
+  | { ok: false; error: 'ai_not_configured' | 'network' | 'timeout' | 'http' | 'insecure_url' | 'bad_output' | 'bad_request' }
 
 /**
  * AI 建议链路（已接通用户自带接口）：
@@ -80,10 +83,10 @@ export async function requestAI(ability: AIAbility, opts: { fetchImpl?: typeof f
     + 'review_observer=根据近 14 天完成率给 1-2 条可执行观察（adjust_note 或 create_routine）。'
   const res = await chatCompletion(cfg, [{ role: 'system', content: sys }, { role: 'user', content: JSON.stringify({ ability, context }) }], { timeoutMs: 45_000, ...opts })
   if (!res.ok) {
+    /* 逐个透传，不再合并：这五个码在 lib/ai-provider 里本来是分开的，
+       塌成 bad_output/bad_request 两类后，"检查 key/额度"这条唯一的出路就从文案里消失了 */
     if (res.error === 'not_configured') return { ok: false, error: 'ai_not_configured' }
-    if (res.error === 'insecure_url') return { ok: false, error: 'bad_request' }
-    if (res.error === 'timeout' || res.error === 'network') return { ok: false, error: 'network' }
-    return { ok: false, error: 'bad_output' }
+    return { ok: false, error: res.error }
   }
   const v = aiResponseSchema.safeParse(extractJsonObject(res.text))
   if (!v.success) return { ok: false, error: 'bad_output' }

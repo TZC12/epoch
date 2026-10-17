@@ -15,7 +15,16 @@
   overflow: hidden;
   flex-shrink: 0;
 }
-.ob__bar { height: 100%; background: var(--ink); border-radius: var(--r-pill); transition: width var(--dur-4) var(--ease); }
+/* 进度条用 scaleX（origin left），别再插值 width —— 同 .pbar__fill 的理由 */
+.ob__bar {
+  height: 100%;
+  width: 100%;
+  background: var(--ink);
+  border-radius: var(--r-pill);
+  transform-origin: left;
+  transform: scaleX(var(--v, 0));
+  transition: transform var(--dur-4) var(--ease);
+}
 .ob__content {
   flex: 1;
   display: flex;

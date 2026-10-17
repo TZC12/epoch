@@ -158,7 +158,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         className={cn(
           "relative h-11 overflow-hidden rounded-full border transition-colors duration-200",
           "border-border",
-          focused && !hasError && "border-foreground/40 ring-2 ring-ring/40",
+          /* 官方给的聚焦态是 border/40 + ring/40，配我们自己的 mono 色板实测：
+             聚焦描边 2.56:1、与未聚焦态互比 1.99:1 —— 键盘用户看不出焦点落在哪个框上
+             （global.css 把 input 的 outline 关了，因为文本框自带聚焦态，
+              所以这一层就是唯一的指示器）。描边转实色承担指示，ring 保留作柔光。 */
+          focused && !hasError && "border-foreground ring-2 ring-ring/40",
           hasError && "border-destructive ring-2 ring-destructive/25",
           disabled && "opacity-60",
           classNames?.field,

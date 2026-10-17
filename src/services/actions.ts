@@ -387,14 +387,50 @@ export function addLearnLang(name: string, goal = 30): LearnLang | null {
   return lang
 }
 
-/** 移除语言：级联删除其学习记录与生词（UI 侧负责确认）。 */
-export function removeLearnLang(id: string): void {
-  useData.setState((s) => ({
-    learnLangs: s.learnLangs.filter((l) => l.id !== id),
-    learnEntries: s.learnEntries.filter((e) => e.langId !== id),
-    learnWords: s.learnWords.filter((w) => w.langId !== id),
-    learnActive: s.learnActive === id ? (s.learnLangs.find((l) => l.id !== id)?.id ?? null) : s.learnActive,
+/** 移除语言的完整快照：级联带走的记录与生词都要能一起回来。
+ *  以前这里靠 window.confirm 挡一道就永久删除——原生确认框在 PWA 里既丑又断线程，
+ *  而且全站其他删除（任务/备忘/生词）都是「即时删 + 撤销 toast」。
+ *  同一类操作不能一种一种规矩。 */
+export interface LearnLangSnapshot {
+  lang: LearnLang
+  entries: LearnEntry[]
+  words: LearnWord[]
+}
+
+/** 移除语言：级联删除其学习记录与生词，返回快照供撤销。 */
+export function removeLearnLang(id: string): LearnLangSnapshot | null {
+  const s = useData.getState()
+  const lang = s.learnLangs.find((l) => l.id === id)
+  if (!lang) return null
+  const snap: LearnLangSnapshot = {
+    lang,
+    entries: s.learnEntries.filter((e) => e.langId === id),
+    words: s.learnWords.filter((w) => w.langId === id),
+  }
+  useData.setState((st) => ({
+    learnLangs: st.learnLangs.filter((l) => l.id !== id),
+    learnEntries: st.learnEntries.filter((e) => e.langId !== id),
+    learnWords: st.learnWords.filter((w) => w.langId !== id),
+    learnActive: st.learnActive === id ? (st.learnLangs.find((l) => l.id !== id)?.id ?? null) : st.learnActive,
   }))
+  schedulePush()
+  return snap
+}
+
+/** 撤销移除：语言连同记录与生词原样放回。 */
+export function restoreLearnLang(snap: LearnLangSnapshot): void {
+  useData.setState((s) => {
+    if (s.learnLangs.some((l) => l.id === snap.lang.id)) return {}
+    /* 撤销期间用户可能已经选了别的语言：当前选中项还在就别把他拽走；
+       不在了（多半就是被这次移除清空的）才落到被救回来的这门。 */
+    const stillThere = s.learnActive !== null && s.learnLangs.some((l) => l.id === s.learnActive)
+    return {
+      learnLangs: [...s.learnLangs, snap.lang],
+      learnEntries: [...s.learnEntries, ...snap.entries],
+      learnWords: [...s.learnWords, ...snap.words],
+      learnActive: stillThere ? s.learnActive : snap.lang.id,
+    }
+  })
   schedulePush()
 }
 
@@ -420,8 +456,19 @@ export function addLearnWord(langId: string, word: string, meaning: string): Lea
   return item
 }
 
-export function deleteLearnWord(id: string): void {
-  useData.setState((s) => ({ learnWords: s.learnWords.filter((w) => w.id !== id) }))
+/** 删词：返回被删的整条（含 Leitner box/due/source），供撤销原样放回。
+ *  以前删完就没了——同一个「删除」× 号，删任务有撤销 toast、删备忘有撤销 toast，
+ *  唯独生词当场永久消失，用户按同样的心智操作就会丢数据。 */
+export function deleteLearnWord(id: string): LearnWord | null {
+  const w = useData.getState().learnWords.find((x) => x.id === id) ?? null
+  useData.setState((s) => ({ learnWords: s.learnWords.filter((x) => x.id !== id) }))
+  schedulePush()
+  return w
+}
+
+/** 撤销删词：按原 id/box/due 放回原位置尾部（词表不排序，顺序不影响复习排程）。 */
+export function restoreLearnWord(w: LearnWord): void {
+  useData.setState((s) => (s.learnWords.some((x) => x.id === w.id) ? s : { learnWords: [...s.learnWords, w] }))
   schedulePush()
 }
 

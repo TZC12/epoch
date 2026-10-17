@@ -66,13 +66,19 @@ export function initAuth(): void {
   })
 }
 
-export type AuthError = 'invalid_credentials' | 'username_taken' | 'email_taken' | 'weak_password' | 'confirm_needed' | 'offline' | 'unknown'
+export type AuthError = 'invalid_credentials' | 'invalid_input' | 'invalid_email' | 'username_taken' | 'email_taken' | 'weak_password' | 'confirm_needed' | 'offline' | 'unknown'
 
 function mapError(msg: string): AuthError {
   const m = msg.toLowerCase()
   if (m.includes('invalid login credentials')) return 'invalid_credentials'
+  /* 邮箱撞车与用户名撞车是两件事：Supabase 回 "User already registered" 时
+     真正冲突的是那个邮箱，报「用户名已被占用」会把用户支去改一个无关的字段 */
+  if (m.includes('email') && m.includes('already')) return 'email_taken'
   if (m.includes('already registered') || m.includes('already exists') || m.includes('unique') || m.includes('username')) return 'username_taken'
   if (m.includes('rate limit') || m.includes('failed to fetch') || m.includes('network')) return 'offline'
+  /* 邮箱格式类错误以前落到 unknown（"请重试"），而重试永远不会成功：
+     用户需要知道是地址本身不合法 */
+  if (m.includes('email')) return 'invalid_email'
   if (m.includes('password')) return 'weak_password'
   return 'unknown'
 }
@@ -101,7 +107,10 @@ export async function signIn(identifier: string, password: string): Promise<{ ok
 export async function signUp(username: string, email: string, password: string): Promise<{ ok: true } | { ok: false; error: AuthError }> {
   if (!supabase) return { ok: false, error: 'offline' }
   const user = sanitizeUsername(username)
-  if (!user) return { ok: false, error: 'unknown' }
+  /* 中文/带空格的姓名会被 sanitizeUsername 整个删空 → 空串。
+     以前报 unknown（"操作失败，请重试"），用户就反复点注册、换密码、换浏览器，
+     永远不会知道是字符集限制。这里给一个说清规则的码。 */
+  if (!user) return { ok: false, error: 'invalid_input' }
   try {
     const { data, error } = await supabase.auth.signUp({
       email: email.trim() || identifierToEmail(user),

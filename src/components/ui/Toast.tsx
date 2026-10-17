@@ -22,7 +22,7 @@ interface ToastApi {
 
 const ToastCtx = createContext<ToastApi>({ toast: () => {} })
 
-const CLOSE_MS = 250 /* 与 toast.css --stack-close 同值：落完才卸载 */
+const CLOSE_MS = 200 /* 与 toast.css --stack-close（= --dur-2）同值：落完才卸载 */
 const MAX_STACK = 3  /* 第 4 条进来时最老的一条被"挤出台阶" */
 
 /**
@@ -63,7 +63,9 @@ function ToastCard({ item, depth, onGone, onSpread, onHoverCheck }: {
 
   useEffect(() => {
     if (evicted) return
-    const t = window.setTimeout(leave, (item.action ? 4200 : 2600) + 50)
+    /* 带撤销的（删除任务/备忘/生词都靠这条）停留 6s：启发式给的可逆窗口是 5–10s，
+       4.2s 会让"没盯住 toast"变成永久丢失 */
+    const t = window.setTimeout(leave, (item.action ? 6000 : 2600) + 50)
     return () => window.clearTimeout(t)
   }, [evicted, item.action, leave])
 

@@ -16,7 +16,8 @@
 .reel__strip {
   display: flex;
   flex-direction: column;
-  will-change: transform;
+  /* 不写 will-change：老虎机只在数值变化那一瞬滚动，常驻提层对 hero 上的
+     每一位数都是白占一层；滚动时 animation/transition 自己会建层。 */
 }
 .reel__digit {
   height: var(--reel-cell, 44px);

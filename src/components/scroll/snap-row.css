@@ -1,0 +1,35 @@
+/* 单行横向滚动 + 吸附。proximity（不是 mandatory）：手指轻扫时能停在
+   两个项目之间看到"还有半个"，mandatory 会把每一屏锁死成一项，
+   对 chips/习惯这种小项反而更难定位。 */
+.snap-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--sp-1);
+  /* 触摸时不被纵向手势抢走：只声明横向，纵向仍归页面滚动 */
+  touch-action: pan-x;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+}
+/* 放得下 / 已到头：把对应一端的渐隐收掉，否则看着像被裁坏了 */
+.snap-row[data-overflow='0'],
+.snap-row[data-at-start='1'] {
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 14px), transparent 100%);
+  mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 14px), transparent 100%);
+}
+.snap-row[data-overflow='0'],
+.snap-row[data-at-end='1'] {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 100%);
+}
+.snap-row[data-overflow='0'] { mask-image: none; -webkit-mask-image: none; }
+.snap-row[data-at-start='1'][data-at-end='1'] { mask-image: none; -webkit-mask-image: none; }
+
+.snap-row > * { scroll-snap-align: start; flex-shrink: 0; }
+
+/* 行内留一点上下呼吸，避免 focus 环被 mask 削边 */
+.snap-row { padding-block: 2px; }

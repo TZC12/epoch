@@ -8,9 +8,14 @@
 }
 .pbar__fill {
   height: 100%;
+  width: 100%;
   border-radius: var(--r-pill);
   background: var(--ink);
-  transition: width var(--dur-5) var(--ease);
+  /* 百分比从 --v 走 scaleX：进度条每次数据变化都在插值 width = 每帧重排。
+     圆端会被横向压扁（scaleX 同时缩放半径），4px 高的条上肉眼读不出。 */
+  transform-origin: left;
+  transform: scaleX(var(--v, 0));
+  transition: transform var(--dur-5) var(--ease);
 }
 .pbar__fill--done { background: var(--accent); }
 .pbar__pct { color: var(--text-tertiary); flex-shrink: 0; }

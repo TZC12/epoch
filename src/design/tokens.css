@@ -20,7 +20,8 @@
   /* ── 文字（暖墨；层级=明度） ── */
   --text-primary: #171614;
   --text-secondary: #6a6862;
-  --text-tertiary: #6f6c64;   /* AA 4.5:1 on --bg（原 #9a9790 仅 ~2.5:1） */
+  --text-tertiary: #6a675f;   /* 实测 ≥4.5:1 on surface/sunken/bg 三块底（5.52/4.65/5.04）；
+                                 旧值 #6f6c64 在 sunken 上只有 4.32，注释里的承诺没兑现 */
   --text-disabled: #c4c1b8;
 
   /* ── 强调（墨黑=主操作；陶土=标记/紧急；暖绿=完成/活跃） ── */
@@ -110,10 +111,11 @@
   --dur-5: 500ms;   /* large visual：进度弧 */
   --dur-out: 240ms; /* 退场（进场镜像，略短） */
   --dur-snap: 260ms;/* pager 吸附 */
-  --ease: cubic-bezier(0.32, 0.72, 0.24, 1);
-  --ease-inout: cubic-bezier(0.6, 0.05, 0.28, 0.95);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);   /* 按压释放/拖拽 settle 统一回弹（与液体 FAB 同曲线） */
-  --ease-drag: cubic-bezier(0.2, 0.9, 0.25, 1); /* 手势松手回弹 */
+  --ease: cubic-bezier(0.32, 0.72, 0.24, 1);        /* 进场/减速族：东西进来 */
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);          /* 退场/加速族：东西走掉，别拖尾 */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* 按压释放/拖拽 settle 统一回弹（与液体 FAB 同曲线） */
+  /* 原 --ease-inout / --ease-drag 两档全仓 0 处消费，挂在 token 表里就是第二套假真值，
+     2026-10-17 按动效审计收口：inout 槽位改成真正用到的 exit 曲线，drag 删掉。 */
 
   /* ── 图标 7 档 ── */
   --ic-12: 12px; --ic-16: 16px; --ic-18: 18px; --ic-20: 20px;
@@ -137,7 +139,7 @@
 
   --text-primary: #f4f1e9;
   --text-secondary: #b3afa4;
-  --text-tertiary: #8a867a;
+  --text-tertiary: #938f83;   /* 5.28/4.92/5.65 on 三块底；旧值 #8a867a 在 sunken 上 4.37 */
   --text-disabled: #55524a;
 
   --ink: #f4f1e9;
@@ -187,7 +189,8 @@
 
   --text-primary: #16161a;
   --text-secondary: #5f5f68;
-  --text-tertiary: #797981;
+  --text-tertiary: #6a6a73;   /* 5.35/4.70/4.96 on 三块底；旧值 #797981 在 surface 上只有 4.32，
+                                 caption / eyebrow / 字段标签都是正文级小字，必须过 4.5 */
   --text-disabled: #c7c7cd;
 
   --ink: #1b1b1f;

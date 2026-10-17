@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
 import { Field } from '@/components/ui/Field'
@@ -150,7 +150,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
   return (
     <div className="ob" role="dialog" aria-modal="true" aria-label={cur.title}>
       <div className="ob__progress" aria-hidden="true">
-        <div className="ob__bar" style={{ width: `${progress}%` }} />
+        <div className="ob__bar" style={{ '--v': progress / 100 } as CSSProperties} />
       </div>
       <div className="ob__content">
         <h1 className="t-h2">{cur.title}</h1>

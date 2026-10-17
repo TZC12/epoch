@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { subscribeScroll } from '@/lib/scroll/scroller'
 import './netbg.css'
 
 type Tier = 'subtle' | 'ambient' | 'featured'
@@ -233,19 +234,19 @@ export function MatrixBackground({ tier = 'subtle' }: { tier?: Tier }) {
       pointer.x = e.clientX; pointer.y = e.clientY; pointer.inside = true
     }
     const onOut = () => { pointer.inside = false }
-    /* 滚动降强度：动的是 canvas 的 opacity（合成层），一帧重绘都不产生 */
-    const onScroll = (e: Event) => {
-      const el = e.target as Element | Document | null
-      const top = el && el !== document ? (el as Element).scrollTop || 0 : window.scrollY || 0
+    /* 滚动降强度：动的是 canvas 的 opacity（合成层），一帧重绘都不产生。
+       数据来自全站唯一的滚动派发器——这里以前自己挂 document capture 监听，
+       与派发器并存 = 同一件事两个监听器（规范红线：别重复挂）。 */
+    const applyScroll = (top: number): void => {
       cv.style.opacity = String(Math.max(0.42, Math.min(1, 1 - top / 1400)))
     }
+    const unsubscribeScroll = subscribeScroll((s) => applyScroll(s.top))
 
     document.addEventListener('visibilitychange', onVis)
     rmq.addEventListener?.('change', onRm)
     window.addEventListener('resize', resize)
     window.addEventListener('pointermove', onMove)
     window.addEventListener('pointerout', onOut)
-    document.addEventListener('scroll', onScroll, { passive: true, capture: true })
 
     repaintRef.current = () => paint(null)
     resize()
@@ -260,7 +261,7 @@ export function MatrixBackground({ tier = 'subtle' }: { tier?: Tier }) {
       window.removeEventListener('resize', resize)
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerout', onOut)
-      document.removeEventListener('scroll', onScroll, { capture: true })
+      unsubscribeScroll()
     }
   }, [])
 

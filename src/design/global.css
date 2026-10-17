@@ -27,7 +27,11 @@ body {
 }
 button, input, textarea, select { font: inherit; color: inherit; }
 img, svg, canvas { display: block; max-width: 100%; }
-::placeholder { color: var(--text-disabled); }
+/* placeholder 是正文级提示（登录页示例邮箱、AI 接口的 https://api.example.com/v1、
+   模型名 gpt-4o-mini），不是纯装饰：旧值 --text-disabled 实测 1.68:1，低视力与老年用户等于没写。
+   先试 tertiary，实测在登录卡的底色上只有 4.38:1（差 0.12）——placeholder 与输入值本来就要
+   差一档，用 secondary 既过 4.5 又仍比正文浅一层。 */
+::placeholder { color: var(--text-secondary); }
 input, textarea, button { font-family: inherit; }
 
 /* 数字一律等宽（仪表/计时/百分比）——等宽字族，编辑风数据感 */
@@ -62,7 +66,32 @@ input, textarea, button { font-family: inherit; }
 /* 文本域自带焦点态（.field__input:focus 描边变墨 / focus-within 容器变色），
    浏览器把文本输入永远视为 focus-visible——再叠 2px 外环就是截图里的双圈。 */
 input:focus-visible, textarea:focus-visible, select:focus-visible, [contenteditable='true']:focus-visible { outline: none; }
-button, [role='button'], .chip, .seg > button { touch-action: manipulation; }
+button, a, [role='button'], .chip, .seg > button { touch-action: manipulation; }
+/* 链接也进上一行是补洞：以前只有 button，底部胶囊与桌面侧栏是 <a>（NavLink），
+   在允许捏合缩放的 viewport 下它们仍可能吃到双击缩放判定 → 点一下要等一下才响应。 */
+
+/* iOS 点按灰底：App 已有自己的按压反馈（各组件 :active 的 scale 档位），
+   系统的灰块是第二重反馈，而且一眼"网页感"。关掉它，触控反馈归组件。
+   代价是裸链接会失去反馈——全站只有导航是 <a>，所以给它们补一条颜色按压态
+   （导航维持"仅颜色过渡"的零装饰约定，不加缩放/底色）。 */
+html { -webkit-tap-highlight-color: transparent; }
+.app-tab:active { color: var(--text-primary); }
+.app-sidebar__link:active { color: var(--text-primary); }
+
+/* 纯控件的文字不参与长按选中：iOS 上长按一颗按钮若选中了它的标签，
+   紧接着就是选择手柄盖住界面。
+   ⚠ 刻意不写 `button`：任务行的行身就是 <button class="tl-row__body">，
+   一竿子打下去会把任务标题、备忘正文这类"用户真的会想复制的内容"也禁选。
+   所以这里只列纯控件（导航/筹码/图标钮/滑轨/开关/FAB）。
+   ⚠ 例外是 .note-card：备忘卡的长按手势=拖拽成组（notes-page.css），
+   选择手柄一起来就把这个手势抢走了，所以它按"控件"处理；
+   要复制正文本来就该进编辑器（textarea）里复制。
+   任务行的禁选不归这条规则管，是官方 swipeable-list 的 TOUCH_GESTURE_CONTENT_CLASS
+   （只在有平台按压机势的环境上生效，鼠标仍可框选复制）——别在这儿重复实现一遍。 */
+.app-tab, .app-sidebar__link, .chip, .hchip, .icon-btn, .seg > button, .tgl, .fab-btn, .note-card {
+  -webkit-user-select: none;
+  user-select: none;
+}
 
 /* 触感反馈（design-ui）：主控件的**过渡轨道**统一在这里给——哪些属性动、多长、什么曲线。
    压缩量值刻意**不在这里定**：各组件自己写 scale:，否则全局默认会反过来吃掉组件档位
@@ -103,12 +132,16 @@ button, [role='button'], .chip, .seg > button { touch-action: manipulation; }
 .is-loading { opacity: var(--op-disabled); pointer-events: none; animation: breathe 800ms var(--ease) 1; }
 .is-disabled { opacity: var(--op-disabled); cursor: not-allowed; pointer-events: none; }
 
-/* ── reduced-motion 一处收口（大纲 §13；Aurora 已退役，此处管全部 transition/animation） ── */
+/* ── reduced-motion 一处收口（大纲 §13；Aurora 已退役，此处管全部 transition/animation） ──
+   delay 也必须归零：只归 duration 的话，级联动画会变成"一串小动画"——
+   老虎机数字仍按列错开、FAB 子球仍延后 150ms 才出现，正是这条媒体查询想消掉的东西。 */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: var(--dur-0) !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: var(--dur-0) !important;
+    transition-delay: 0s !important;
   }
 }
 

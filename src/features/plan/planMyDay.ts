@@ -12,13 +12,18 @@ import type { Task, Routine, InboxItem, Direction } from '@/services/types'
  *  4. 低能量（健康 Demo 输入）时填充数上限 3。
  */
 
+/** 建议来源的语义码（不是文案）：以前这里直接写中文串，
+ *  切到英文界面时「规划今天」每行还是「固定例程 · 45 min」，
+ *  而且 PlanMyDaySheet 拿 `reason !== '已排'` 做逻辑判断——用文案当条件迟早出事。 */
+export type PlanReason = 'routine' | 'scheduled' | 'inbox' | 'anytime'
+
 export interface Suggestion {
   key: string
   time: string          /* 'HH:MM' */
   title: string
   durMin: number
   source: 'routine' | 'task' | 'inbox'
-  reason: string
+  reason: PlanReason
   taskId?: string
   inboxId?: string
 }
@@ -74,7 +79,7 @@ export function buildSuggestedDay(input: PlanMyDayInput): Suggestion[] {
     const dur = clampDur(r.durMin ?? 15)
     blocks.push({ start, end: start + dur, s: {
       key: `routine-${r.id}`, time: r.time!, title: r.name, durMin: dur,
-      source: 'routine', reason: '固定例程',
+      source: 'routine', reason: 'routine',
     } })
   }
   for (const x of input.tasks.filter((x) =>
@@ -84,7 +89,7 @@ export function buildSuggestedDay(input: PlanMyDayInput): Suggestion[] {
     const dur = clampDur(x.durMin ?? 30)
     blocks.push({ start, end: start + dur, s: {
       key: `task-${x.id}`, time: x.time!, title: x.title, durMin: dur,
-      source: 'task', reason: '已排', taskId: x.id,
+      source: 'task', reason: 'scheduled', taskId: x.id,
     } })
   }
   blocks.sort((a, b) => a.start - b.start)
@@ -109,7 +114,7 @@ export function buildSuggestedDay(input: PlanMyDayInput): Suggestion[] {
       out.push({
         key: `fill-${next.ref.inboxId ?? next.ref.taskId}`, time: fmtMinutes(at), title: next.title,
         durMin: next.durMin, source: next.ref.inboxId ? 'inbox' : 'task',
-        reason: next.ref.inboxId ? '来自收集箱' : '今天要做，还没定时间',
+        reason: next.ref.inboxId ? 'inbox' : 'anytime',
         ...next.ref,
       })
       queue.shift()

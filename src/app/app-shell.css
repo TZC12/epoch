@@ -2,7 +2,20 @@
    <768 底部 Tab 导航；768-1024 同；≥1024 左侧边栏 + 居中内容列。
    移动端不是桌面缩小版：信息列宽、触控目标、安全区均按移动优先设定。 */
 
-.app { position: relative; z-index: 1; min-height: 100dvh; display: flex; }
+.app {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: flex;
+  /* 滚动系统：派发器（src/lib/scroll/scroller.ts）每帧往这个元素写
+     --scroll-y / --scroll-px / --scroll-p。宿主选 .app 而不是 .app-main，
+     是因为背景层 .netbg 挂在 .app-main 之外，两边要读同一组变量；
+     初值必须在这里给——首帧还没 attach 时 calc(var(--scroll-y) * -0.05) 不能是无效值。
+     ⚠ 不要在 .app-main 上再声明同名变量：那会把继承值盖成静态 0，视差直接失效。 */
+  --scroll-y: 0px;
+  --scroll-px: 0;
+  --scroll-p: 0;
+}
 
 /* ── 内容列 ── */
 .app-main {
@@ -17,8 +30,51 @@
      可点控件，被压住就点不到了（/plan 实拍发现）。 */
   padding: calc(var(--sp-5) + env(safe-area-inset-top, 0px)) var(--page-x)
     calc(var(--tabbar-h) + 52px + var(--sp-4) + var(--sp-5) + env(safe-area-inset-bottom, 0px));
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
+  /* ⚠ 这里刻意**不写** overflow-y。以前写了 auto，但 .app 只给 min-height:100dvh、
+     没给本列定高，内容一长它自己根本不滚——滚的是文档。留着 auto 的代价不是"没效果"
+     而是**静默破坏 position:sticky**：滚动容器即使从不滚动也仍是后代的 scrollport，
+     吸顶元素于是相对这个永不滚动的框定位，看起来"吸顶失效"（实测：滚到底 .plan-filter
+     仍停在 top=101）。删掉后 sticky 相对文档视口工作；侧边距/边距塌陷都不受影响
+     （flex item 本身已建立独立格式化上下文，且四边都有 padding）。 */
+}
+
+/* ── 滚动进度线（吸顶内容下方 2px）──
+   只有内容真的可滚（max>0）才出现：一屏装得下的页面挂一条永远 0 或 1 的线是噪声。
+   z-index 6：压住页面内容，但导航胶囊(30)与 FAB(40)仍在它之上。 */
+.app-progress {
+  position: sticky;
+  /* 吸在滚动视口顶；带 safe-area 是因为安装版 PWA 里视口顶就是状态栏 */
+  top: env(safe-area-inset-top, 0px);
+  z-index: 6;
+  height: 2px;
+  margin: calc(-1 * var(--sp-1)) calc(-1 * var(--page-x)) var(--sp-1);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease);
+}
+.app-main[data-scrolled='1'] .app-progress { opacity: 1; }
+.app-progress__fill {
+  display: block;
+  height: 100%;
+  background: var(--text-primary);
+  transform-origin: 0 50%;
+  /* 只动 transform：进度条每帧都在变，动 width 就是每帧重排 */
+  transform: scaleX(var(--scroll-p));
+}
+
+/* ── 视差工具类 ──
+   用法：给元素加 .parallax 并设 --px（系数，px 位移 = 滚动距离 × 系数）。
+   两条硬约束：
+   ① 只给叶子元素用。给 .app-main / .app-route-in 这类祖先加 transform，
+      会让它们成为内部 position:fixed 后代（FAB、pill-to-card 的 Dropdown）的
+      包含块——就是"加号卡 0.1 秒"那个老 bug 的成因，别再犯。
+   ② 幅度压在 ±12px 内：这是层次，不是营销页。 */
+.parallax {
+  transform: translate3d(0, calc(var(--scroll-y) * var(--px, 0)), 0);
+}
+/* 减弱动效：视差全部归零（进度线保留——它是位置信息，不是装饰动效） */
+@media (prefers-reduced-motion: reduce) {
+  .parallax { transform: none; }
 }
 
 /* ── 列表底部渐进模糊 ──

@@ -52,7 +52,7 @@ describe('AI mutation 红线（Phase 5）', () => {
   it('非法 JSON → bad_output 提示，零落库', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(okResponse({ proposals: [{ id: 'p1', type: 'nuke_db', title: 'x' }] }))
     mount()
-    await waitFor(() => expect(screen.getByText(/无法识别/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/已丢弃/)).toBeInTheDocument())
     expect(useData.getState().tasks).toHaveLength(0)
     expect(useData.getState().inbox).toHaveLength(0)
   })
@@ -60,14 +60,14 @@ describe('AI mutation 红线（Phase 5）', () => {
   it('越权动作类型（白名单外）→ 拒绝，零落库', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(okResponse({ proposals: [{ id: 'p1', type: 'delete_all_tasks', title: '清空' }] }))
     mount()
-    await waitFor(() => expect(screen.getByText(/无法识别/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/已丢弃/)).toBeInTheDocument())
     expect(useData.getState().tasks).toHaveLength(0)
   })
 
   it('损坏 JSON 文本 → 拒绝', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('not json at all {', { status: 200 }))
     mount()
-    await waitFor(() => expect(screen.getByText(/无法识别/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/已丢弃/)).toBeInTheDocument())
   })
 
   it('未配置接口 → 明确提示去「我的 → AI 接口」', async () => {

@@ -241,10 +241,12 @@ export function WheelPicker({
       const to = clamp(Math.round(from + coast), 0, last);
       // Long, spring-tipped settle so a hard flick reads as free momentum
       // coasting to rest with a gentle bounce, never a clipped stop.
+      // 上限 500ms = 手机上的"迟钝线"（--dur-5 同值）：原来是 1700ms，
+      // 甩一下要等 1.7 秒才落位，选时间这种"我要结果"的路径上读起来像卡住。
       const duration = clamp(
-        Math.sqrt(Math.abs(to - from)) * 300 + 240,
-        280,
-        1700,
+        Math.sqrt(Math.abs(to - from)) * 150 + 120,
+        180,
+        500,
       );
       glide(to, duration, easeOutBack);
     },

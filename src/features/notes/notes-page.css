@@ -62,7 +62,8 @@
   border-radius: var(--r-pill);
   padding: 1px var(--sp-2);
 }
-.note-card__tag--none { color: var(--text-disabled); background: var(--surface-sunken); }
+/* 「未分类」是一个状态标签（信息），不是禁用态：tertiary 实测三块底都 ≥4.5 */
+.note-card__tag--none { color: var(--text-tertiary); background: var(--surface-sunken); }
 
 .notes-edit { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-2) 0; }
 .notes-edit__acts { display: flex; gap: var(--sp-2); width: 100%; }
@@ -71,7 +72,7 @@
 /* ── 长按拖拽成组 ─────────────────────────────────────────────── */
 /* 顶部工具区（搜索+标签+提示）整体当"安全上沿"：拖拽夹在它之下 */
 .notes-chrome { display: flex; flex-direction: column; gap: var(--sp-3); }
-.notes-hint { color: var(--text-disabled); }
+.notes-hint { color: var(--text-tertiary); }
 
 /* 格子=占位与安全位置；卡片=被拖走的那一层（只动 transform，格子不塌） */
 .note-cell { position: relative; min-width: 0; }

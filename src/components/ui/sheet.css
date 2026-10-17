@@ -2,10 +2,14 @@
 .sheet-scrim {
   position: absolute; inset: 0;
   background: var(--overlay);
-  animation: sheet-fade var(--dur-3) var(--ease);
-  transition: opacity var(--dur-out) var(--ease);
+  /* 遮罩只走一条 opacity 轨道。以前这里同时挂着 `animation: sheet-fade`（进场）与
+     `transition: opacity`（退场）——层叠里 animation 压 transition，
+     所以"开完立刻关"时遮罩会保持全黑到进场动画结束再瞬切消失。
+     进场起点改用 @starting-style 表达，退场继续走 transition，两轨合一轨。 */
+  transition: opacity var(--dur-3) var(--ease);
 }
-.sheet-scrim--closing { opacity: 0; }
+@starting-style { .sheet-scrim { opacity: 0; } }
+.sheet-scrim--closing { opacity: 0; transition: opacity var(--dur-out) var(--ease-exit); }
 .sheet {
   position: relative;
   width: 100%;
@@ -28,7 +32,18 @@
 .sheet--tall { height: 88dvh; max-height: 88dvh; }
 .sheet { transition: transform var(--dur-3) var(--ease-spring); } /* 拖拽释放 settle；drag 中由 .sheet--drag 置 none */
 .sheet--drag { transition: none; user-select: none; -webkit-user-select: none; }
-.sheet--closing { animation: sheet-down var(--dur-out) var(--ease) forwards; }
+/* 退场：以前是 `animation: sheet-down`，而 keyframe 的 from 写死 translateY(0)——
+   下拖 200px 甩手关闭时，面板会先从手指下的位置弹回原位，再重新滑出（跳一次）。
+   改成声明式终值 + transition：浏览器以"上一帧的实际位置"为起点补间，
+   拖到哪就从哪走，跟手；`animation: none` 是为了避开进场动画仍在跑时压住退场。 */
+.sheet--closing {
+  animation: none;
+  transform: translateY(100%);
+  opacity: 0;
+  transition:
+    transform var(--dur-out) var(--ease-exit),
+    opacity var(--dur-out) var(--ease-exit);
+}
 .sheet__handle {
   width: 36px; height: 4px;
   border-radius: var(--r-pill);
@@ -50,14 +65,13 @@
   flex-shrink: 0;
 }
 
-/* Panel reveal 补层（Transitions.dev）：在既有全程 Y 行程上叠 opacity + 2px 交叉模糊，
-   开/收同一条曲线，短模糊与位移同步收束。⚠ 只加在动画帧上，不动拖拽 transition 结构。 */
+/* Panel reveal 补层（Transitions.dev）：在既有全程 Y 行程上做 opacity + 位移进场。
+   ⚠ 只加在动画帧上，不动拖拽 transition 结构。
+   blur 那一档删了：面板自身是 backdrop-filter: var(--blur) 的玻璃（24px 大半径），
+   每帧再改 filter 等于每帧重新采样一次整块玻璃，中低端机开合掉帧的直接来源；
+   换来的是 2px 的"交叉模糊"——肉眼在 350ms 内基本读不出。 */
 @keyframes sheet-up {
-  from { transform: translateY(100%); opacity: 0; filter: blur(2px); }
-  to { transform: translateY(0); opacity: 1; filter: blur(0); }
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
-@keyframes sheet-down {
-  from { transform: translateY(0); opacity: 1; filter: blur(0); }
-  to { transform: translateY(100%); opacity: 0; filter: blur(2px); }
-}
-@keyframes sheet-fade { from { opacity: 0; } to { opacity: 1; } }
+

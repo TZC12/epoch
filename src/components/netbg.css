@@ -8,6 +8,11 @@
   z-index: -1;
   opacity: 1;                       /* subtle（默认）：点/线自身 alpha 已做弱化，画布不再二次压暗 */
   transition: opacity var(--dur-5) var(--ease);
+  /* 视差层 2（背景比内容慢半拍）：与 .home-head 的 -5% 反向分离，滚动时才有"深度"。
+     幅度卡在 10px 内且不改画布尺寸——两张 canvas 的位图是按 innerWidth/Height 建的，
+     把盒子拉高会让点阵被纵向拉伸 6%，为了 10px 的位移不值当。 */
+  transform: translate3d(0, min(10px, calc(var(--scroll-y) * 0.02)), 0);
 }
+@media (prefers-reduced-motion: reduce) { .netbg { transform: none; } }
 .netbg[data-tier='ambient'] { opacity: 1; }
 .netbg[data-tier='featured'] { opacity: 1; }

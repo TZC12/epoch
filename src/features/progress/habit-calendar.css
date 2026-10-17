@@ -10,18 +10,42 @@
   gap: var(--sp-1);
   color: var(--urgent);
 }
-.hcal__strip { display: flex; gap: 3px; }
+/* 点阵从「固定 9px + 3px 缝的 flex 行」改成自适应网格：
+   28×9 + 27×3 = 333px 是刚性宽度，360px 宽的小屏安卓内容列只有 328px
+   （视口 − 2×--page-x），最近 1–2 天会被横向裁掉——而这一行就是该区块的全部信息。
+   网格 + 1fr 让它随容器缩放，gap 回到 4pt 刻度上。 */
+.hcal__strip {
+  display: grid;
+  grid-template-columns: repeat(28, minmax(0, 1fr));
+  gap: var(--sp-1);
+}
 .hcal__cell {
-  width: 9px;
-  height: 9px;
-  flex-shrink: 0;
+  width: 100%;
+  aspect-ratio: 1;
   border-radius: var(--r-full);
   background: var(--divider);
 }
+/* 五档状态：颜色 + 形状双通道。
+   以前只靠深浅与色相，实测相邻两档 1.22:1（planned 环 vs backlog 环）、
+   fail vs idle 1.31:1——低视力与色觉障碍用户读不出"哪天没做到"，
+   而习惯回顾的全部价值就在这件事上。现在：圆=按计划，方=偏离计划，
+   实心=已发生，空心环=待发生。半径用 0 / 50% 两个极值（圆角刻度最小是 12px，
+   在 8px 的格子上等于全圆，做不出"方"这一档），不引新数。 */
 .hcal__cell.is-done { background: var(--accent); }
-.hcal__cell.is-planned { background: transparent; box-shadow: inset 0 0 0 1.5px var(--accent-line); }
-.hcal__cell.is-backlog { background: transparent; box-shadow: inset 0 0 0 1.5px var(--urgent); opacity: 0.85; }
-.hcal__cell.is-fail { background: var(--text-tertiary); opacity: 0.35; }
+.hcal__cell.is-planned { background: transparent; box-shadow: inset 0 0 0 1.5px var(--accent); }
+.hcal__cell.is-backlog { background: transparent; border-radius: 0; box-shadow: inset 0 0 0 1.5px var(--urgent); }
+.hcal__cell.is-fail { background: var(--text-secondary); border-radius: 0; }
 .hcal__cell.is-idle { background: var(--divider); }
 
+/* 朝向与窗口：这 28 格是左旧右新，但屏幕上一个字都没说——
+   读者会把最早那一格当成"最近"。补一行端点刻度（所有习惯同一窗口，只画一次）。 */
+.hcal__axis {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+  color: var(--text-tertiary);
+}
+
 .hcal .legend .hcal__cell { width: 8px; height: 8px; }
+

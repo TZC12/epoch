@@ -1,0 +1,84 @@
+/* ═══════════════════════════════════════════════════════════════════
+   V2 设计基线 · 白卡 + 墨线插画 + 彩色 blob 点缀
+   ───────────────────────────────────────────────────────────────────
+   这一层只加"新形状"，不改老 token：明暗轴 / 色板轴 / 背景轴仍然由
+   src/design/tokens.css 的 data-mode × data-palette × data-bg 决定，
+   v2 的变量全部从它们派生或用同名选择器补一组值。
+   所以 [data-mode='dark'] 下 v2 自动有对应暗值，不需要单独写开关。
+
+   三条硬规矩（写在这里，验收脚本会盯）：
+   ① blob 色**永远不做文字底**。所有正文/标签都落在白卡上的 --text-* 里，
+      blob 只做角色填充、状态点、进度色块、插画里的那一块形。
+      理由：参考图里没有一个字压在色块上；而 #2F6BFF 上放白字只有 4.4:1，
+      放黑字只有 3.4:1，两边都过不了正文级——与其调一版勉强过的色，
+      不如规定它不承载文字。
+   ② 墨线一律 1.8px（与 main.tsx 的 LucideProvider strokeWidth 同一个真值），
+      圆头圆角；插画里唯一的"实心"是墨影，不是填充色。
+   ③ 卡片只有一种：白卡 + 1px 描边 + 极轻投影。不要第二层卡片样式。
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── 表面：白纸上的白卡（--surface-raised 在浅色就是纯白，正好做卡面） ── */
+  --v2-canvas: var(--bg);
+  --v2-card: var(--surface-raised);
+  --v2-card-line: var(--border);
+  --v2-card-shadow: 0 1px 0 var(--divider), 0 10px 26px -22px rgb(0 0 0 / 0.45);
+  --v2-radius: 20px;
+  --v2-radius-sm: 14px;
+
+  /* ── 墨影：参考图里时钟/握手下面那块实心黑，是这套风格的签名细节 ── */
+  --v2-ink: var(--ink);
+  --v2-shadow-ink: 4px 5px 0 var(--ink);
+
+  /* ── blob 点缀色板（5 色，只做形，不做字底） ──
+     取值取自附件那批图：蓝/洋红/琥珀/绿/紫，饱和度拉满但面积很小。
+     暗色下不提亮就看不清、提太亮又刺眼，所以在 [data-mode='dark'] 另给一组。 */
+  --blob-blue: #2f6bff;
+  --blob-magenta: #ff3d8b;
+  --blob-amber: #ffb02e;
+  --blob-green: #1fb877;
+  --blob-violet: #7b5cff;
+
+  /* ── 角色（mascot）语义映射：姿态 = 颜色，读屏时颜色不是唯一线索 ── */
+  --mascot-idle: var(--text-tertiary);
+  --mascot-think: var(--blob-violet);
+  --mascot-propose: var(--blob-blue);
+  --mascot-done: var(--blob-green);
+  --mascot-no: var(--blob-magenta);
+  --mascot-err: var(--blob-amber);
+}
+
+/* 暗色：卡片不能是纯白（会像贴了张纸），描边换成光边；blob 提亮降饱和 */
+[data-mode='dark'] {
+  --v2-card: var(--surface);
+  --v2-shadow-ink: 4px 5px 0 rgb(255 255 255 / 0.14);
+  --blob-blue: #6d93ff;
+  --blob-magenta: #ff6fae;
+  --blob-amber: #ffc45e;
+  --blob-green: #43cf95;
+  --blob-violet: #9d86ff;
+}
+
+/* ── 白卡基元：v2 所有卡都从这里长出来 ── */
+.v2-card {
+  background: var(--v2-card);
+  border: 1px solid var(--v2-card-line);
+  border-radius: var(--v2-radius);
+  box-shadow: var(--v2-card-shadow);
+}
+
+/* ── 墨线基元：给插画容器用，保证全站只有一支"笔" ── */
+.v2-line {
+  stroke: var(--v2-ink);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+/* ── blob 基元：只有形，没有字 ── */
+.v2-blob {
+  display: inline-block;
+  border-radius: 999px;
+  background: var(--blob-blue);
+}

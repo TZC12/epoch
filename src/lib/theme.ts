@@ -19,10 +19,46 @@ function resolve(mode: ThemeMode): 'light' | 'dark' {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
+/** 把浏览器外壳（状态栏 / 地址栏 / PWA 启动图背景）染成 App 当前画布色。
+ *  index.html 里的静态 theme-color 只跟系统偏好，而本 App 的明暗×配色是三轴自选的：
+ *  系统浅色 + 应用内深色 = 状态栏一条白，正是"不像原生"的破绽。
+ *  ⚠ 必须等 data-mode/palette 写完之后读值——getComputedStyle 会强制样式重算，
+ *  放在前面拿到的是旧主题的色。 */
+let themeColorTries = 0
+function syncThemeColor() {
+  const root = document.documentElement
+  const bg = getComputedStyle(root).getPropertyValue('--bg').trim()
+  /* theme.ts 在模块层就被求值（persist rehydrate），那一刻样式表可能还没进文档，
+     读到空值不能就这么放弃——下一帧再试，最多 8 帧后认输（不至于无限排帧）。 */
+  if (!bg) {
+    if (themeColorTries < 8) {
+      themeColorTries += 1
+      requestAnimationFrame(syncThemeColor)
+    }
+    return
+  }
+  themeColorTries = 0
+  const metas = [...document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')]
+  /* 静态标签带 media=(prefers-color-scheme)，会把"系统偏好"凌驾于"应用内选择"之上。
+     接管后只留第一颗并摘掉 media，其余删除，避免两条互相覆盖的声明。 */
+  const [keep, ...rest] = metas.length ? metas : [createMeta()]
+  keep.removeAttribute('media')
+  keep.setAttribute('content', bg)
+  for (const m of rest) m.remove()
+}
+
+function createMeta(): HTMLMetaElement {
+  const m = document.createElement('meta')
+  m.name = 'theme-color'
+  document.head.appendChild(m)
+  return m
+}
+
 function apply(mode: ThemeMode, palette: ThemePalette, bg: ThemeBg) {
   document.documentElement.dataset.mode = resolve(mode)
   document.documentElement.dataset.palette = palette
   document.documentElement.dataset.bg = bg
+  syncThemeColor()
 }
 
 /** 主题三轴：明暗（system/light/dark）× 配色（黑白灰/温馨）× 背景（科技/矩阵）；持久化 localStorage。 */

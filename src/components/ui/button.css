@@ -57,3 +57,9 @@
    全局 .is-loading 会再加一层 breathe（整按钮呼吸）——同一区域只允许一个主导连续动效，
    这里关掉；同时把 opacity 从 --op-disabled(0.38) 提上来，否则 spinner 根本看不清。 */
 .btn.is-loading { animation: none; opacity: 0.72; cursor: progress; }
+
+/* 禁用态：本文件顶部注释一直写着"禁用态走全局 .is-disabled"，但业务代码传的是原生
+   disabled 属性（标题为空时禁用「保存」有 6 处），.is-disabled 全仓 0 处挂载——
+   等于禁用按钮和可用按钮长得一模一样，点了没反应也没人说为什么。
+   与 checkbox.css:31 同一条 token、同一口径。 */
+.btn:disabled { opacity: var(--op-disabled); cursor: not-allowed; }

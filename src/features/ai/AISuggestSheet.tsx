@@ -104,6 +104,11 @@ export function AISuggestSheet({ ability, open, onClose, title }: { ability: AIA
       onApply={onApply}
       applyLabel={t('ai.apply')}
       closeLabel={t('common.close')}
+      /* 三句由调用方给的文案：AIPreview 是 ui 层，不引 i18n（与 TlRow 同一口径）。
+         以前它们硬编码在组件里，英文界面下"取消/正在生成建议…/没有建议"仍是中文 */
+      cancelLabel={t('common.cancel')}
+      loadingLabel={t('ai.generating')}
+      emptyLabel={t('ai.empty')}
       loading={loading}
       notes={failed ? [t(`ai.fail.${failed}`)] : observations}
     />

@@ -236,12 +236,15 @@ export function useHealthWeek(): { series: { date: string; steps: number | null 
   return useMemo(() => {
     const keys = rangeKeys(addDaysKey(today, -6), today)
     const series = keys.map((date) => ({ date, steps: days[date]?.steps ?? null }))
-    const withSteps = series.filter((x) => x.steps != null && x.steps > 0)
     const weightDates = Object.keys(days).filter((d) => d < today && (days[d]?.weight ?? 0) > 0).sort()
     const last = weightDates[weightDates.length - 1]
+    /* 日均的分母是"窗口 7 天"，不是"有记录的天数"：只记了 2 天的一周，
+       按 2 天平均会把"这周日均 ~2500 步"写成"日均 9000 步"——标题级数字虚高 3 倍。
+       没记录的天就是 0 天步，和下面柱图缺记画真空保持一致口径。 */
+    const totalSteps = series.reduce((a, x) => a + (x.steps ?? 0), 0)
     return {
       series,
-      avg: withSteps.length ? Math.round(withSteps.reduce((a, x) => a + (x.steps ?? 0), 0) / withSteps.length) : 0,
+      avg: series.length ? Math.round(totalSteps / series.length) : 0,
       prevWeight: last ? (days[last]?.weight ?? null) : null,
     }
   }, [days, today])

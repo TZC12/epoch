@@ -13,11 +13,16 @@
   cursor: pointer;
   border-radius: var(--r-full);
   -webkit-tap-highlight-color: transparent;
-  color: var(--text-disabled);          /* idle 圆环 */
+  /* 未勾选的圆环是"可选状态"这个非文本信息，SC 1.4.11 要 3:1。
+     旧值 --text-disabled 在白底上实测 1.68:1——勾上后 17.72:1，
+     "还没做"几乎不存在、"已做"极醒目，低视力用户扫一眼列表读不出还剩什么。
+     --text-disabled 本身作为真禁用值是对的（1.68 就该看不见），别改它，改这里的用法。 */
+  color: var(--text-tertiary);
   transition: color var(--dur-2) var(--ease);
 }
-.cc:hover { color: var(--text-tertiary); }
-.cc:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 2px; }
+.cc:hover { color: var(--text-secondary); }
+/* 焦点环不自己另画：吃掉 global.css 的 --text-primary 环（实测 18:1）。
+   原来这里覆写成 --accent-line（22% 透明），实测 1.60:1，键盘用户看不到焦点在哪。 */
 
 .cc__dot {
   width: 18px;

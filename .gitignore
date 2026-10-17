@@ -42,3 +42,11 @@ test-results/
 
 # 界面原型截图与拼装页（本地交付物，107 张 PNG，不入库）
 spark-output/prototype/
+
+# skills CLI 装进项目的第三方 skill 副本（mattpocock/skills 38 个 × 7 个 agent 目录）。
+# 只忽略 skills/ 子路径，agent 目录里将来若有别的配置仍照常可见；.agents/.trae/.zcode 上面已整目录忽略。
+.claude/skills/
+.codebuddy/skills/
+.minimax/skills/
+.qoder/skills/
+skills-lock.json

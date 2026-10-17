@@ -10,7 +10,9 @@ export interface LiquidFabItem {
 }
 
 const FAN = [{ x: 0, y: -64 }, { x: -54, y: -34 }, { x: -64, y: 0 }]
-const SPRING = { duration: 550, ease: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }
+/* 550 → 350（= --dur-4）：FAB 展开是每天点好几次的高频动作，原来水珠还在飞、
+   + 图标（--dur-2 200ms）已经转完了，两个时钟脱节；弹簧曲线保持与按压/拖拽同一条。 */
+const SPRING = { duration: 350, ease: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }
 
 /**
  * 液体融合 FAB（liquid-gooey）：+ 展开最多 3 个快捷动作，

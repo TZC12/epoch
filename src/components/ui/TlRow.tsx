@@ -14,6 +14,10 @@ export interface TlRowProps {
   title: string
   time?: string | null
   duration?: number | null      /* 分钟 */
+  /** 时长单位文案：由调用方传 t('sheet.durUnit')。
+   *  以前这里硬编码 ` ${duration} min`——中文界面每行都写成「45 min」，
+   *  而 sheet.durUnit 早就有「分钟 / min」两套值。ui 层不引 i18n，所以走 props。 */
+  durUnit?: string
   tier?: TaskTier
   urgent?: boolean
   done?: boolean
@@ -55,7 +59,7 @@ export function TlRowList({ rows }: { rows: TlRowProps[] }) {
   const items: SwipeableListItem[] = rows.map((row, i) => {
     const id = row.id ?? `row-${i}`
     const revealed = open?.id === id
-    const meta = [row.time, row.duration ? `${row.duration} min` : null].filter(Boolean).join(' · ')
+    const meta = [row.time, row.duration ? `${row.duration} ${row.durUnit ?? 'min'}` : null].filter(Boolean).join(' · ')
     const trailingLabel = row.checkLabel ?? row.title
 
     return {

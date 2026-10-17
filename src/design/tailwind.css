@@ -169,9 +169,8 @@
 
   /* ── 缓动（时长走 duration-<ms> utility，不占命名位） ── */
   --ease-std: var(--ease);
-  --ease-inout: var(--ease-inout);
+  --ease-exit: var(--ease-exit);
   --ease-spring: var(--ease-spring);
-  --ease-drag: var(--ease-drag);
 
   /* ── 断点：移动优先，1024 起桌面侧栏（与 app-shell.css 的 @media 同值） ── */
   --breakpoint-desk: 1024px;

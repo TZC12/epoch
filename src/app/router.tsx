@@ -16,6 +16,11 @@ const StylePage = lazy(() => import('@/dev/StylePage'))
 const GoalPanel = lazy(() => import('@/features/goals/GoalPanel'))
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'))
 
+/* v2（2026-10-18 起，与旧 7 页并行）：单根页=助手，旧页面原样挂在 /v2/* 下当工具面。
+   全部 lazy——入口 chunk 只剩 ~2 kB 余量，任何静态 import 都会把它顶穿预算。 */
+const V2Shell = lazy(() => import('@/v2/V2Shell').then((m) => ({ default: m.V2Shell })))
+const AgentHome = lazy(() => import('@/v2/AgentHome').then((m) => ({ default: m.AgentHome })))
+
 /* 首访不再"卡一秒"（其二）：<400ms 的等待渲染空白，超时才出骨架——
    预取后切页实测 ~130ms（一次性开销 ~420ms），骨架只在真慢时出现，
    不做每次路由切换的过场动画。chunk 预取见 route-preload.ts。 */
@@ -46,6 +51,23 @@ export const router = createBrowserRouter([
       { path: '/goal/:id', element: s(<GoalPanel />) },
       { path: '/health', element: s(<HealthPage />) },
       { path: '/dev/style', element: s(<StylePage />) },
+    ],
+  },
+  {
+    path: '/v2',
+    element: s(<V2Shell />),
+    children: [
+      { index: true, element: s(<AgentHome />) },
+      /* 工具面：直接复用旧页面组件，一行都不改——它们的数据源、手势、吸顶
+         全部原样工作，只是换了个容器（没有 tabbar，底部是"返回助手"）。 */
+      { path: 'today', element: s(<HomePage />) },
+      { path: 'plan', element: s(<PlanPage />) },
+      { path: 'learn', element: s(<LearnPage />) },
+      { path: 'notes', element: s(<NotesPage />) },
+      { path: 'progress', element: s(<ProgressPage />) },
+      { path: 'fit', element: s(<FitPage />) },
+      { path: 'health', element: s(<HealthPage />) },
+      { path: 'me', element: s(<MePage />) },
     ],
   },
 ])

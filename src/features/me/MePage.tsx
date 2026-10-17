@@ -290,7 +290,14 @@ export default function MePage() {
                     <IconButton size="sm" icon={<Plus size={16} aria-hidden="true" />} label={t('goal.newTitle')} onClick={() => setGoalSheet('new' as const)} />
                   </div>
                   {goals.length === 0
-                    ? <EmptyState title={t('me.noGoals')} />
+                    ? (
+                      /* 空状态要带出口：光"暂无目标"四个字＋上一行一个小 ＋ 号，
+                         用户读完不知道下一步做什么（同页 learn/notes 的空态都带 action） */
+                      <EmptyState
+                        title={t('me.noGoals')}
+                        action={<Button variant="quiet" onClick={() => setGoalSheet('new' as const)}>{t('goal.newTitle')}</Button>}
+                      />
+                    )
                     : (
                       <div className="goal-list">
                         {goals.map(({ goal, pct }) => (

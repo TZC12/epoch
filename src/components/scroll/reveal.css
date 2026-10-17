@@ -1,0 +1,23 @@
+/* Reveal 的样式：初值只在"允许动效"时成立（见 Reveal.tsx 注释第 3 条）。
+   位移 10px、时长 --dur-3、减速曲线——这是数据密集页的上限，别再往大里加。 */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+    transition:
+      opacity var(--dur-3) var(--ease),
+      transform var(--dur-3) var(--ease);
+    will-change: opacity, transform;
+  }
+  .reveal--left { transform: translate3d(-10px, 0, 0); }
+  /* 播完立刻让出合成层提示：常驻 will-change 会一直占着一层，
+     列表几十行就是几十个常驻层——baseline 规则里明确禁的一条 */
+  .reveal.is-in { will-change: auto; }
+}
+
+.reveal.is-in { opacity: 1; transform: none; }
+
+/* 打印/阅读模式等"没有 JS"的场合：内容必须完整可见 */
+@media print {
+  .reveal { opacity: 1 !important; transform: none !important; }
+}

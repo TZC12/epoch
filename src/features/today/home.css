@@ -2,7 +2,18 @@
 .home { display: flex; flex-direction: column; gap: var(--sp-4); }
 
 /* Header / Date Context：日期语义 + 天气一行（Secondary Context 极简形态） */
-.home-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--sp-3); }
+/* 视差层 1（页头比内容快 5% 退出）。幅度压在 ±12px：这是层次，不是营销页。
+   ⚠ 只给这种叶子容器加 transform——hero 卡里有 position:fixed 的 Dropdown，
+   给它的祖先加 transform 会把它变成 fixed 的包含块（pill-to-card 当场定位崩掉，
+   就是"加号卡 0.1 秒"那个老 bug 的同一类）。 */
+.home-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  transform: translate3d(0, calc(var(--scroll-y) * -0.05), 0);
+}
+@media (prefers-reduced-motion: reduce) { .home-head { transform: none; } }
 .home-head__date { color: var(--text-primary); font-weight: 500; }
 .home-weather {
   display: inline-flex;
@@ -23,7 +34,8 @@
 .tl { display: flex; flex-direction: column; gap: var(--sp-2); }
 
 /* 习惯条 */
-.habit-bar { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+/* 习惯条：布局（单行 / gap / 横向吸附 / 溢出）全在 .snap-row 里，
+   这里不再写 display 与 flex-wrap——两处各写一份就是"改了没反应"的来源。 */
 .home-sec-title { margin: var(--sp-1) 0 var(--sp-3); }
 
 /* 常驻新建：悬浮控件（玻璃许可区之一） */
@@ -257,7 +269,9 @@
   appearance: none;
   border: 0;
   background: none;
-  color: var(--text-disabled);
+  /* 这是行上唯一的删除入口（可点控件），不是禁用态：
+     --text-disabled 实测 1.68:1，低视力用户根本找不到它 */
+  color: var(--text-tertiary);
   font-size: var(--fs-h3);
   line-height: 1;
   width: var(--touch-min);

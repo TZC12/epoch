@@ -3,8 +3,10 @@
    悬停整列展开（间隙不属于任何元素，展开时把盒高撑到 3 行，leave 判定按盒边界）。
    无彩色左条——弹窗除玻璃卡本身不允许有多余颜色。 */
 .toast-region {
-  --stack-open: 350ms;
-  --stack-close: 250ms;
+  /* 350/250 → 250/200：snackbar 档位是 200 in / 150 out，堆叠卡多一档冗余；
+     退场另给加速曲线——以前进出同一条减速曲线，落回时尾巴会被"拽住"。 */
+  --stack-open: var(--dur-3);
+  --stack-close: var(--dur-2);
   --stack-rise: 60px;
   --stack-blur: 2px;
   --stack-scale: 0.97;
@@ -91,9 +93,9 @@
   opacity: 0;
   filter: blur(var(--stack-blur));
   transition:
-    transform var(--stack-close) var(--stack-ease),
-    opacity var(--stack-close) var(--stack-ease),
-    filter var(--stack-close) var(--stack-ease);
+    transform var(--stack-close) var(--ease-exit),
+    opacity var(--stack-close) var(--ease-exit),
+    filter var(--stack-close) var(--ease-exit);
 }
 /* 被第 4 条挤出台阶：向堆的后方退场 */
 .toast.is-leaving {
@@ -103,9 +105,9 @@
   opacity: 0;
   filter: blur(var(--stack-blur));
   transition:
-    transform var(--stack-close) var(--stack-ease),
-    opacity var(--stack-close) var(--stack-ease),
-    filter var(--stack-close) var(--stack-ease);
+    transform var(--stack-close) var(--ease-exit),
+    opacity var(--stack-close) var(--ease-exit),
+    filter var(--stack-close) var(--ease-exit);
 }
 
 .toast__msg { flex: 1; }

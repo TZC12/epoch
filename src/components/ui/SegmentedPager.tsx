@@ -149,7 +149,19 @@ export function SegmentedPager({ tabs, ariaLabel, initial = 0 }: { tabs: PagerTa
             type="button"
             role="tab"
             aria-selected={i === index}
+            tabIndex={i === index ? 0 : -1}
             className="spager__tab"
+            /* 方向键换页、整件一个 Tab 停靠点（处理器挂在 tab 上：容器不该可聚焦） */
+            onKeyDown={(e) => {
+              const delta = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0
+              if (delta === 0 || tabs.length === 0) return
+              e.preventDefault()
+              const next = (i + delta + tabs.length) % tabs.length
+              onTabClick(next)
+              const siblings = e.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+              const el = siblings ? siblings[next] : undefined
+              el?.focus()
+            }}
             onClick={() => onTabClick(i)}
           >
             {tab.label}

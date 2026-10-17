@@ -3,6 +3,8 @@
   display: flex;
   align-items: flex-start;
   gap: var(--sp-3);
+  /* 动作多到一行装不下时整行换到文案下面（见下方 __main 的 flex-basis） */
+  flex-wrap: wrap;
 }
 .insight__dot {
   flex-shrink: 0;
@@ -13,6 +15,9 @@
   background: var(--text-disabled);
 }
 .insight--accent .insight__dot { background: var(--accent); }
-.insight__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--sp-1); }
+/* ⚠ flex-basis 不能是 0（`flex: 1` 的默认值）：今天页的"有点重"守护条有 3 颗按钮，
+   在 375 宽下把标题挤到 40px，实测每行只剩一个字（截图实拍发现）。
+   给一个 120px 的基准宽度 = 文案至少两行能读，装不下时靠 .insight 的 wrap 让动作整行下移。 */
+.insight__main { flex: 1 1 120px; min-width: 0; display: flex; flex-direction: column; gap: var(--sp-1); }
 .insight__title { color: var(--text-primary); }
-.insight__acts { display: flex; align-items: center; gap: var(--sp-2); flex-shrink: 0; }
+.insight__acts { display: flex; align-items: center; gap: var(--sp-2); flex-shrink: 0; flex-wrap: wrap; }

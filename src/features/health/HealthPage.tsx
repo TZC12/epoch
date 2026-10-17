@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Moon, Footprints, HeartPulse, Scale, BedDouble } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
@@ -89,7 +89,7 @@ export default function HealthPage() {
   const stats = [
     { Icon: Footprints, label: t('health.steps'), value: day && day.steps > 0 ? day.steps.toLocaleString() : '—' },
     { Icon: Moon, label: t('health.sleep'), value: sleepH === '—' ? '—' : `${sleepH}${t('health.hrs')}` },
-    { Icon: BedDouble, label: t('health.deep'), value: deepM ? `${deepM} min` : '—' },
+    { Icon: BedDouble, label: t('health.deep'), value: deepM ? `${deepM} ${t('health.unitMin')}` : '—' },
     { Icon: HeartPulse, label: t('health.rhr'), value: day && day.restingHR > 0 ? `${day.restingHR} ${t('health.unitHr')}` : '—' },
   ]
 
@@ -139,7 +139,12 @@ export default function HealthPage() {
         <div className="health-bars">
           {week.series.map((d) => (
             <span key={d.date} className="health-bars__col" title={`${parseKey(d.date).getDate()} · ${d.steps ?? '—'}`}>
-              <i style={{ height: `${d.steps ? Math.max(4, Math.min(100, (d.steps / maxSteps) * 100)) : 4}%` }} className={d.steps && d.steps >= 10000 ? 'on' : ''} />
+              {/* 缺记/为 0 的日子以前也画一根 4% 的浅绿描边柱——"没数据"与"走了几百步"
+                  在图上不可分，且柱状图的零基线是硬规矩。现在真 0 真高，值走 --v + scaleY。 */}
+              <i
+                style={{ '--v': d.steps ? Math.min(1, d.steps / maxSteps) : 0 } as CSSProperties}
+                className={d.steps && d.steps >= 10000 ? 'on' : ''}
+              />
               <b className="t-caption">{parseKey(d.date).getDate()}</b>
             </span>
           ))}

@@ -36,7 +36,7 @@ describe('buildSuggestedDay（真生成，无假模板）', () => {
       routines: [{ id: 'r1', goalId: null, name: '晨间例行', sub: null, frequency: null, time: '07:30', durMin: 15, kind: 'habit', archived: false, createdAt: '', updatedAt: '' }],
       inbox: [{ id: 'i1', title: '联系供应商', hint: null, status: 'open', source: 'capture', convertedTaskId: null, createdAt: '' }],
     })
-    expect(s[0]).toMatchObject({ time: '07:00', title: '联系供应商', source: 'inbox', reason: '来自收集箱' })
+    expect(s[0]).toMatchObject({ time: '07:00', title: '联系供应商', source: 'inbox', reason: 'inbox' })
     expect(s[1]).toMatchObject({ time: '07:30', title: '晨间例行', source: 'routine' })
   })
 

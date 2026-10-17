@@ -67,6 +67,25 @@ export function Seg<T extends string>({ options, value, onChange, ariaLabel, cla
     moveTo(activeIdx, true)
   }, [mounted, activeIdx, options, moveTo])
 
+  /* role="tablist" 承诺了方向键导航与"整件只占一个 Tab 停靠点"；
+     只挂 role 不给键盘模型比三个普通按钮更误导——读屏播报"tab"却按不动。
+     处理器挂在 tab 本身上（APG：停靠点是每个 tab，容器不该可聚焦） */
+  const onKeyNav = (e: React.KeyboardEvent<HTMLButtonElement>): void => {
+    const n = options.length
+    if (n === 0) return
+    const lastIdx = n - 1
+    let next: number | null = null
+    if (e.key === 'ArrowRight') next = activeIdx >= lastIdx ? 0 : activeIdx + 1
+    else if (e.key === 'ArrowLeft') next = activeIdx <= 0 ? lastIdx : activeIdx - 1
+    else if (e.key === 'Home') next = 0
+    else if (e.key === 'End') next = lastIdx
+    if (next === null) return
+    e.preventDefault()
+    onChange(options[next].value)
+    moveTo(next, true)
+    btnRefs.current[next]?.focus()
+  }
+
   return (
     <div ref={wrapRef} className={`seg ${className}`} role="tablist" aria-label={ariaLabel}>
       <span ref={pillRef} className="seg__pill" aria-hidden="true" />
@@ -78,7 +97,9 @@ export function Seg<T extends string>({ options, value, onChange, ariaLabel, cla
             type="button"
             role="tab"
             aria-selected={on}
+            tabIndex={on ? 0 : -1}
             className={`seg__btn ${on ? 'on' : ''}`}
+            onKeyDown={onKeyNav}
             ref={(el) => { btnRefs.current[i] = el }}
             onClick={() => {
               onChange(o.value)

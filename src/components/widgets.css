@@ -14,7 +14,7 @@
   margin-top: var(--sp-4);
 }
 .wcard__hour { display: flex; flex-direction: column; align-items: center; gap: var(--sp-1); color: var(--text-secondary); }
-.wcard__src { margin-top: var(--sp-3); color: var(--text-disabled); }
+.wcard__src { margin-top: var(--sp-3); color: var(--text-tertiary); }
 
 /* 事件提醒卡 */
 .evcard__head { display: flex; align-items: baseline; justify-content: space-between; }

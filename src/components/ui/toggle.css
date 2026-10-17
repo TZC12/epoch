@@ -1,7 +1,10 @@
 /* Transitions.dev Toggle：44×26 轨道 + 18px 滑块，双段回弹（越过 1px 回落）。
    开=ink 轨道 + 反色滑块；关=sunken 轨道 + surface 滑块。 */
 .tgl {
-  --toggle-dur: 350ms;
+  /* 350 → 200：这是全 App 点得最多的开关（Today/Plan 每行的完成态），
+     档位表给 toggle/switch/checkbox 的是 150–200ms，超了就读成"等它落定"。
+     双段回弹的曲线不动，只收时间。 */
+  --toggle-dur: var(--dur-2);
   --toggle-travel: 18px;   /* 44 宽 − 2×3 padding − 2×1 border − 18 滑块 */
   --toggle-ov1: 1px;
   --toggle-ov2: 0px;
@@ -32,7 +35,8 @@
   background: var(--surface);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.18);
   translate: 0 0;
-  will-change: translate;
+  /* 刻意不写 will-change：开关是列表级元素（/plan 一屏十几行），
+     常驻声明等于给每行长期占一个合成层。下面的 animation 一跑浏览器自然提层。 */
 }
 .tgl[data-on='true'] .tgl__thumb { translate: var(--toggle-travel) 0; background: var(--ink-inverse); }
 

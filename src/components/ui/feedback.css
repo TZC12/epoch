@@ -26,6 +26,10 @@
 .fb-state--warning .fb-state__text { color: var(--warning); }
 
 @media (prefers-reduced-motion: reduce) {
-  .fb-spin { animation-duration: 1800ms; }
+  /* 必须带 !important。global.css 的 reduce 收口是 `*` + !important；
+     同为 important 时按特异性比，.fb-spin (0,1,0) 才压得过 * (0,0,0)。
+     少这一个字，登录/保存按钮上的转圈在 Reduce Motion 下会被归零成一条静止缺口——
+     看着像图标坏了，而不是"在加载"。加载反馈属于"该保留的真实状态"，降速不是取消。 */
+  .fb-spin { animation-duration: 1800ms !important; animation-iteration-count: infinite !important; }
   .ld-bar__fill { animation: none; width: 100%; opacity: 0.3; }
 }

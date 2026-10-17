@@ -81,13 +81,20 @@ export function DotMatrix() {
     return { columns: cols, total }
   }, [period, stats, tasks, today, zh])
 
-  const rateLabel = total > 0 ? `+${total}` : '0'
+  /* 大数字就是"这一窗口完成了多少项"，不是与上一周期的差值——
+     写成 "+87" 会被读成"比上周多完成 87 项（在涨）"，而这里没有任何基线对照。 */
+  const rateLabel = String(total)
 
   return (
     <section className="dotmatrix" aria-label={t('progress.dataTable')}>
       <div className="dotmatrix__head">
         <div>
-          <p className="eyebrow">{t('progress.dataTitle')}</p>
+          {/* 窗口跨度上屏：切到"周/月"档时大数字的口径跟着变，
+              但屏幕上此前只有列轴标签，读者不知道该把总数归到多长一段时间。 */}
+          <p className="eyebrow">
+            {t('progress.dataTitle')}
+            {columns.length > 0 && ` · ${columns[0].label}–${columns[columns.length - 1].label}`}
+          </p>
           <p className="dotmatrix__big tnum">{rateLabel}<span className="dotmatrix__unit"> {t('progress.dataUnit')}</span></p>
         </div>
         <Seg

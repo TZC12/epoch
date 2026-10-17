@@ -108,35 +108,53 @@ export default function PlanPage() {
         </div>
       </header>
 
-      {/* 周条（7 天，打点=当日任务数） */}
-      <div className="plan-week no-scrollbar" role="tablist" aria-label={t('plan.eyebrow')}>
-        {weekDays.map((d) => (
-          <button
-            key={d.key}
-            type="button"
-            role="tab"
-            aria-selected={d.isSelected}
-            className={`plan-day ${d.isSelected ? 'plan-day--on' : ''} ${d.isToday ? 'plan-day--today' : ''}`}
-            onClick={() => setSelected(d.key)}
-          >
-            <span className="plan-day__wd t-caption">{d.label}</span>
-            <span className="plan-day__num tnum">{d.dayNum}</span>
-            <span className="plan-day__dots" aria-hidden="true">
-              {d.count > 0 && <i />}
-              {d.count > 2 && <i />}
-            </span>
-          </button>
-        ))}
-      </div>
+      {/* 吸顶筛选区：周条 + 类别 chips + 完成计数。
+          计划页是全 App 最长的列表，滚到底想换个日期就得先滚回顶——
+          这三件是"看哪一天 / 看哪一类"的控制项，属于导航，理应常驻。
+          顺带解决 .plan-count 用负 margin 抵父级 gap 的老写法（父 gap 一改它就跳位）。 */}
+      <div className="plan-filter">
+        {/* 周条（7 天，打点=当日任务数）
+            role="tablist" 就得给整套键盘模型：方向键移动选中、整件只占一个 Tab 停靠点。
+            处理器挂在每个 tab 上（容器不该可聚焦，挂在容器上还会撞 jsx-a11y 规则）。 */}
+        <div className="plan-week no-scrollbar" role="tablist" aria-label={t('plan.eyebrow')}>
+          {weekDays.map((d, i) => (
+            <button
+              key={d.key}
+              type="button"
+              role="tab"
+              aria-selected={d.isSelected}
+              tabIndex={d.isSelected ? 0 : -1}
+              onKeyDown={(e) => {
+                const delta = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0
+                if (delta === 0 || weekDays.length === 0) return
+                e.preventDefault()
+                const next = (i + delta + weekDays.length) % weekDays.length
+                setSelected(weekDays[next].key)
+                const el = e.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]
+                el?.focus()
+              }}
+              className={`plan-day ${d.isSelected ? 'plan-day--on' : ''} ${d.isToday ? 'plan-day--today' : ''}`}
+              onClick={() => setSelected(d.key)}
+            >
+              <span className="plan-day__wd t-caption">{d.label}</span>
+              <span className="plan-day__num tnum">{d.dayNum}</span>
+              <span className="plan-day__dots" aria-hidden="true">
+                {d.count > 0 && <i />}
+                {d.count > 2 && <i />}
+              </span>
+            </button>
+          ))}
+        </div>
 
-      {/* 类别筛选 chips */}
-      <div className="plan-cats">
-        {CATS.map((c) => (
-          <Chip key={c} on={cat === c} onClick={() => setCat(c)}>{c === 'all' ? t('cats.all') : t(`cats.${c}`)}</Chip>
-        ))}
-      </div>
+        {/* 类别筛选 chips */}
+        <div className="plan-cats">
+          {CATS.map((c) => (
+            <Chip key={c} on={cat === c} onClick={() => setCat(c)}>{c === 'all' ? t('cats.all') : t(`cats.${c}`)}</Chip>
+          ))}
+        </div>
 
-      <div className="plan-count t-caption tnum">{t('plan.doneCount', { done: doneCount, total: dayTasks.length })}</div>
+        <div className="plan-count t-caption tnum">{t('plan.doneCount', { done: doneCount, total: dayTasks.length })}</div>
+      </div>
 
       {dayTasks.length === 0 ? (
         <EmptyState

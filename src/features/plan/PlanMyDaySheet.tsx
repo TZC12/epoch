@@ -39,7 +39,7 @@ export function PlanMyDaySheet({ open, onClose }: { open: boolean; onClose: () =
     for (const s of suggestions) {
       if (s.inboxId) {
         if (convertInboxItem(s.inboxId, { date: key, time: s.time, durMin: s.durMin })) n += 1
-      } else if (s.taskId && s.reason !== '已排') {
+      } else if (s.taskId && s.reason !== 'scheduled') {
         updateTask(s.taskId, { date: key, time: s.time, durMin: s.durMin })
         n += 1
       }
@@ -73,7 +73,7 @@ export function PlanMyDaySheet({ open, onClose }: { open: boolean; onClose: () =
               <span className="pmd__time t-small tnum">{s.time}</span>
               <div className="pmd__main">
                 <span className="pmd__title t-small">{s.title}</span>
-                <span className="pmd__reason t-caption">{s.reason} · {s.durMin} min</span>
+                <span className="pmd__reason t-caption">{t(`pmd.reason_${s.reason}`)} · {s.durMin} {t('sheet.durUnit')}</span>
               </div>
               <Tag>
                 {s.source === 'routine' ? t('me.routine') : s.source === 'task' ? t('plan.today') : t('plan.inbox')}

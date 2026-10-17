@@ -11,6 +11,8 @@ import { Insight } from '@/components/ui/Insight'
 import { HabitChip } from '@/components/ui/HabitChip'
 import { TipGroup } from '@/components/ui/Tooltip'
 import { TlRowList } from '@/components/ui/TlRow'
+import { SnapRow } from '@/components/scroll/SnapRow'
+import { Reveal } from '@/components/scroll/Reveal'
 import { Dropdown, ddTriggerProps } from '@/components/ui/Dropdown'
 import { PhysicsConfetti } from '@/components/ui/PhysicsConfetti'
 import { useToast } from '@/components/ui/Toast'
@@ -231,20 +233,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* MODULES 四卡（真实派生数据 → 各功能页） */}
-      <section className="home-mods-sec" aria-label={t('modules.title')}>
-        <h2 className="eyebrow home-sec-title">{t('modules.title')}</h2>
-        <TipGroup className="home-mods tip-group--grid">
-          {modules.map((m) => (
-            <Link key={m.to} to={m.to} className="home-mod" data-tip={m.tip}>
-              <span className="home-mod__label t-caption">{m.label}</span>
-              <span className="home-mod__num tnum">{m.value}<span className="home-mod__unit">{m.unit}</span></span>
-            </Link>
-          ))}
-        </TipGroup>
-      </section>
-
-      {/* 今日任务（右勾选 + 左滑删除，≤5 条 + 查看全部） */}
+      {/* 今日任务（右勾选 + 左滑删除，≤5 条 + 查看全部）
+          【2026-10-17 顺序调整】任务清单上移到 MODULES 之前：
+          首页最高频的动作是"勾掉今天的事"，MODULES 是参考数据 + 跳转入口。
+          旧顺序在 375×667 上把第一条任务顶到绝对 y≈650（折叠线 511），
+          勾第一条要先滚 ~1/3 屏、勾习惯要滚近一整屏。
+          dense-no-scroll-layout 的核心判据就是"主任务必须落在最小机的可视预算内"。 */}
       <section className="home-tasks-sec" aria-label={t('today.tasksTitle')}>
         <div className="home-sec-head">
           <h2 className="eyebrow">{t('today.tasksTitle')}</h2>
@@ -280,11 +274,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 习惯条 */}
+      {/* 习惯条（与今日任务同属"今天要做的动作"，selfDiscipline 就是这两块合并计分，
+          所以两块挨在一起、都排在导航卡前面）。
+          横向吸附行：习惯一多，原来的 flex-wrap 会堆成两三行把首屏动作区顶下去；
+          单行 + scroll-snap 保住高度，右边渐隐提示"还能往右走"。 */}
       {habitsToday.length > 0 && (
         <section aria-label={t('today.habits')}>
           <h2 className="eyebrow home-sec-title">{t('today.habits')}</h2>
-          <div className="habit-bar">
+          <SnapRow className="habit-bar" ariaLabel={t('today.habits')}>
             {habitsToday.map(({ routine, done: habitDone, status, streak }) => (
               <HabitChip
                 key={routine.id}
@@ -296,9 +293,23 @@ export default function HomePage() {
                 onToggle={() => onToggleHabit(routine.id)}
               />
             ))}
-          </div>
+          </SnapRow>
         </section>
       )}
+
+      {/* MODULES 四卡（真实派生数据 → 各功能页）：参考数据 + 跳转入口，落在动作区之后。
+          首屏之下的区块才用 Reveal——首屏内容在 layout 阶段就已可见，不会二次淡入。 */}
+      <Reveal className="home-mods-sec" as="section" aria-label={t('modules.title')}>
+        <h2 className="eyebrow home-sec-title">{t('modules.title')}</h2>
+        <TipGroup className="home-mods tip-group--grid">
+          {modules.map((m) => (
+            <Link key={m.to} to={m.to} className="home-mod" data-tip={m.tip}>
+              <span className="home-mod__label t-caption">{m.label}</span>
+              <span className="home-mod__num tnum">{m.value}<span className="home-mod__unit">{m.unit}</span></span>
+            </Link>
+          ))}
+        </TipGroup>
+      </Reveal>
 
       {/* 常驻新建：液体融合 FAB（共用组件，计划页同款）。
           菜单首项用 SquarePen 不用 Plus：中心钮本身就是加号（展开时旋转 45° 成 ×），

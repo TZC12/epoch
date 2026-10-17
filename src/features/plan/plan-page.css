@@ -1,6 +1,28 @@
 /* PlanPage（概念稿 page2）：周条 + 类别 chips + 时间块分组任务。 */
 .plan { display: flex; flex-direction: column; gap: var(--sp-4); }
 
+/* 吸顶筛选区。要点：
+   - 背景必须是实色 var(--bg) 且左右出血到 --page-x 之外，否则行内容从底下穿过时
+     会在两侧留出一条"穿帮"的缝隙；
+   - z-index 4：压在任务行上，但低于顶部进度线(6)、底部模糊带(5)、FAB(40)与导航(30)；
+   - 吸上之后才出现的描边由 .app-main[data-scrolled] 驱动，不在 JS 里加类。 */
+.plan-filter {
+  position: sticky;
+  /* 让开视口顶的两件事：安装版 PWA 的状态栏安全区 + 2px 进度线（它吸在安全区下沿）。
+     吸顶的 scrollport 是文档不是 .app-main——见 app-shell.css 里删 overflow-y 的注释。 */
+  top: calc(env(safe-area-inset-top, 0px) + 2px);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-inline: calc(-1 * var(--page-x));
+  padding-inline: var(--page-x);
+  padding-block: var(--sp-2);
+  background: var(--bg);
+  border-bottom: 1px solid transparent;
+}
+.app-main[data-scrolled='1'] .plan-filter { border-bottom-color: var(--divider); }
+
 .plan-week {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -34,7 +56,9 @@
 .plan-day--on .plan-day__dots i { background: var(--ink-inverse); }
 
 .plan-cats { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
-.plan-count { margin-top: calc(-1 * var(--sp-2)); }
+/* 计数与 chips 的距离由 .plan-filter 的 gap 给；原先是 margin-top: -8 去抵父 gap，
+   父 gap 一改它就跳位（间距只允许有一个来源）。 */
+.plan-count { color: var(--text-tertiary); }
 
 .plan-blocks { display: flex; flex-direction: column; gap: var(--sp-5); }
 .plan-block__title {
@@ -53,6 +77,8 @@
 }
 
 /* 已完成行：文字弱化（task-row 基样式在 home.css） */
-.task-row--done .task-row__title { color: var(--text-disabled); text-decoration: line-through; }
+/* 完成态靠删除线表达（形状），颜色只作二次弱化——
+   用 --text-disabled 会让"做过什么"读不出来（实测 1.68:1） */
+.task-row--done .task-row__title { color: var(--text-tertiary); text-decoration: line-through; }
 
 .plan-day:active { transform: scale(0.92); }

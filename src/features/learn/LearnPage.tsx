@@ -16,7 +16,7 @@ import { useToast } from '@/components/ui/Toast'
 import { useFieldErr } from '@/lib/useFieldErr'
 import { useData } from '@/services/store'
 import { useLearnToday, useWordsDue } from '@/services/queries'
-import { addLearnLang, removeLearnLang, setLearnActive, logLearn, addLearnWord, deleteLearnWord, importWords, gradeWord, applyWordPatches } from '@/services/actions'
+import { addLearnLang, removeLearnLang, restoreLearnLang, setLearnActive, logLearn, addLearnWord, deleteLearnWord, restoreLearnWord, importWords, gradeWord, applyWordPatches } from '@/services/actions'
 import { LEARN_PRESETS, WORD_BANKS } from '@/services/learn-bank'
 import { organizeWords, isConfigured } from '@/lib/ai-provider'
 import { fmtClock } from '@/lib/dates'
@@ -226,7 +226,9 @@ function ImportSheet({ open, onClose, langId, langName, aiReady, onOrganize }: {
     if (!langId) return
     if (!text.trim()) { cErr.fire(t('learn.needContent')); return }
     const r = importWords(langId, text)
-    toast(t('learn.importDone', { added: r.added, skipped: r.skipped, invalid: r.invalid }), { tone: r.added ? 'success' : 'info' })
+    /* 一条都没进来时不报"新增 0 · 重复跳过 0 · 无法解析 0"——三个 0 读起来像按钮没反应，
+       而这恰恰是唯一能告诉用户"格式不对在哪"的时机 */
+    toast(r.added === 0 ? t('learn.importNone') : t('learn.importDone', { added: r.added, skipped: r.skipped, invalid: r.invalid }), { tone: r.added ? 'success' : 'info' })
     if (r.added > 0) {
       if (withAI && aiReady) {
         setBusy(true)
@@ -324,7 +326,8 @@ export default function LearnPage() {
             <span className="learn-today__num tnum">{view.minutes}<i>{t('learn.minutesShort')}</i></span>
           </div>
           <Pbar pct={Math.round(view.pct * 100)} done={view.pct >= 1} label={`${view.words}/${view.lang.goal}`} />
-          <p className="t-caption learn-today__goal">{t('learn.goalLine', { goal: view.lang.goal })}</p>
+          {/* 原先 Pbar 下面还有一行「目标 30 词/日」：同一个数字在一屏里写了两遍，
+              白吃一行高度（kill redundant chrome）。Pbar 的标签已经是 完成/目标。 */}
         </section>
       ) : (
         <EmptyState title={t('learn.noLang')} action={<Button variant="quiet" onClick={() => setAddOpen(true)}>{t('learn.addLang')}</Button>} />
@@ -357,13 +360,16 @@ export default function LearnPage() {
       {view.lang && (
         <section aria-label={t('learn.modes')}>
           <h2 className="eyebrow learn-sec-title">{t('learn.modes')}</h2>
+          {/* 听力/口语/语法三条原先各带一句相同的副标题「计时练习」：四行竖排里它把
+              MODES 撑到 ~290px，把口语/语法两个启动器顶到折叠线以下，
+              而它传达的信息等于"这三点了都一样"。只在背单词上留差异化的那句。 */}
           <div className="learn-mode-list">
             {MODES.map(({ mode, Icon }) => (
               <Row
                 key={mode}
                 rightIcon={<Icon size={18} aria-hidden="true" />}
                 title={t(`learn.m${mode[0].toUpperCase()}${mode.slice(1)}`)}
-                sub={mode === 'words' ? t('learn.mWordsSub') : t('learn.mTimerSub')}
+                sub={mode === 'words' ? t('learn.mWordsSub') : undefined}
                 chevron
                 onClick={() => (mode === 'words' ? setReviewOpen(true) : setTimerMode(mode))}
               />
@@ -401,7 +407,12 @@ export default function LearnPage() {
                 <div key={w.id} className="learn-word">
                   <span className="learn-word__w t-small">{w.word}{w.tag && <span className="learn-word__tag">{w.tag}</span>}</span>
                   <span className="learn-word__m t-caption">{w.meaning}{w.example ? ` · ${w.example}` : ''}</span>
-                  <button type="button" className="task-row__del" aria-label={t('common.delete')} onClick={() => deleteLearnWord(w.id)}>×</button>
+                  <button type="button" className="task-row__del" aria-label={t('common.delete')} onClick={() => {
+                    /* 与删任务/删备忘同一套：即时删 + 撤销 toast。
+                       生词带着它的 Leitner box 与到期日，删了不可再生，更不能靠用户眼疾手快。 */
+                    const gone = deleteLearnWord(w.id)
+                    if (gone) toast(t('common.deleted'), { action: { label: t('common.undo'), onClick: () => restoreLearnWord(gone) } })
+                  }}>×</button>
                 </div>
               ))}
             </div>
@@ -413,7 +424,12 @@ export default function LearnPage() {
       {langs.length > 0 && (
         <div className="learn-langmgmt">
           <Button variant="danger-text" size="sm" disabled={!view.lang} onClick={() => {
-            if (view.lang && window.confirm(t('learn.confirmRemove'))) removeLearnLang(view.lang.id)
+            /* 即时移除 + 撤销 toast，和删任务/删备忘/删生词同一套。
+               原生 confirm 在这里有三宗罪：卡主线程、样式与 App 脱节、
+               而且它挡不住真正的后悔——撤销才挡得住。 */
+            if (!view.lang) return
+            const snap = removeLearnLang(view.lang.id)
+            if (snap) toast(t('learn.removedLang', { name: snap.lang.name }), { action: { label: t('common.undo'), onClick: () => restoreLearnLang(snap) } })
           }}>{t('learn.removeLang')}</Button>
         </div>
       )}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
 import { Pbar } from '@/components/ui/Pbar'
@@ -87,6 +87,27 @@ export default function FitPage() {
         </div>
       </header>
 
+      {/* 今日训练上移到「本周」之前（2026-10-17）：这张卡上是能点的动作（开始计时），
+          周柱图是回顾。旧顺序里 230px 的周黑卡把「开始」按钮推到折叠线以下，
+          没选课程的用户还要跟着文案去下方挑课程、再滚回上面点开始——一次训练滚两趟。 */}
+      <section className="fit-today" aria-label={t('fit.todayTitle')}>
+        <h2 className="eyebrow fit-sec-title">{t('fit.todayTitle')}</h2>
+        {course ? (
+          <>
+            <div className="fit-today__head">
+              <span className="t-h3">{t(`fit.${NAME_KEY[course.id]}`)}</span>
+              <span className="t-caption tnum">{course.minutes} {t('fit.minutes')} · {course.kcal} {t('fit.kcal')}</span>
+            </div>
+            {todayView.doneMin > 0 && (
+              <Pbar pct={pctDone} done={pctDone >= 100} label={`${todayView.doneMin}/${course.minutes}`} className="fit-today__bar" />
+            )}
+            <CourseTimer key={course.id} course={course} />
+          </>
+        ) : (
+          <p className="t-small fit-today__empty">{t('fit.noCourse')}</p>
+        )}
+      </section>
+
       <section className="fit-hero" aria-label={t('fit.weekLabel')}>
         <div className="fit-hero__num">
           {week.kcal}<span className="fit-hero__unit">{t('fit.kcal')}</span>
@@ -94,7 +115,13 @@ export default function FitPage() {
         <div className="fit-bars" aria-hidden="true">
           {week.series.map((d) => (
             <span key={d.date} className="fit-bars__col">
-              <i style={{ height: `${Math.max(4, (d.kcal / maxKcal) * 100)}%` }} className={d.kcal > 0 ? 'on' : ''} />
+              {/* 柱高原先夹了 Math.max(4, …) 的地板：0 千卡的休息日也被画成一根小柱，
+                  "没练"和"练得少"在图上变成同一件事。0 就真是 0。
+                  值走 --v + scaleY（原先 height 逐帧插值 = 每次进页一段连续布局）。 */}
+              <i
+                style={{ '--v': maxKcal > 0 ? d.kcal / maxKcal : 0 } as CSSProperties}
+                className={d.kcal > 0 ? 'on' : ''}
+              />
             </span>
           ))}
         </div>
@@ -110,24 +137,6 @@ export default function FitPage() {
           <span><b className="tnum">{week.minutes}</b> {t('fit.minutes')}</span>
           <span><b className="tnum">{week.days}</b> {t('fit.dayUnit')}</span>
         </div>
-      </section>
-
-      <section className="fit-today" aria-label={t('fit.todayTitle')}>
-        <h2 className="eyebrow fit-sec-title">{t('fit.todayTitle')}</h2>
-        {course ? (
-          <>
-            <div className="fit-today__head">
-              <span className="t-h3">{t(`fit.${NAME_KEY[course.id]}`)}</span>
-              <span className="t-caption tnum">{course.minutes} min · {course.kcal} {t('fit.kcal')}</span>
-            </div>
-            {todayView.doneMin > 0 && (
-              <Pbar pct={pctDone} done={pctDone >= 100} label={`${todayView.doneMin}/${course.minutes}`} className="fit-today__bar" />
-            )}
-            <CourseTimer key={course.id} course={course} />
-          </>
-        ) : (
-          <p className="t-small fit-today__empty">{t('fit.noCourse')}</p>
-        )}
       </section>
 
       <section aria-label={t('fit.courses')}>

@@ -21,10 +21,10 @@ describe('requestAI 走用户自带接口', () => {
     expect(r).toEqual({ ok: false, error: 'ai_not_configured' })
   })
 
-  it('http 端点 → bad_request（不发请求）', async () => {
+  it('http 端点 → insecure_url（不发请求，码不再塌成 bad_request）', async () => {
     setAIConfig({ baseUrl: 'http://insecure.example/v1', apiKey: 'k', model: 'm' })
     const r = await requestAI('plan_day')
-    expect(r).toEqual({ ok: false, error: 'bad_request' })
+    expect(r).toEqual({ ok: false, error: 'insecure_url' })
   })
 
   it('合法 JSON（带围栏）→ ok；混入越权 type → 整包 bad_output（白名单红线）', async () => {
